@@ -1,0 +1,6 @@
+@SzerszamKolcsonzo_HostAddress = http://localhost:5265
+
+GET {{SzerszamKolcsonzo_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
