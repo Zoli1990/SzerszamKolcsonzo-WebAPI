@@ -1,168 +1,173 @@
+Ôªø// ============================================================================
+// 6. Controllers/EszkozokController.cs - FRISS√çTETT
+// ============================================================================
+
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SzerszamKolcsonzo.Data;
 using SzerszamKolcsonzo.Models;
-using Microsoft.EntityFrameworkCore;
+using SzerszamKolcsonzo.DTOs;
 
-[ApiController]
-[Route("api/[controller]")]
-public class EszkozokController : ControllerBase
+namespace SzerszamKolcsonzo.Controllers
 {
-    private readonly AppDbContext _context;
-
-    public EszkozokController(AppDbContext context)
+    [ApiController]
+    [Route("api/[controller]")]
+    public class EszkozokController : ControllerBase
     {
-        _context = context;
-    }
+        private readonly AppDbContext _context;
 
-    // GET: api/eszkozok (publikus - mindenki l·tja)
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<EszkozListDto>>> GetEszkozok([FromQuery] int? kategoriaId = null)
-    {
-        var query = _context.Eszkozok
-            .Include(e => e.Kategoria)
-            .AsQueryable();
-
-        if (kategoriaId.HasValue)
+        public EszkozokController(AppDbContext context)
         {
-            query = query.Where(e => e.KategoriaID == kategoriaId.Value);
+            _context = context;
         }
 
-        var eszkozok = await query
-            .Select(e => new EszkozListDto(
-                e.EszkozID,
-                e.Nev,
-                e.Leiras,
-                e.KiadasiAr,
-                e.Status,
-                e.Kategoria.Nev
-            ))
-            .ToListAsync();
-
-        return Ok(eszkozok);
-    }
-
-    // GET: api/eszkozok/5 (teljes adat - kÈsıbb csak adminnak)
-    [HttpGet("{id}")]
-    public async Task<ActionResult<EszkozDetailDto>> GetEszkoz(int id)
-    {
-        var eszkoz = await _context.Eszkozok
-            .Include(e => e.Kategoria)
-            .FirstOrDefaultAsync(e => e.EszkozID == id);
-
-        if (eszkoz == null)
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<EszkozListDto>>> GetEszkozok([FromQuery] int? kategoriaId = null)
         {
-            return NotFound(new { message = "Eszkˆz nem tal·lhatÛ." });
+            var query = _context.Eszkozok
+                .Include(e => e.Kategoria)
+                .AsQueryable();
+
+            if (kategoriaId.HasValue)
+            {
+                query = query.Where(e => e.KategoriaID == kategoriaId.Value);
+            }
+
+            var eszkozok = await query
+                .Select(e => new EszkozListDto(
+                    e.EszkozID,
+                    e.Nev,
+                    e.Leiras,
+                    e.KepUrl,  // ‚úÖ KepUrl hozz√°adva
+                    e.KiadasiAr,
+                    e.Status,
+                    e.Kategoria.Nev,
+                    e.KategoriaID
+                ))
+                .ToListAsync();
+
+            return Ok(eszkozok);
         }
 
-        var result = new EszkozDetailDto(
-            eszkoz.EszkozID,
-            eszkoz.KategoriaID,
-            eszkoz.Nev,
-            eszkoz.Leiras,
-            eszkoz.Vetelar,
-            eszkoz.KiadasiAr,
-            eszkoz.BeszerzesiDatum,
-            eszkoz.Status,
-            eszkoz.Kategoria.Nev
-        );
-
-        return Ok(result);
-    }
-
-    // POST: api/eszkozok (admin)
-    [HttpPost]
-    public async Task<ActionResult<EszkozDetailDto>> CreateEszkoz(CreateEszkozDto dto)
-    {
-        // KategÛria lÈtezik-e?
-        if (!await _context.Kategoriak.AnyAsync(k => k.KategoriaID == dto.KategoriaID))
+        [HttpGet("{id}")]
+        public async Task<ActionResult<EszkozDetailDto>> GetEszkoz(int id)
         {
-            return BadRequest(new { message = "A megadott kategÛria nem lÈtezik." });
+            var eszkoz = await _context.Eszkozok
+                .Include(e => e.Kategoria)
+                .FirstOrDefaultAsync(e => e.EszkozID == id);
+
+            if (eszkoz == null)
+            {
+                return NotFound(new { message = "Eszk√∂z nem tal√°lhat√≥." });
+            }
+
+            var result = new EszkozDetailDto(
+                eszkoz.EszkozID,
+                eszkoz.KategoriaID,
+                eszkoz.Nev,
+                eszkoz.Leiras,
+                eszkoz.KepUrl,  // ‚úÖ KepUrl
+                eszkoz.Vetelar,
+                eszkoz.KiadasiAr,
+                eszkoz.BeszerzesiDatum,
+                eszkoz.Status,
+                eszkoz.Kategoria.Nev
+            );
+
+            return Ok(result);
         }
 
-        var eszkoz = new Eszkoz
+        [HttpPost]
+        public async Task<ActionResult<EszkozDetailDto>> CreateEszkoz(CreateEszkozDto dto)
         {
-            KategoriaID = dto.KategoriaID,
-            Nev = dto.Nev,
-            Leiras = dto.Leiras,
-            Vetelar = dto.Vetelar,
-            KiadasiAr = dto.KiadasiAr,
-            BeszerzesiDatum = dto.BeszerzesiDatum,
-            Status = EszkozStatus.Elerheto
-        };
+            if (!await _context.Kategoriak.AnyAsync(k => k.KategoriaID == dto.KategoriaID))
+            {
+                return BadRequest(new { message = "A megadott kateg√≥ria nem l√©tezik." });
+            }
 
-        _context.Eszkozok.Add(eszkoz);
-        await _context.SaveChangesAsync();
+            var eszkoz = new Eszkoz
+            {
+                KategoriaID = dto.KategoriaID,
+                Nev = dto.Nev,
+                Leiras = dto.Leiras,
+                KepUrl = dto.KepUrl,  // ‚úÖ KepUrl
+                Vetelar = dto.Vetelar,
+                KiadasiAr = dto.KiadasiAr,
+                BeszerzesiDatum = dto.BeszerzesiDatum,
+                Status = EszkozStatus.Elerheto
+            };
 
-        // Betˆltj¸k a kategÛri·t a v·laszhoz
-        await _context.Entry(eszkoz).Reference(e => e.Kategoria).LoadAsync();
+            _context.Eszkozok.Add(eszkoz);
+            await _context.SaveChangesAsync();
 
-        var result = new EszkozDetailDto(
-            eszkoz.EszkozID,
-            eszkoz.KategoriaID,
-            eszkoz.Nev,
-            eszkoz.Leiras,
-            eszkoz.Vetelar,
-            eszkoz.KiadasiAr,
-            eszkoz.BeszerzesiDatum,
-            eszkoz.Status,
-            eszkoz.Kategoria.Nev
-        );
+            await _context.Entry(eszkoz).Reference(e => e.Kategoria).LoadAsync();
 
-        return CreatedAtAction(nameof(GetEszkoz), new { id = eszkoz.EszkozID }, result);
-    }
+            var result = new EszkozDetailDto(
+                eszkoz.EszkozID,
+                eszkoz.KategoriaID,
+                eszkoz.Nev,
+                eszkoz.Leiras,
+                eszkoz.KepUrl,  // ‚úÖ KepUrl
+                eszkoz.Vetelar,
+                eszkoz.KiadasiAr,
+                eszkoz.BeszerzesiDatum,
+                eszkoz.Status,
+                eszkoz.Kategoria.Nev
+            );
 
-    // PUT: api/eszkozok/5 (admin)
-    [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateEszkoz(int id, UpdateEszkozDto dto)
-    {
-        var eszkoz = await _context.Eszkozok.FindAsync(id);
-
-        if (eszkoz == null)
-        {
-            return NotFound(new { message = "Eszkˆz nem tal·lhatÛ." });
+            return CreatedAtAction(nameof(GetEszkoz), new { id = eszkoz.EszkozID }, result);
         }
 
-        // KategÛria lÈtezik-e?
-        if (!await _context.Kategoriak.AnyAsync(k => k.KategoriaID == dto.KategoriaID))
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateEszkoz(int id, UpdateEszkozDto dto)
         {
-            return BadRequest(new { message = "A megadott kategÛria nem lÈtezik." });
+            var eszkoz = await _context.Eszkozok.FindAsync(id);
+
+            if (eszkoz == null)
+            {
+                return NotFound(new { message = "Eszk√∂z nem tal√°lhat√≥." });
+            }
+
+            if (!await _context.Kategoriak.AnyAsync(k => k.KategoriaID == dto.KategoriaID))
+            {
+                return BadRequest(new { message = "A megadott kateg√≥ria nem l√©tezik." });
+            }
+
+            eszkoz.KategoriaID = dto.KategoriaID;
+            eszkoz.Nev = dto.Nev;
+            eszkoz.Leiras = dto.Leiras;
+            eszkoz.KepUrl = dto.KepUrl;  // ‚úÖ KepUrl friss√≠t√©s
+            eszkoz.Vetelar = dto.Vetelar;
+            eszkoz.KiadasiAr = dto.KiadasiAr;
+            eszkoz.BeszerzesiDatum = dto.BeszerzesiDatum;
+            eszkoz.Status = dto.Status;
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
-        eszkoz.KategoriaID = dto.KategoriaID;
-        eszkoz.Nev = dto.Nev;
-        eszkoz.Leiras = dto.Leiras;
-        eszkoz.Vetelar = dto.Vetelar;
-        eszkoz.KiadasiAr = dto.KiadasiAr;
-        eszkoz.BeszerzesiDatum = dto.BeszerzesiDatum;
-        eszkoz.Status = dto.Status;
-
-        await _context.SaveChangesAsync();
-
-        return NoContent();
-    }
-
-    // DELETE: api/eszkozok/5 (admin)
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteEszkoz(int id)
-    {
-        var eszkoz = await _context.Eszkozok
-            .Include(e => e.Foglalasok)
-            .FirstOrDefaultAsync(e => e.EszkozID == id);
-
-        if (eszkoz == null)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteEszkoz(int id)
         {
-            return NotFound(new { message = "Eszkˆz nem tal·lhatÛ." });
+            var eszkoz = await _context.Eszkozok
+                .Include(e => e.Foglalasok)
+                .FirstOrDefaultAsync(e => e.EszkozID == id);
+
+            if (eszkoz == null)
+            {
+                return NotFound(new { message = "Eszk√∂z nem tal√°lhat√≥." });
+            }
+
+            if (eszkoz.Foglalasok.Any())
+            {
+                return BadRequest(new { message = "Nem t√∂r√∂lhet≈ë az eszk√∂z, mert vannak hozz√° foglal√°sok." });
+            }
+
+            _context.Eszkozok.Remove(eszkoz);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
-
-        // Ne engedj¸k tˆrˆlni, ha van foglal·sa
-        if (eszkoz.Foglalasok.Any())
-        {
-            return BadRequest(new { message = "Nem tˆrˆlhetı az eszkˆz, mert vannak hozz· foglal·sok." });
-        }
-
-        _context.Eszkozok.Remove(eszkoz);
-        await _context.SaveChangesAsync();
-
-        return NoContent();
     }
 }

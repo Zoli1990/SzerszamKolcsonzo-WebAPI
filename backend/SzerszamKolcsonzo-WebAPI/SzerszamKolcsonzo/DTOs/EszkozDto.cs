@@ -1,41 +1,57 @@
+﻿// ============================================================================
+// 4. DTOs/EszkozDto.cs - FRISSÍTETT
+// ============================================================================
+
 using SzerszamKolcsonzo.Models;
 
-public record EszkozListDto(
-    int EszkozID,
-    string Nev,
-    string? Leiras,
-    int KiadasiAr,
-    EszkozStatus Status,
-    string KategoriaNev
-);
+namespace SzerszamKolcsonzo.DTOs
+{
+    // Eszköz lista (publikus - mindenki látja)
+    public record EszkozListDto(
+        int EszkozID,
+        string Nev,
+        string? Leiras,
+        string? KepUrl,  // ✅ ÚJ!
+        int KiadasiAr,
+        EszkozStatus Status,
+        string KategoriaNev,
+        int KategoriaID
+    );
 
-public record EszkozDetailDto(
-    int EszkozID,
-    int KategoriaID,
-    string Nev,
-    string? Leiras,
-    int Vetelar,
-    int KiadasiAr,
-    DateTime BeszerzesiDatum,
-    EszkozStatus Status,
-    string KategoriaNev
-);
+    // Eszköz részletes (admin látja)
+    public record EszkozDetailDto(
+        int EszkozID,
+        int KategoriaID,
+        string Nev,
+        string? Leiras,
+        string? KepUrl,  // ✅ ÚJ!
+        int Vetelar,
+        int KiadasiAr,
+        DateTime BeszerzesiDatum,
+        EszkozStatus Status,
+        string KategoriaNev
+    );
 
-public record CreateEszkozDto(
-    int KategoriaID,
-    string Nev,
-    string? Leiras,
-    int Vetelar,
-    int KiadasiAr,
-    DateTime BeszerzesiDatum
-);
+    // Új eszköz létrehozása
+    public record CreateEszkozDto(
+        int KategoriaID,
+        string Nev,
+        string? Leiras,
+        string? KepUrl,  // ✅ ÚJ!
+        int Vetelar,
+        int KiadasiAr,
+        DateTime BeszerzesiDatum
+    );
 
-public record UpdateEszkozDto(
-    int KategoriaID,
-    string Nev,
-    string? Leiras,
-    int Vetelar,
-    int KiadasiAr,
-    DateTime BeszerzesiDatum,
-    EszkozStatus Status
-);
+    // Eszköz módosítása
+    public record UpdateEszkozDto(
+        int KategoriaID,
+        string Nev,
+        string? Leiras,
+        string? KepUrl,  // ✅ ÚJ!
+        int Vetelar,
+        int KiadasiAr,
+        DateTime BeszerzesiDatum,
+        EszkozStatus Status
+    );
+}

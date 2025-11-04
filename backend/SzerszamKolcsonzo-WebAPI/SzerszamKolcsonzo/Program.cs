@@ -61,4 +61,13 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+// automatikusan létrehozza/frissíti az adatbázist
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate(); 
+} 
+// automatikusan létrehozza/frissíti az adatbázist
+
+
 app.Run();

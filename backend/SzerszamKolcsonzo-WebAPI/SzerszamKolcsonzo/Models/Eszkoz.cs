@@ -1,3 +1,7 @@
+﻿// ============================================================================
+// 2. Models/Eszkoz.cs - FRISSÍTETT (KepUrl mező hozzáadva)
+// ============================================================================
+
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -18,6 +22,9 @@ namespace SzerszamKolcsonzo.Models
 
         [Column(TypeName = "TEXT")]
         public string? Leiras { get; set; }
+
+        [MaxLength(500)]
+        public string? KepUrl { get; set; }  // ✅ ÚJ MEZŐ!
 
         [Required]
         public int Vetelar { get; set; }

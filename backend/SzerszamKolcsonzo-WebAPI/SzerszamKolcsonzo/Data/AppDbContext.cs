@@ -45,14 +45,30 @@ namespace SzerszamKolcsonzo.Data
             SeedData(modelBuilder);
         }
 
-        private void SeedData(ModelBuilder modelBuilder)
+        static void SeedData(ModelBuilder modelBuilder)
         {
             // Kategóriák
             modelBuilder.Entity<Kategoria>().HasData(
-                new Kategoria { KategoriaID = 1, Nev = "kézi szerszámok" },
-                new Kategoria { KategoriaID = 2, Nev = "mérõmûszerek" },
-                new Kategoria { KategoriaID = 3, Nev = "kerti eszközök" }
+                new Kategoria
+                {
+                    KategoriaID = 1,
+                    Nev = "kézi szerszámok",
+                    KepUrl = "https://www.praktiker.hu/_next/image?url=https%3A%2F%2Fwebimg.praktiker.hu%2F_upload%2Fpraktiker_magazine_category_pic%2F81%2Fimage%2FGettyImages-546947363.jpg&w=600&q=75"
+                },
+                new Kategoria
+                {
+                    KategoriaID = 2,
+                    Nev = "mérõmûszerek",
+                    KepUrl = "https://www.centertool.hu/wp-content/uploads/2012/01/hosszmerok.jpg"
+                },
+                new Kategoria
+                {
+                    KategoriaID = 3,
+                    Nev = "kerti eszközök",
+                    KepUrl = "https://www.kertpont.hu/wp-content/uploads/2024/02/kerti-szerszamok.jpg"
+                }
             );
+
 
             // Eszközök
             modelBuilder.Entity<Eszkoz>().HasData(
@@ -65,7 +81,8 @@ namespace SzerszamKolcsonzo.Data
                     Vetelar = 19990,
                     KiadasiAr = 1500,
                     BeszerzesiDatum = new DateTime(2024, 1, 15),
-                    Status = EszkozStatus.Elerheto
+                    Status = EszkozStatus.Elerheto,
+                    KepUrl = "https://www.lidl.ee/static/assets/Card-010-1920x1440px-1715742.jpg"
                 },
                 new Eszkoz
                 {
@@ -76,7 +93,8 @@ namespace SzerszamKolcsonzo.Data
                     Vetelar = 23000,
                     KiadasiAr = 1500,
                     BeszerzesiDatum = new DateTime(2024, 2, 20),
-                    Status = EszkozStatus.Elerheto
+                    Status = EszkozStatus.Elerheto,
+                    KepUrl = "https://www.aktiv.hu/img/70227/112531_altpic_1/500x500/112531.webp?time=1720778937"
                 },
                 new Eszkoz
                 {
@@ -87,7 +105,8 @@ namespace SzerszamKolcsonzo.Data
                     Vetelar = 43500,
                     KiadasiAr = 2000,
                     BeszerzesiDatum = new DateTime(2024, 3, 10),
-                    Status = EszkozStatus.Elerheto
+                    Status = EszkozStatus.Elerheto,
+                    KepUrl = "https://storagenahumain.blob.core.windows.net/strapi-media/0014_thumb_0aa1d5478d.jpg"
                 },
                 new Eszkoz
                 {
@@ -98,7 +117,8 @@ namespace SzerszamKolcsonzo.Data
                     Vetelar = 87999,
                     KiadasiAr = 5000,
                     BeszerzesiDatum = new DateTime(2024, 4, 5),
-                    Status = EszkozStatus.Elerheto
+                    Status = EszkozStatus.Elerheto,
+                    KepUrl = "https://img-1.kwcdn.com/product/fancy/558dfa16-f249-45d5-ad38-3841b1577724.jpg?imageView2/2/w/800/q/70/format/avif"
                 },
                 new Eszkoz
                 {
@@ -109,7 +129,8 @@ namespace SzerszamKolcsonzo.Data
                     Vetelar = 35000,
                     KiadasiAr = 500,
                     BeszerzesiDatum = new DateTime(2023, 5, 12),
-                    Status = EszkozStatus.Elerheto
+                    Status = EszkozStatus.Elerheto,
+                    KepUrl = "https://cdn.myshoptet.com/usr/www.bavord.hu/user/shop/big/6494-1_sorpad-garnitura-hattalaval.jpg?66504c5a"
                 },
                 new Eszkoz
                 {
@@ -120,7 +141,8 @@ namespace SzerszamKolcsonzo.Data
                     Vetelar = 17000,
                     KiadasiAr = 500,
                     BeszerzesiDatum = new DateTime(2023, 6, 1),
-                    Status = EszkozStatus.Elerheto
+                    Status = EszkozStatus.Elerheto,
+                    KepUrl = "https://xn--ednyek-cva.hu/storage/images/cache/data/Bogr%C3%A1cs%C3%A1llv%C3%A1nyok/IMG_3473-max1920-max1080.JPG"
                 }
             );
 

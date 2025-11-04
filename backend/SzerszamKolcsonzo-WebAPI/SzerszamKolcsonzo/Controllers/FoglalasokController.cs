@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+Ôªøusing Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using SzerszamKolcsonzo.Data;
 using SzerszamKolcsonzo.Models;
@@ -14,7 +14,7 @@ public class FoglalasokController : ControllerBase
         _context = context;
     }
 
-    // GET: api/foglalasok (admin l·tja az ˆsszeset)
+    // GET: api/foglalasok (admin l√°tja az √∂sszeset)
     [HttpGet]
     public async Task<ActionResult<IEnumerable<FoglalasDto>>> GetFoglalasok([FromQuery] int? eszkozId = null)
     {
@@ -27,7 +27,9 @@ public class FoglalasokController : ControllerBase
             query = query.Where(f => f.EszkozID == eszkozId.Value);
         }
 
+        // JAV√çT√ÅS: OrderBy-t az entity-n v√©gezz√ºk, nem a DTO-n!
         var foglalasok = await query
+            .OrderByDescending(f => f.LetrehozasDatum)  // ‚Üê Itt a v√°ltoz√°s!
             .Select(f => new FoglalasDto(
                 f.FoglalasID,
                 f.EszkozID,
@@ -43,7 +45,6 @@ public class FoglalasokController : ControllerBase
                 f.Status,
                 f.LetrehozasDatum
             ))
-            .OrderByDescending(f => f.LetrehozasDatum)
             .ToListAsync();
 
         return Ok(foglalasok);
@@ -59,7 +60,7 @@ public class FoglalasokController : ControllerBase
 
         if (foglalas == null)
         {
-            return NotFound(new { message = "Foglal·s nem tal·lhatÛ." });
+            return NotFound(new { message = "Foglal√°s nem tal√°lhat√≥." });
         }
 
         var result = new FoglalasDto(
@@ -81,7 +82,7 @@ public class FoglalasokController : ControllerBase
         return Ok(result);
     }
 
-    // POST: api/foglalasok (b·rki, regisztr·ciÛ nÈlk¸l is)
+    // POST: api/foglalasok (b√°rki, regisztr√°ci√≥ n√©lk√ºl is)
     [HttpPost]
     public async Task<ActionResult<FoglalasDto>> CreateFoglalas(CreateFoglalasDto dto)
     {
@@ -89,16 +90,16 @@ public class FoglalasokController : ControllerBase
 
         if (eszkoz == null)
         {
-            return NotFound(new { message = "Az eszkˆz nem tal·lhatÛ." });
+            return NotFound(new { message = "Az eszk√∂z nem tal√°lhat√≥." });
         }
 
-        // EllenırzÈs: eszkˆz elÈrhetı-e?
+        // Ellen≈ërz√©s: eszk√∂z el√©rhet≈ë-e?
         if (eszkoz.Status == EszkozStatus.Kiadva)
         {
-            return BadRequest(new { message = "Az eszkˆz jelenleg ki van adva, nem foglalhatÛ." });
+            return BadRequest(new { message = "Az eszk√∂z jelenleg ki van adva, nem foglalhat√≥." });
         }
 
-        // BevÈtel automatikus sz·mÌt·sa
+        // Bev√©tel automatikus sz√°m√≠t√°sa
         int bevetel = dto.OraSzam * eszkoz.KiadasiAr;
 
         var foglalas = new Foglalas
@@ -116,13 +117,13 @@ public class FoglalasokController : ControllerBase
             LetrehozasDatum = DateTime.Now
         };
 
-        // Eszkˆz st·tusz·nak frissÌtÈse
+        // Eszk√∂z st√°tusz√°nak friss√≠t√©se
         eszkoz.Status = EszkozStatus.Kiadva;
 
         _context.Foglalasok.Add(foglalas);
         await _context.SaveChangesAsync();
 
-        // Betˆltj¸k az eszkˆzt a v·laszhoz
+        // Bet√∂ltj√ºk az eszk√∂zt a v√°laszhoz
         await _context.Entry(foglalas).Reference(f => f.Eszkoz).LoadAsync();
 
         var result = new FoglalasDto(
@@ -144,7 +145,7 @@ public class FoglalasokController : ControllerBase
         return CreatedAtAction(nameof(GetFoglalas), new { id = foglalas.FoglalasID }, result);
     }
 
-    // PUT: api/foglalasok/5/lezaras (admin - visszahoz·s)
+    // PUT: api/foglalasok/5/lezaras (admin - visszahoz√°s)
     [HttpPut("{id}/lezaras")]
     public async Task<IActionResult> LezarasFoglalas(int id)
     {
@@ -154,18 +155,18 @@ public class FoglalasokController : ControllerBase
 
         if (foglalas == null)
         {
-            return NotFound(new { message = "Foglal·s nem tal·lhatÛ." });
+            return NotFound(new { message = "Foglal√°s nem tal√°lhat√≥." });
         }
 
         if (foglalas.Status != FoglalasStatus.Aktiv)
         {
-            return BadRequest(new { message = "Csak aktÌv foglal·s z·rhatÛ le." });
+            return BadRequest(new { message = "Csak akt√≠v foglal√°s z√°rhat√≥ le." });
         }
 
-        // Foglal·s lez·r·sa
+        // Foglal√°s lez√°r√°sa
         foglalas.Status = FoglalasStatus.Lezart;
 
-        // Eszkˆz st·tusz·nak vissza·llÌt·sa
+        // Eszk√∂z st√°tusz√°nak vissza√°ll√≠t√°sa
         foglalas.Eszkoz.Status = EszkozStatus.Elerheto;
 
         await _context.SaveChangesAsync();
@@ -173,7 +174,7 @@ public class FoglalasokController : ControllerBase
         return NoContent();
     }
 
-    // DELETE: api/foglalasok/5 (admin - tˆrlÈs/stornÛ)
+    // DELETE: api/foglalasok/5 (admin - t√∂rl√©s/storn√≥)
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteFoglalas(int id)
     {
@@ -183,16 +184,16 @@ public class FoglalasokController : ControllerBase
 
         if (foglalas == null)
         {
-            return NotFound(new { message = "Foglal·s nem tal·lhatÛ." });
+            return NotFound(new { message = "Foglal√°s nem tal√°lhat√≥." });
         }
 
-        // Ha aktÌv foglal·st tˆrl¸nk, az eszkˆzt is szabadd· kell tenni
+        // Ha akt√≠v foglal√°st t√∂rl√ºnk, az eszk√∂zt is szabadd√° kell tenni
         if (foglalas.Status == FoglalasStatus.Aktiv)
         {
             foglalas.Eszkoz.Status = EszkozStatus.Elerheto;
         }
 
-        // Soft delete: st·tusz Torolt-re
+        // Soft delete: st√°tusz Torolt-re
         foglalas.Status = FoglalasStatus.Torolt;
 
         await _context.SaveChangesAsync();

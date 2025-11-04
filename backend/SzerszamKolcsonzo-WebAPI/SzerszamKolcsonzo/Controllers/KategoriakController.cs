@@ -1,3 +1,7 @@
+Ôªø// ============================================================================
+// 5. Controllers/KategoriakController.cs - FRISS√çTETT
+// ============================================================================
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SzerszamKolcsonzo.Data;
@@ -17,18 +21,16 @@ namespace SzerszamKolcsonzo.Controllers
             _context = context;
         }
 
-        // GET: api/kategoriak
         [HttpGet]
         public async Task<ActionResult<IEnumerable<KategoriaDto>>> GetKategoriak()
         {
             var kategoriak = await _context.Kategoriak
-                .Select(k => new KategoriaDto(k.KategoriaID, k.Nev))
+                .Select(k => new KategoriaDto(k.KategoriaID, k.Nev, k.KepUrl))  // ‚úÖ KepUrl hozz√°adva
                 .ToListAsync();
 
             return Ok(kategoriak);
         }
 
-        // GET: api/kategoriak/5
         [HttpGet("{id}")]
         public async Task<ActionResult<KategoriaDto>> GetKategoria(int id)
         {
@@ -36,33 +38,34 @@ namespace SzerszamKolcsonzo.Controllers
 
             if (kategoria == null)
             {
-                return NotFound(new { message = "KategÛria nem tal·lhatÛ." });
+                return NotFound(new { message = "Kateg√≥ria nem tal√°lhat√≥." });
             }
 
-            return Ok(new KategoriaDto(kategoria.KategoriaID, kategoria.Nev));
+            return Ok(new KategoriaDto(kategoria.KategoriaID, kategoria.Nev, kategoria.KepUrl));  // ‚úÖ KepUrl
         }
 
-        // POST: api/kategoriak
         [HttpPost]
         public async Task<ActionResult<KategoriaDto>> CreateKategoria(CreateKategoriaDto dto)
         {
-            // EllenırzÈs: lÈtezik-e m·r ilyen nev˚ kategÛria
             if (await _context.Kategoriak.AnyAsync(k => k.Nev == dto.Nev))
             {
-                return BadRequest(new { message = "Ez a kategÛria m·r lÈtezik." });
+                return BadRequest(new { message = "Ez a kateg√≥ria m√°r l√©tezik." });
             }
 
-            var kategoria = new Kategoria { Nev = dto.Nev };
+            var kategoria = new Kategoria
+            {
+                Nev = dto.Nev,
+                KepUrl = dto.KepUrl  // ‚úÖ KepUrl
+            };
 
             _context.Kategoriak.Add(kategoria);
             await _context.SaveChangesAsync();
 
-            var result = new KategoriaDto(kategoria.KategoriaID, kategoria.Nev);
+            var result = new KategoriaDto(kategoria.KategoriaID, kategoria.Nev, kategoria.KepUrl);
 
             return CreatedAtAction(nameof(GetKategoria), new { id = kategoria.KategoriaID }, result);
         }
 
-        // PUT: api/kategoriak/5
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateKategoria(int id, UpdateKategoriaDto dto)
         {
@@ -70,22 +73,22 @@ namespace SzerszamKolcsonzo.Controllers
 
             if (kategoria == null)
             {
-                return NotFound(new { message = "KategÛria nem tal·lhatÛ." });
+                return NotFound(new { message = "Kateg√≥ria nem tal√°lhat√≥." });
             }
 
-            // EllenırzÈs: lÈtezik-e m·r ilyen nev˚ kategÛria (kivÈve a jelenlegi)
             if (await _context.Kategoriak.AnyAsync(k => k.Nev == dto.Nev && k.KategoriaID != id))
             {
-                return BadRequest(new { message = "Ez a kategÛrianÈv m·r foglalt." });
+                return BadRequest(new { message = "Ez a kateg√≥rian√©v m√°r foglalt." });
             }
 
             kategoria.Nev = dto.Nev;
+            kategoria.KepUrl = dto.KepUrl;  // ‚úÖ KepUrl friss√≠t√©s
+
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        // DELETE: api/kategoriak/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteKategoria(int id)
         {
@@ -95,13 +98,12 @@ namespace SzerszamKolcsonzo.Controllers
 
             if (kategoria == null)
             {
-                return NotFound(new { message = "KategÛria nem tal·lhatÛ." });
+                return NotFound(new { message = "Kateg√≥ria nem tal√°lhat√≥." });
             }
 
-            // Ne engedj¸k tˆrˆlni, ha van hozz· eszkˆz
             if (kategoria.Eszkozok.Any())
             {
-                return BadRequest(new { message = "Nem tˆrˆlhetı a kategÛria, mert vannak hozz· eszkˆzˆk." });
+                return BadRequest(new { message = "Nem t√∂r√∂lhet≈ë a kateg√≥ria, mert vannak hozz√° eszk√∂z√∂k." });
             }
 
             _context.Kategoriak.Remove(kategoria);
