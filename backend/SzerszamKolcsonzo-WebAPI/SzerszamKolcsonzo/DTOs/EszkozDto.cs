@@ -1,8 +1,4 @@
-﻿// ============================================================================
-// 4. DTOs/EszkozDto.cs - FRISSÍTETT
-// ============================================================================
-
-using SzerszamKolcsonzo.Models;
+﻿using SzerszamKolcsonzo.Models;
 
 namespace SzerszamKolcsonzo.DTOs
 {

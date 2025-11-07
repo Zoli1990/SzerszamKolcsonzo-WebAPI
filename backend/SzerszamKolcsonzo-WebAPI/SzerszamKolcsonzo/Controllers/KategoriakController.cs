@@ -1,8 +1,4 @@
-﻿// ============================================================================
-// 5. Controllers/KategoriakController.cs - FRISSÍTETT
-// ============================================================================
-
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SzerszamKolcsonzo.Data;
 using SzerszamKolcsonzo.Models;

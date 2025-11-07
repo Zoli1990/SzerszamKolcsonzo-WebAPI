@@ -1,8 +1,4 @@
-﻿// ============================================================================
-// 3. DTOs/KategoriaDto.cs - FRISSÍTETT
-// ============================================================================
-
-namespace SzerszamKolcsonzo.DTOs
+﻿namespace SzerszamKolcsonzo.DTOs
 {
     public record KategoriaDto(int KategoriaID, string Nev, string? KepUrl);  // ✅ KepUrl hozzáadva
 

@@ -1,8 +1,4 @@
-﻿// ============================================================================
-// 6. Controllers/EszkozokController.cs - FRISSÍTETT
-// ============================================================================
-
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SzerszamKolcsonzo.Data;
 using SzerszamKolcsonzo.Models;
@@ -20,6 +16,34 @@ namespace SzerszamKolcsonzo.Controllers
         {
             _context = context;
         }
+
+
+
+
+        // 🔹 ADMIN: Összes eszköz részletes adatokkal
+        [HttpGet("admin")]
+        public async Task<ActionResult<IEnumerable<EszkozDetailDto>>> GetEszkozokAdmin()
+        {
+            var eszkozok = await _context.Eszkozok
+                .Include(e => e.Kategoria)
+                .Select(e => new EszkozDetailDto(
+                    e.EszkozID,
+                    e.KategoriaID,
+                    e.Nev,
+                    e.Leiras,
+                    e.KepUrl,
+                    e.Vetelar,
+                    e.KiadasiAr,
+                    e.BeszerzesiDatum,
+                    e.Status,
+                    e.Kategoria.Nev
+                ))
+                .ToListAsync();
+
+            return Ok(eszkozok);
+        }
+
+
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EszkozListDto>>> GetEszkozok([FromQuery] int? kategoriaId = null)

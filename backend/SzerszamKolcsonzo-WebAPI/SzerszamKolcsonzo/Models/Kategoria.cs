@@ -1,8 +1,4 @@
-﻿// ============================================================================
-// 1. Models/Kategoria.cs - FRISSÍTETT (KepUrl mező hozzáadva)
-// ============================================================================
-
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SzerszamKolcsonzo.Models

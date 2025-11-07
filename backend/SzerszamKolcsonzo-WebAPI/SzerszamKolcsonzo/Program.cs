@@ -1,27 +1,28 @@
-using Microsoft.EntityFrameworkCore;
-using SzerszamKolcsonzo.Data;
+ï»¿using System.Text.Json;
 using System.Text.Json.Serialization;
+using SzerszamKolcsonzo.Features.Auth.Extensions;
+using SzerszamKolcsonzo.Features.ToolRental.Extensions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Controllers + JSON config
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        // Enum-ok string formátumban jelenjenek meg
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-        // Referencia loop kezelés
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     });
 
-// MySQL DbContext
-builder.Services.AddDbContext<AppDbContext>(options =>
-{
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
-});
+// âœ… Auth modul regisztrÃ¡lÃ¡sa (teljesen elkÃ¼lÃ¶nÃ­tve)
+builder.Services.AddAuthModule(builder.Configuration);
 
-// CORS (Vue frontend számára késõbb)
+// âœ… ToolRental modul regisztrÃ¡lÃ¡sa (teljesen elkÃ¼lÃ¶nÃ­tve)
+builder.Services.AddToolRentalModule(builder.Configuration);
+
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -38,15 +39,44 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
     {
-        Title = "Szerszámkölcsönzõ API",
+        Title = "SzerszÃ¡mkÃ¶lcsÃ¶nzÅ‘ API",
         Version = "v1",
-        Description = ".NET 8 WebAPI a szerszámkölcsönzõ vizsgaprojekthez"
+        Description = ".NET 8 WebAPI - SzerszÃ¡mkÃ¶lcsÃ¶nzÅ‘ + Auth"
+    });
+
+    // JWT Bearer support Swagger-ben
+    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
+        Name = "Authorization",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+    {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
     });
 });
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// âœ… Auto migration (mindkÃ©t adatbÃ¡zis)
+await app.MigrateAuthDatabaseAsync();
+await app.MigrateToolRentalDatabaseAsync();
+
+// Configure pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -54,20 +84,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseCors("AllowAll");
 
+app.UseAuthentication();  // âœ… JWT validÃ¡lÃ¡s
 app.UseAuthorization();
 
 app.MapControllers();
-
-// automatikusan létrehozza/frissíti az adatbázist
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate(); 
-} 
-// automatikusan létrehozza/frissíti az adatbázist
-
 
 app.Run();
