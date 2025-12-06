@@ -1,0 +1,153 @@
+// ============================================================================
+// src/services/iranyitoszamService.js - Magyar irányítószám-település szolgáltatás
+// ============================================================================
+
+// Magyar irányítószámok és települések (leggyakoribbak)
+const iranyitoszamok = {
+  // Budapest kerületek (1xxx)
+  '1011': 'Budapest', '1012': 'Budapest', '1013': 'Budapest', '1014': 'Budapest',
+  '1015': 'Budapest', '1016': 'Budapest', '1021': 'Budapest', '1022': 'Budapest',
+  '1023': 'Budapest', '1024': 'Budapest', '1025': 'Budapest', '1026': 'Budapest',
+  '1027': 'Budapest', '1028': 'Budapest', '1029': 'Budapest', '1031': 'Budapest',
+  '1032': 'Budapest', '1033': 'Budapest', '1034': 'Budapest', '1035': 'Budapest',
+  '1036': 'Budapest', '1037': 'Budapest', '1038': 'Budapest', '1039': 'Budapest',
+  '1041': 'Budapest', '1042': 'Budapest', '1043': 'Budapest', '1044': 'Budapest',
+  '1045': 'Budapest', '1046': 'Budapest', '1047': 'Budapest', '1048': 'Budapest',
+  '1051': 'Budapest', '1052': 'Budapest', '1053': 'Budapest', '1054': 'Budapest',
+  '1055': 'Budapest', '1056': 'Budapest', '1061': 'Budapest', '1062': 'Budapest',
+  '1063': 'Budapest', '1064': 'Budapest', '1065': 'Budapest', '1066': 'Budapest',
+  '1067': 'Budapest', '1068': 'Budapest', '1071': 'Budapest', '1072': 'Budapest',
+  '1073': 'Budapest', '1074': 'Budapest', '1075': 'Budapest', '1076': 'Budapest',
+  '1077': 'Budapest', '1078': 'Budapest', '1081': 'Budapest', '1082': 'Budapest',
+  '1083': 'Budapest', '1084': 'Budapest', '1085': 'Budapest', '1086': 'Budapest',
+  '1087': 'Budapest', '1088': 'Budapest', '1089': 'Budapest', '1091': 'Budapest',
+  '1092': 'Budapest', '1093': 'Budapest', '1094': 'Budapest', '1095': 'Budapest',
+  '1096': 'Budapest', '1097': 'Budapest', '1098': 'Budapest', '1101': 'Budapest',
+  '1102': 'Budapest', '1103': 'Budapest', '1104': 'Budapest', '1105': 'Budapest',
+  '1106': 'Budapest', '1107': 'Budapest', '1108': 'Budapest', '1111': 'Budapest',
+  '1112': 'Budapest', '1113': 'Budapest', '1114': 'Budapest', '1115': 'Budapest',
+  '1116': 'Budapest', '1117': 'Budapest', '1118': 'Budapest', '1119': 'Budapest',
+  '1121': 'Budapest', '1122': 'Budapest', '1123': 'Budapest', '1124': 'Budapest',
+  '1125': 'Budapest', '1126': 'Budapest', '1131': 'Budapest', '1132': 'Budapest',
+  '1133': 'Budapest', '1134': 'Budapest', '1135': 'Budapest', '1136': 'Budapest',
+  '1137': 'Budapest', '1138': 'Budapest', '1139': 'Budapest', '1141': 'Budapest',
+  '1142': 'Budapest', '1143': 'Budapest', '1144': 'Budapest', '1145': 'Budapest',
+  '1146': 'Budapest', '1147': 'Budapest', '1148': 'Budapest', '1149': 'Budapest',
+  '1151': 'Budapest', '1152': 'Budapest', '1153': 'Budapest', '1154': 'Budapest',
+  '1155': 'Budapest', '1156': 'Budapest', '1157': 'Budapest', '1158': 'Budapest',
+  '1161': 'Budapest', '1162': 'Budapest', '1163': 'Budapest', '1164': 'Budapest',
+  '1165': 'Budapest', '1171': 'Budapest', '1172': 'Budapest', '1173': 'Budapest',
+  '1174': 'Budapest', '1181': 'Budapest', '1182': 'Budapest', '1183': 'Budapest',
+  '1184': 'Budapest', '1185': 'Budapest', '1186': 'Budapest', '1188': 'Budapest',
+  '1191': 'Budapest', '1192': 'Budapest', '1193': 'Budapest', '1194': 'Budapest',
+  '1195': 'Budapest', '1196': 'Budapest', '1201': 'Budapest', '1202': 'Budapest',
+  '1203': 'Budapest', '1204': 'Budapest', '1205': 'Budapest', '1211': 'Budapest',
+  '1212': 'Budapest', '1213': 'Budapest', '1214': 'Budapest', '1215': 'Budapest',
+  '1221': 'Budapest', '1222': 'Budapest', '1223': 'Budapest', '1224': 'Budapest',
+  '1225': 'Budapest', '1237': 'Budapest', '1238': 'Budapest', '1239': 'Budapest',
+
+  // Megyeszékhelyek és nagyobb városok
+  '2000': 'Szentendre', '2030': 'Érd', '2040': 'Budaörs', '2045': 'Törökbálint',
+  '2051': 'Biatorbágy', '2100': 'Gödöllő', '2120': 'Dunakeszi', '2131': 'Göd',
+  '2132': 'Göd', '2133': 'Sződliget', '2151': 'Fót', '2200': 'Monor',
+  '2220': 'Vecsés', '2225': 'Üllő', '2230': 'Gyömrő', '2234': 'Maglód',
+  '2310': 'Szigetszentmiklós', '2314': 'Halásztelek', '2315': 'Szigethalom',
+  '2330': 'Dunaharaszti', '2335': 'Taksony', '2340': 'Kiskunlacháza',
+  '2360': 'Gyál', '2370': 'Dabas', '2400': 'Dunaújváros', '2500': 'Esztergom',
+  '2600': 'Vác', '2700': 'Cegléd', '2800': 'Tatabánya',
+  
+  // Észak-Magyarország
+  '3000': 'Hatvan', '3100': 'Salgótarján', '3200': 'Gyöngyös',
+  '3300': 'Eger', '3301': 'Eger', '3304': 'Eger',
+  '3400': 'Mezőkövesd',
+  '3500': 'Miskolc', '3501': 'Miskolc', '3502': 'Miskolc', '3503': 'Miskolc',
+  '3504': 'Miskolc', '3505': 'Miskolc', '3508': 'Miskolc', '3510': 'Miskolc',
+  '3515': 'Miskolc', '3516': 'Miskolc', '3517': 'Miskolc', '3518': 'Miskolc',
+  '3519': 'Miskolc', '3521': 'Miskolc', '3525': 'Miskolc', '3526': 'Miskolc',
+  '3527': 'Miskolc', '3528': 'Miskolc', '3529': 'Miskolc', '3530': 'Miskolc',
+  '3531': 'Miskolc', '3532': 'Miskolc', '3533': 'Miskolc', '3534': 'Miskolc',
+  '3535': 'Miskolc',
+  '3700': 'Kazincbarcika', '3800': 'Szikszó', '3900': 'Szerencs', '3950': 'Sárospatak',
+
+  // Észak-Alföld
+  '4024': 'Debrecen', '4025': 'Debrecen', '4026': 'Debrecen', '4027': 'Debrecen',
+  '4028': 'Debrecen', '4029': 'Debrecen', '4030': 'Debrecen', '4031': 'Debrecen',
+  '4032': 'Debrecen', '4033': 'Debrecen', '4034': 'Debrecen',
+  '4100': 'Berettyóújfalu', '4220': 'Hajdúböszörmény',
+  '4400': 'Nyíregyháza', '4401': 'Nyíregyháza', '4405': 'Nyíregyháza',
+  '4431': 'Nyíregyháza', '4432': 'Nyíregyháza', '4433': 'Nyíregyháza', '4434': 'Nyíregyháza',
+  '4700': 'Mátészalka',
+
+  // Dél-Alföld
+  '5000': 'Szolnok', '5001': 'Szolnok', '5002': 'Szolnok', '5008': 'Szolnok',
+  '5100': 'Jászberény', '5200': 'Törökszentmiklós', '5300': 'Karcag',
+  '5350': 'Tiszafüred', '5400': 'Mezőtúr', '5500': 'Gyomaendrőd',
+  '5600': 'Békéscsaba', '5601': 'Békéscsaba', '5602': 'Békéscsaba', '5603': 'Békéscsaba',
+  '5700': 'Gyula', '5800': 'Mezőkovácsháza', '5900': 'Orosháza',
+  '6000': 'Kecskemét', '6001': 'Kecskemét',
+  '6100': 'Kiskunfélegyháza', '6200': 'Kiskőrös', '6300': 'Kalocsa',
+  '6400': 'Kiskunhalas', '6500': 'Baja', '6600': 'Szentes',
+  '6720': 'Szeged', '6721': 'Szeged', '6722': 'Szeged', '6723': 'Szeged',
+  '6724': 'Szeged', '6725': 'Szeged', '6726': 'Szeged', '6727': 'Szeged',
+  '6728': 'Szeged', '6729': 'Szeged',
+  '6800': 'Hódmezővásárhely', '6900': 'Makó',
+
+  // Dél-Dunántúl
+  '7000': 'Sárbogárd', '7030': 'Paks', '7100': 'Szekszárd', '7130': 'Tolna',
+  '7200': 'Dombóvár', '7300': 'Komló',
+  '7400': 'Kaposvár', '7500': 'Nagyatád',
+  '7621': 'Pécs', '7622': 'Pécs', '7623': 'Pécs', '7624': 'Pécs',
+  '7625': 'Pécs', '7626': 'Pécs', '7627': 'Pécs', '7628': 'Pécs',
+  '7629': 'Pécs', '7630': 'Pécs', '7631': 'Pécs', '7632': 'Pécs',
+  '7633': 'Pécs', '7634': 'Pécs',
+  '7700': 'Mohács', '7800': 'Siklós',
+
+  // Közép-Dunántúl
+  '8000': 'Székesfehérvár', '8001': 'Székesfehérvár', '8002': 'Székesfehérvár',
+  '8100': 'Várpalota', '8200': 'Veszprém', '8201': 'Veszprém',
+  '8300': 'Tapolca', '8360': 'Keszthely', '8400': 'Ajka', '8420': 'Zirc',
+  '8500': 'Pápa', '8600': 'Siófok', '8700': 'Marcali',
+  '8800': 'Nagykanizsa', '8900': 'Zalaegerszeg', '8901': 'Zalaegerszeg',
+
+  // Nyugat-Dunántúl
+  '9021': 'Győr', '9022': 'Győr', '9023': 'Győr', '9024': 'Győr',
+  '9025': 'Győr', '9026': 'Győr', '9027': 'Győr', '9028': 'Győr', '9029': 'Győr',
+  '9100': 'Mosonmagyaróvár', '9200': 'Mosonmagyaróvár',
+  '9300': 'Csorna', '9400': 'Sopron', '9401': 'Sopron',
+  '9500': 'Celldömölk', '9600': 'Sárvár',
+  '9700': 'Szombathely', '9701': 'Szombathely',
+  '9800': 'Vasvár', '9900': 'Körmend'
+}
+
+export const iranyitoszamService = {
+  /**
+   * Település keresése irányítószám alapján
+   * @param {string} iranyitoszam - 4 számjegyű irányítószám
+   * @returns {string|null} - Település neve vagy null ha nem található
+   */
+  getTelepules(iranyitoszam) {
+    if (!iranyitoszam || iranyitoszam.length !== 4) {
+      return null
+    }
+    return iranyitoszamok[iranyitoszam] || null
+  },
+
+  /**
+   * Irányítószám validálás
+   * @param {string} iranyitoszam
+   * @returns {boolean}
+   */
+  isValid(iranyitoszam) {
+    if (!iranyitoszam) return false
+    // 4 számjegy, 1-9 között kezdődik
+    return /^[1-9]\d{3}$/.test(iranyitoszam)
+  },
+
+  /**
+   * Összes irányítószám lekérése (kereséshez)
+   * @returns {Object}
+   */
+  getAll() {
+    return iranyitoszamok
+  }
+}
