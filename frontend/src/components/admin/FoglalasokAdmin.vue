@@ -11,107 +11,159 @@
 
     <div v-if="loading" class="loading">Betöltés...</div>
 
-    <div v-else-if="foglalasok.length === 0" class="empty-state">
+    <div v-else-if="osszesFoglalas.length === 0" class="empty-state">
       <p>📭 Nincs még foglalás az adatbázisban.</p>
     </div>
 
-    <table v-else class="data-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Eszköz</th>
-          <th>Ügyfél</th>
-          <th>Kezdés</th>
-          <th>Eltelt idő</th>
-          <th>Bevétel</th>
-          <th>Státusz</th>
-          <th>Műveletek</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="foglalas in foglalasok" :key="foglalas.foglalasID">
-          <td><strong>#{{ foglalas.foglalasID }}</strong></td>
-          <td>
-            <div class="eszkoz-info">
-              {{ foglalas.eszkozNev }}
-            </div>
-          </td>
-          <td>
-            <div>
-              <strong>{{ foglalas.nev }}</strong>
-            </div>
-            <div class="small">{{ foglalas.email }}</div>
-            <div class="small">{{ foglalas.telefonszam }}</div>
-          </td>
-          <td>
-            <div class="small">{{ formatDate(foglalas.foglalasKezdete) }}</div>
-            <div v-if="foglalas.kiadasIdopontja" class="small text-success">
-              ✅ Kiadva: {{ formatDate(foglalas.kiadasIdopontja) }}
-            </div>
-            <div v-if="foglalas.visszahozasIdopontja" class="small text-info">
-              🔵 Visszahozva: {{ formatDate(foglalas.visszahozasIdopontja) }}
-            </div>
-          </td>
-          <td>
-            <span v-if="foglalas.elszamolhatoIdo">{{ formatIdo(foglalas.elszamolhatoIdo) }}</span>
-            <span v-else-if="foglalas.status === 'Kiadva'" class="text-muted">
-              ⏱️ {{ getElapsedTime(foglalas.kiadasIdopontja) }}
-            </span>
-            <span v-else class="text-muted">-</span>
-          </td>
-          <td>
-            <strong v-if="foglalas.fizetendoOsszeg" class="bevetel">
-              {{ formatAr(foglalas.fizetendoOsszeg) }} Ft
-            </strong>
-            <strong v-else-if="foglalas.bevetel" class="bevetel">
-              {{ formatAr(foglalas.bevetel) }} Ft
-            </strong>
-            <span v-else class="text-muted">-</span>
-          </td>
-          <td>
-            <span :class="['badge', getBadgeClass(foglalas.status)]">
-              {{ getStatusText(foglalas.status) }}
-            </span>
-          </td>
-          <td class="actions">
-            <!-- 🟢 KIADVA gomb - csak Aktiv foglaláshoz -->
-            <button
-              v-if="foglalas.status === 'Aktiv'"
-              class="btn-kiad"
-              @click="kiadEszkoz(foglalas)"
-              title="Admin jóváhagyja - eszköz kiadása"
-            >
-              🟢 KIADVA
-            </button>
+    <template v-else>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Eszköz</th>
+            <th>Ügyfél</th>
+            <th>Kezdés</th>
+            <th>Eltelt idő</th>
+            <th>Bevétel</th>
+            <th>Státusz</th>
+            <th>Műveletek</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="foglalas in aktualisOldalFoglalasai" :key="foglalas.foglalasID">
+            <td><strong>#{{ foglalas.foglalasID }}</strong></td>
+            <td>
+              <div class="eszkoz-info">
+                {{ foglalas.eszkozNev }}
+              </div>
+            </td>
+            <td>
+              <div>
+                <strong>{{ foglalas.nev }}</strong>
+              </div>
+              <div class="small">{{ foglalas.email }}</div>
+              <div class="small">{{ foglalas.telefonszam }}</div>
+            </td>
+            <td>
+              <div class="small">{{ formatDate(foglalas.foglalasKezdete) }}</div>
+              <div v-if="foglalas.kiadasIdopontja" class="small text-success">
+                ✅ Kiadva: {{ formatDate(foglalas.kiadasIdopontja) }}
+              </div>
+              <div v-if="foglalas.visszahozasIdopontja" class="small text-info">
+                🔵 Visszahozva: {{ formatDate(foglalas.visszahozasIdopontja) }}
+              </div>
+            </td>
+            <td>
+              <span v-if="foglalas.elszamolhatoIdo">{{ formatIdo(foglalas.elszamolhatoIdo) }}</span>
+              <span v-else-if="foglalas.status === 'Kiadva'" class="text-muted">
+                ⏱️ {{ getElapsedTime(foglalas.kiadasIdopontja) }}
+              </span>
+              <span v-else class="text-muted">-</span>
+            </td>
+            <td>
+              <strong v-if="foglalas.fizetendoOsszeg" class="bevetel">
+                {{ formatAr(foglalas.fizetendoOsszeg) }} Ft
+              </strong>
+              <strong v-else-if="foglalas.bevetel" class="bevetel">
+                {{ formatAr(foglalas.bevetel) }} Ft
+              </strong>
+              <span v-else class="text-muted">-</span>
+            </td>
+            <td>
+              <span :class="['badge', getBadgeClass(foglalas.status)]">
+                {{ getStatusText(foglalas.status) }}
+              </span>
+            </td>
+            <td class="actions">
+              <!-- 🟢 KIADVA gomb - csak Aktiv foglaláshoz -->
+              <button
+                v-if="foglalas.status === 'Aktiv'"
+                class="btn-kiad"
+                @click="kiadEszkoz(foglalas)"
+                title="Admin jóváhagyja - eszköz kiadása"
+              >
+                🟢 KIADVA
+              </button>
 
-            <!-- 🔵 VISSZAHOZVA gomb - csak Kiadva foglaláshoz -->
-            <button
-              v-if="foglalas.status === 'Kiadva'"
-              class="btn-visszahoz"
-              @click="visszahozEszkoz(foglalas)"
-              title="Eszköz visszahozva"
-            >
-              🔵 VISSZAHOZVA
-            </button>
+              <!-- 🔵 VISSZAHOZVA gomb - csak Kiadva foglaláshoz -->
+              <button
+                v-if="foglalas.status === 'Kiadva'"
+                class="btn-visszahoz"
+                @click="visszahozEszkoz(foglalas)"
+                title="Eszköz visszahozva"
+              >
+                🔵 VISSZAHOZVA
+              </button>
 
-            <!-- 🗑️ TÖRLÉS gomb - Aktiv vagy Kiadva státuszhoz -->
-            <button
-              v-if="foglalas.status === 'Aktiv' || foglalas.status === 'Kiadva'"
-              class="btn-delete"
-              @click="torolFoglalas(foglalas)"
-              title="Foglalás törlése"
-            >
-              🗑️
-            </button>
+              <!-- 🗑️ TÖRLÉS gomb - Aktiv vagy Kiadva státuszhoz -->
+              <button
+                v-if="foglalas.status === 'Aktiv' || foglalas.status === 'Kiadva'"
+                class="btn-delete"
+                @click="torolFoglalas(foglalas)"
+                title="Foglalás törlése"
+              >
+                🗑️
+              </button>
 
-            <!-- 👁️ Részletek gomb - mindenkinek -->
-            <button class="btn-info" @click="openDetailModal(foglalas)" title="Részletek">
-              👁️
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+              <!-- 👁️ Részletek gomb - mindenkinek -->
+              <button class="btn-info" @click="openDetailModal(foglalas)" title="Részletek">
+                👁️
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- ============================================================================ -->
+      <!-- ✅ LAPOZÓ GOMBOK -->
+      <!-- ============================================================================ -->
+      <div class="pagination">
+        <button 
+          class="pagination-btn" 
+          @click="goToPage(1)" 
+          :disabled="currentPage === 1"
+          title="Első oldal"
+        >
+          ⏮️
+        </button>
+        
+        <button 
+          class="pagination-btn" 
+          @click="goToPage(currentPage - 1)" 
+          :disabled="currentPage === 1"
+          title="Előző oldal"
+        >
+          ◀️ Előző
+        </button>
+
+        <div class="pagination-info">
+          <span class="page-numbers">
+            <strong>{{ currentPage }}</strong> / {{ totalPages }}
+          </span>
+          <span class="total-count">
+            (összesen {{ osszesElemSzam }} foglalás)
+          </span>
+        </div>
+
+        <button 
+          class="pagination-btn" 
+          @click="goToPage(currentPage + 1)" 
+          :disabled="currentPage === totalPages"
+          title="Következő oldal"
+        >
+          Következő ▶️
+        </button>
+
+        <button 
+          class="pagination-btn" 
+          @click="goToPage(totalPages)" 
+          :disabled="currentPage === totalPages"
+          title="Utolsó oldal"
+        >
+          ⏭️
+        </button>
+      </div>
+    </template>
 
     <!-- Részletek Modal -->
     <Teleport to="body">
@@ -205,15 +257,36 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import axios from 'axios'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5265/api'
 
-const foglalasok = ref([])
+// ============================================================================
+// ✅ FRONTEND LAPOZÁS - ÖSSZES ADT LETÖLTJÜK, ITT LAPOZUNK
+// ============================================================================
+const osszesFoglalas = ref([]) // Minden foglalás a backend-től
 const loading = ref(false)
 const modalOpen = ref(false)
 const selectedFoglalas = ref({})
+
+const currentPage = ref(1)
+const pageSize = ref(5) // 5 elem oldalanként
+
+// Computed property: aktuális oldal elemei
+const aktualisOldalFoglalasai = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  const end = start + pageSize.value
+  return osszesFoglalas.value.slice(start, end)
+})
+
+// Computed property: összes elemszám
+const osszesElemSzam = computed(() => osszesFoglalas.value.length)
+
+// Computed property: összes oldal száma
+const totalPages = computed(() => {
+  return Math.ceil(osszesElemSzam.value / pageSize.value) || 1
+})
 
 let autoRefreshInterval = null
 
@@ -222,7 +295,7 @@ onMounted(() => {
   
   // Automatikus frissítés 10 másodpercenként
   autoRefreshInterval = setInterval(() => {
-    fetchFoglalasok(true) // true = csendes frissítés (nincs loading spinner)
+    fetchFoglalasok(true) // true = csendes frissítés
   }, 10000)
 })
 
@@ -232,17 +305,34 @@ onUnmounted(() => {
   }
 })
 
+// ============================================================================
+// ✅ EREDETI BACKEND HÍVÁS - VÁLTOZATLAN
+// ============================================================================
 async function fetchFoglalasok(silent = false) {
   if (!silent) loading.value = true
   
   try {
     const response = await axios.get(`${API_BASE}/foglalasok`)
-    foglalasok.value = response.data
+    osszesFoglalas.value = response.data
+    
+    // Ha túl sok oldalt lapozunk előre és közben törölnek elemeket,
+    // visszalépünk az utolsó létező oldalra
+    if (currentPage.value > totalPages.value) {
+      currentPage.value = totalPages.value
+    }
   } catch (err) {
     console.error('Foglalások betöltése sikertelen:', err)
   } finally {
     if (!silent) loading.value = false
   }
+}
+
+// ============================================================================
+// ✅ LAPOZÓ FUNKCIÓ
+// ============================================================================
+function goToPage(page) {
+  if (page < 1 || page > totalPages.value) return
+  currentPage.value = page
 }
 
 async function kiadEszkoz(foglalas) {
@@ -616,6 +706,72 @@ function getBadgeClass(status) {
   background: #f5f1e8;
 }
 
+/* ============================================================================ */
+/* ✅ LAPOZÓ STÍLUSOK */
+/* ============================================================================ */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  padding: 20px;
+  background: #f5f1e8;
+  border-radius: 12px;
+}
+
+.pagination-btn {
+  padding: 10px 18px;
+  background: white;
+  border: 2px solid #d4c5b0;
+  border-radius: 8px;
+  color: #3d2f1f;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #6b8e23;
+  color: white;
+  border-color: #6b8e23;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(107, 142, 35, 0.3);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: #e8dcc8;
+  border-color: #d4c5b0;
+  color: #9b8b7a;
+}
+
+.pagination-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 0 20px;
+}
+
+.page-numbers {
+  font-size: 18px;
+  color: #3d2f1f;
+}
+
+.page-numbers strong {
+  font-size: 24px;
+  color: #6b8e23;
+}
+
+.total-count {
+  font-size: 12px;
+  color: #6b5d4f;
+}
+
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -695,5 +851,25 @@ function getBadgeClass(status) {
   justify-content: flex-end;
   border-top: 2px solid #e8dcc8;
   padding-top: 24px;
+}
+
+/* Reszponzív lapozó kisebb képernyőkön */
+@media (max-width: 768px) {
+  .pagination {
+    flex-wrap: wrap;
+  }
+
+  .pagination-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .page-numbers {
+    font-size: 16px;
+  }
+
+  .page-numbers strong {
+    font-size: 20px;
+  }
 }
 </style>

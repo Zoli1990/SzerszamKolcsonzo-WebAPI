@@ -10,6 +10,8 @@
           <a href="#eszkozok" class="nav-link" @click.prevent="scrollToEszkozok">Eszközök</a>
           <!-- Vélemények link -->
           <a href="#velemenyek" class="nav-link" @click.prevent="scrollToVelemenyek">Vélemények</a>
+          <!-- Kapcsolat link -->
+          <a href="#kapcsolat" class="nav-link" @click.prevent="scrollToKapcsolat">Kapcsolat</a>
 
           <!-- Admin link (csak adminnak) -->
           <RouterLink v-if="authStore.isAdmin" to="/admin" class="nav-link"> Admin </RouterLink>
@@ -94,6 +96,7 @@ async function handleLogout() {
     router.push('/')
   }
 }
+
 // Főoldal kattintás kezelése
 function handleHomeClick(event) {
   event.preventDefault()
@@ -143,6 +146,28 @@ function scrollToEszkozok() {
     })
   } else {
     const element = document.getElementById('eszkozok')
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
+}
+
+// ============================================================================
+// ✅ ÚJ: Scroll a kapcsolat szekcióhoz
+// ============================================================================
+function scrollToKapcsolat() {
+  // Ha nem a főoldalon vagyunk, először navigálj oda
+  if (router.currentRoute.value.path !== '/') {
+    router.push('/').then(() => {
+      setTimeout(() => {
+        const element = document.getElementById('kapcsolat')
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      }, 100)
+    })
+  } else {
+    const element = document.getElementById('kapcsolat')
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }

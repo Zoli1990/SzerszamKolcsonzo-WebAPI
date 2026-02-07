@@ -49,6 +49,11 @@
      <!-- Vélemények szekció -->
     <VelemenySzekcio id="velemenyek" />
 
+    <!-- ============================================================================ -->
+    <!-- ✅ ÚJ: Kapcsolat szekció -->
+    <!-- ============================================================================ -->
+    <KapcsolatSection id="kapcsolat" />
+
     <!-- ✅ JAVÍTVA: Foglalás Modal csak ha van kiválasztott eszköz -->
     <FoglalasModal
       v-if="selectedEszkoz"
@@ -72,6 +77,7 @@ import { kategoriaService } from '@/services/kategoriaService'
 import EszkozCard from '@/components/eszkozok/EszkozCard.vue'
 import FoglalasModal from '@/components/foglalas/FoglalasModal.vue'
 import VelemenySzekcio from '@/components/VelemenySzekcio.vue'
+import KapcsolatSection from '@/components/KapcsolatSection.vue'
 
 const eszkozStore = useEszkozStore()
 const kategoriak = ref([])
