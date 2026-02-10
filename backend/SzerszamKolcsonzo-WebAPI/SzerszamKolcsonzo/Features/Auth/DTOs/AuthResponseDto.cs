@@ -1,5 +1,5 @@
-// ============================================================================
-// Features/Auth/DTOs/AuthResponseDto.cs
+﻿// ============================================================================
+// Features/Auth/DTOs/AuthResponseDto.cs - FRISSÍTETT (kibővített cím mezőkkel)
 // ============================================================================
 
 namespace SzerszamKolcsonzo.Features.Auth.DTOs
@@ -8,6 +8,14 @@ namespace SzerszamKolcsonzo.Features.Auth.DTOs
         string Token,
         string Email,
         string Role,
-        DateTime ExpiresAt
+        DateTime ExpiresAt,
+
+        // === KIBŐVÍTETT CÍM MEZŐK ===
+        string? Iranyitoszam,
+        string? Telepules,
+        string? Utca,
+        string? Hazszam,
+        string? Telefonszam,
+        string? Cim
     );
 }

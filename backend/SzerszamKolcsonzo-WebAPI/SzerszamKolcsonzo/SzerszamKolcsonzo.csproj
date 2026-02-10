@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
@@ -7,25 +7,29 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<Compile Remove="Features\Push\NewFolder\**" />
+		<Content Remove="Features\Push\NewFolder\**" />
+		<EmbeddedResource Remove="Features\Push\NewFolder\**" />
+		<None Remove="Features\Push\NewFolder\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.2" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
-
-		<!-- 🔹 EZ HIÁNYZOTT -->
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
-
 		<PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.14.0" />
+		<PackageReference Include="Moq" Version="4.20.72" />
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
 		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Folder Include="Controllers\" />
-		<Folder Include="Migrations\" />
+		<PackageReference Include="WebPush" Version="1.0.12" />
+		<PackageReference Include="xunit.abstractions" Version="2.0.3" />
+		<!-- ❌ TÖRÖLVE: Moq -->
+		<!-- ❌ TÖRÖLVE: xunit -->
 	</ItemGroup>
 
 </Project>

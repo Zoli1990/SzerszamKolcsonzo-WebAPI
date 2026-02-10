@@ -1,8 +1,4 @@
-﻿// ============================================================================
-// Features/ToolRental/Extensions/ToolRentalServiceExtensions.cs
-// ============================================================================
-
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SzerszamKolcsonzo.Data;

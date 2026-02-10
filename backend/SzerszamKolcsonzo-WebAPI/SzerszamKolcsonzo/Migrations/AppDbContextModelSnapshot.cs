@@ -22,6 +22,54 @@ namespace SzerszamKolcsonzo.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("SzerszamKolcsonzo.Features.Push.Models.PushSubscription", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Auth")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)");
+
+                    b.Property<string>("Endpoint")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsAdmin")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime?>("LastPushAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("P256dh")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("UserAgent")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PushSubscriptions");
+                });
+
             modelBuilder.Entity("SzerszamKolcsonzo.Models.Eszkoz", b =>
                 {
                     b.Property<int>("EszkozID")
@@ -40,11 +88,15 @@ namespace SzerszamKolcsonzo.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)");
 
-                    b.Property<int>("KiadasiAr")
-                        .HasColumnType("int");
+                    b.Property<decimal>("KiadasiAr")
+                        .HasColumnType("decimal(65,30)");
 
                     b.Property<string>("Leiras")
                         .HasColumnType("TEXT");
+
+                    b.Property<string>("Megjegyzes")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
 
                     b.Property<string>("Nev")
                         .IsRequired()
@@ -54,8 +106,8 @@ namespace SzerszamKolcsonzo.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int>("Vetelar")
-                        .HasColumnType("int");
+                    b.Property<decimal>("Vetelar")
+                        .HasColumnType("decimal(65,30)");
 
                     b.HasKey("EszkozID");
 
@@ -70,11 +122,11 @@ namespace SzerszamKolcsonzo.Migrations
                             BeszerzesiDatum = new DateTime(2024, 1, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             KategoriaID = 1,
                             KepUrl = "https://www.lidl.ee/static/assets/Card-010-1920x1440px-1715742.jpg",
-                            KiadasiAr = 1500,
+                            KiadasiAr = 1500m,
                             Leiras = "18V-os akkus csavarbehajtó, 2 akkuval",
                             Nev = "parkside x20 csavarbehajtó",
                             Status = 0,
-                            Vetelar = 19990
+                            Vetelar = 19990m
                         },
                         new
                         {
@@ -82,11 +134,11 @@ namespace SzerszamKolcsonzo.Migrations
                             BeszerzesiDatum = new DateTime(2024, 2, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             KategoriaID = 1,
                             KepUrl = "https://www.aktiv.hu/img/70227/112531_altpic_1/500x500/112531.webp?time=1720778937",
-                            KiadasiAr = 1500,
+                            KiadasiAr = 1500m,
                             Leiras = "230mm koronggal, 2200W teljesítmény",
                             Nev = "einhell sarokcsiszoló",
                             Status = 0,
-                            Vetelar = 23000
+                            Vetelar = 23000m
                         },
                         new
                         {
@@ -94,11 +146,11 @@ namespace SzerszamKolcsonzo.Migrations
                             BeszerzesiDatum = new DateTime(2024, 3, 10, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             KategoriaID = 2,
                             KepUrl = "https://storagenahumain.blob.core.windows.net/strapi-media/0014_thumb_0aa1d5478d.jpg",
-                            KiadasiAr = 2000,
-                            Leiras = "Festékvastagság mérésére alkalmas digitális műszer",
-                            Nev = "rétegvastagságmérő",
+                            KiadasiAr = 2000m,
+                            Leiras = "Festékvastagság mérésére alkalmas digitális mûszer",
+                            Nev = "rétegvastagságmérõ",
                             Status = 0,
-                            Vetelar = 43500
+                            Vetelar = 43500m
                         },
                         new
                         {
@@ -106,11 +158,11 @@ namespace SzerszamKolcsonzo.Migrations
                             BeszerzesiDatum = new DateTime(2024, 4, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             KategoriaID = 2,
                             KepUrl = "https://img-1.kwcdn.com/product/fancy/558dfa16-f249-45d5-ad38-3841b1577724.jpg?imageView2/2/w/800/q/70/format/avif",
-                            KiadasiAr = 5000,
-                            Leiras = "Érintésmentes hőmérsékletmérő -50 és 800°C között",
-                            Nev = "infra hőmérő",
+                            KiadasiAr = 5000m,
+                            Leiras = "Érintésmentes hõmérsékletmérõ -50 és 800°C között",
+                            Nev = "infra hõmérõ",
                             Status = 0,
-                            Vetelar = 87999
+                            Vetelar = 87999m
                         },
                         new
                         {
@@ -118,11 +170,11 @@ namespace SzerszamKolcsonzo.Migrations
                             BeszerzesiDatum = new DateTime(2023, 5, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             KategoriaID = 3,
                             KepUrl = "https://cdn.myshoptet.com/usr/www.bavord.hu/user/shop/big/6494-1_sorpad-garnitura-hattalaval.jpg?66504c5a",
-                            KiadasiAr = 500,
+                            KiadasiAr = 500m,
                             Leiras = "Összecsukható fa sörpad garnitúra",
                             Nev = "sörpad",
                             Status = 0,
-                            Vetelar = 35000
+                            Vetelar = 35000m
                         },
                         new
                         {
@@ -130,11 +182,11 @@ namespace SzerszamKolcsonzo.Migrations
                             BeszerzesiDatum = new DateTime(2023, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             KategoriaID = 3,
                             KepUrl = "https://xn--ednyek-cva.hu/storage/images/cache/data/Bogr%C3%A1cs%C3%A1llv%C3%A1nyok/IMG_3473-max1920-max1080.JPG",
-                            KiadasiAr = 500,
+                            KiadasiAr = 500m,
                             Leiras = "Háromlábú bográcsállvány, állítható lánccal",
                             Nev = "bográcsállvány",
                             Status = 0,
-                            Vetelar = 17000
+                            Vetelar = 17000m
                         });
                 });
 
@@ -146,13 +198,16 @@ namespace SzerszamKolcsonzo.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("FoglalasID"));
 
-                    b.Property<int>("Bevetel")
-                        .HasColumnType("int");
+                    b.Property<decimal?>("Bevetel")
+                        .HasColumnType("decimal(65,30)");
 
                     b.Property<string>("Cim")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)");
+
+                    b.Property<int?>("ElszamolhatoIdo")
+                        .HasColumnType("int");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -162,10 +217,13 @@ namespace SzerszamKolcsonzo.Migrations
                     b.Property<int>("EszkozID")
                         .HasColumnType("int");
 
+                    b.Property<decimal?>("FizetendoOsszeg")
+                        .HasColumnType("decimal(65,30)");
+
                     b.Property<DateTime>("FoglalasKezdete")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<DateTime>("FoglalasVege")
+                    b.Property<DateTime?>("KiadasIdopontja")
                         .HasColumnType("datetime(6)");
 
                     b.Property<DateTime>("LetrehozasDatum")
@@ -176,9 +234,6 @@ namespace SzerszamKolcsonzo.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
-                    b.Property<int>("OraSzam")
-                        .HasColumnType("int");
-
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -186,6 +241,9 @@ namespace SzerszamKolcsonzo.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("varchar(20)");
+
+                    b.Property<DateTime?>("VisszahozasIdopontja")
+                        .HasColumnType("datetime(6)");
 
                     b.HasKey("FoglalasID");
 
@@ -197,32 +255,36 @@ namespace SzerszamKolcsonzo.Migrations
                         new
                         {
                             FoglalasID = 1,
-                            Bevetel = 15000,
+                            Bevetel = 14875m,
                             Cim = "Budapest, Fő utca 1.",
+                            ElszamolhatoIdo = 595,
                             Email = "kovacs.janos@example.com",
                             EszkozID = 1,
+                            FizetendoOsszeg = 14875m,
                             FoglalasKezdete = new DateTime(2025, 1, 10, 9, 0, 0, 0, DateTimeKind.Unspecified),
-                            FoglalasVege = new DateTime(2025, 1, 10, 19, 0, 0, 0, DateTimeKind.Unspecified),
+                            KiadasIdopontja = new DateTime(2025, 1, 10, 9, 5, 0, 0, DateTimeKind.Unspecified),
                             LetrehozasDatum = new DateTime(2025, 1, 9, 14, 30, 0, 0, DateTimeKind.Unspecified),
                             Nev = "Kovács János",
-                            OraSzam = 10,
-                            Status = 1,
-                            Telefonszam = "+36301234567"
+                            Status = 3,
+                            Telefonszam = "+36301234567",
+                            VisszahozasIdopontja = new DateTime(2025, 1, 10, 19, 0, 0, 0, DateTimeKind.Unspecified)
                         },
                         new
                         {
                             FoglalasID = 2,
-                            Bevetel = 18000,
+                            Bevetel = 17916.67m,
                             Cim = "Szeged, Kossuth utca 12.",
+                            ElszamolhatoIdo = 2150,
                             Email = "nagy.peter@example.com",
                             EszkozID = 5,
+                            FizetendoOsszeg = 17916.67m,
                             FoglalasKezdete = new DateTime(2025, 3, 20, 10, 0, 0, 0, DateTimeKind.Unspecified),
-                            FoglalasVege = new DateTime(2025, 3, 21, 22, 0, 0, 0, DateTimeKind.Unspecified),
+                            KiadasIdopontja = new DateTime(2025, 3, 20, 10, 10, 0, 0, DateTimeKind.Unspecified),
                             LetrehozasDatum = new DateTime(2025, 3, 18, 11, 15, 0, 0, DateTimeKind.Unspecified),
                             Nev = "Nagy Péter",
-                            OraSzam = 36,
-                            Status = 1,
-                            Telefonszam = "+36209876543"
+                            Status = 3,
+                            Telefonszam = "+36209876543",
+                            VisszahozasIdopontja = new DateTime(2025, 3, 21, 22, 0, 0, 0, DateTimeKind.Unspecified)
                         });
                 });
 
@@ -261,7 +323,7 @@ namespace SzerszamKolcsonzo.Migrations
                         {
                             KategoriaID = 2,
                             KepUrl = "https://www.centertool.hu/wp-content/uploads/2012/01/hosszmerok.jpg",
-                            Nev = "mérőműszerek"
+                            Nev = "mérõmûszerek"
                         },
                         new
                         {

@@ -1,4 +1,5 @@
-using Microsoft.EntityFrameworkCore;
+Ôªøusing Microsoft.EntityFrameworkCore;
+using SzerszamKolcsonzo.Features.Push.Models;
 using SzerszamKolcsonzo.Models;
 
 namespace SzerszamKolcsonzo.Data
@@ -12,18 +13,19 @@ namespace SzerszamKolcsonzo.Data
         public DbSet<Kategoria> Kategoriak { get; set; }
         public DbSet<Eszkoz> Eszkozok { get; set; }
         public DbSet<Foglalas> Foglalasok { get; set; }
+        public DbSet<PushSubscription> PushSubscriptions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Kategoria konfigur·ciÛ
+            // Kategoria konfigur√°ci√≥
             modelBuilder.Entity<Kategoria>(entity =>
             {
                 entity.HasIndex(e => e.Nev).IsUnique();
             });
 
-            // Eszkoz konfigur·ciÛ
+            // Eszkoz konfigur√°ci√≥
             modelBuilder.Entity<Eszkoz>(entity =>
             {
                 entity.HasOne(e => e.Kategoria)
@@ -32,7 +34,7 @@ namespace SzerszamKolcsonzo.Data
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // Foglalas konfigur·ciÛ
+            // Foglalas konfigur√°ci√≥
             modelBuilder.Entity<Foglalas>(entity =>
             {
                 entity.HasOne(f => f.Eszkoz)
@@ -47,37 +49,37 @@ namespace SzerszamKolcsonzo.Data
 
         static void SeedData(ModelBuilder modelBuilder)
         {
-            // KategÛri·k
+            // Kateg√≥ri√°k
             modelBuilder.Entity<Kategoria>().HasData(
                 new Kategoria
                 {
                     KategoriaID = 1,
-                    Nev = "kÈzi szersz·mok",
+                    Nev = "k√©zi szersz√°mok",
                     KepUrl = "https://www.praktiker.hu/_next/image?url=https%3A%2F%2Fwebimg.praktiker.hu%2F_upload%2Fpraktiker_magazine_category_pic%2F81%2Fimage%2FGettyImages-546947363.jpg&w=600&q=75"
                 },
                 new Kategoria
                 {
                     KategoriaID = 2,
-                    Nev = "mÈrım˚szerek",
+                    Nev = "m√©r√µm√ªszerek",
                     KepUrl = "https://www.centertool.hu/wp-content/uploads/2012/01/hosszmerok.jpg"
                 },
                 new Kategoria
                 {
                     KategoriaID = 3,
-                    Nev = "kerti eszkˆzˆk",
+                    Nev = "kerti eszk√∂z√∂k",
                     KepUrl = "https://www.kertpont.hu/wp-content/uploads/2024/02/kerti-szerszamok.jpg"
                 }
             );
 
 
-            // Eszkˆzˆk
+            // Eszk√∂z√∂k
             modelBuilder.Entity<Eszkoz>().HasData(
                 new Eszkoz
                 {
                     EszkozID = 1,
                     KategoriaID = 1,
-                    Nev = "parkside x20 csavarbehajtÛ",
-                    Leiras = "18V-os akkus csavarbehajtÛ, 2 akkuval",
+                    Nev = "parkside x20 csavarbehajt√≥",
+                    Leiras = "18V-os akkus csavarbehajt√≥, 2 akkuval",
                     Vetelar = 19990,
                     KiadasiAr = 1500,
                     BeszerzesiDatum = new DateTime(2024, 1, 15),
@@ -88,8 +90,8 @@ namespace SzerszamKolcsonzo.Data
                 {
                     EszkozID = 2,
                     KategoriaID = 1,
-                    Nev = "einhell sarokcsiszolÛ",
-                    Leiras = "230mm koronggal, 2200W teljesÌtmÈny",
+                    Nev = "einhell sarokcsiszol√≥",
+                    Leiras = "230mm koronggal, 2200W teljes√≠tm√©ny",
                     Vetelar = 23000,
                     KiadasiAr = 1500,
                     BeszerzesiDatum = new DateTime(2024, 2, 20),
@@ -100,8 +102,8 @@ namespace SzerszamKolcsonzo.Data
                 {
                     EszkozID = 3,
                     KategoriaID = 2,
-                    Nev = "rÈtegvastags·gmÈrı",
-                    Leiras = "FestÈkvastags·g mÈrÈsÈre alkalmas digit·lis m˚szer",
+                    Nev = "r√©tegvastags√°gm√©r√µ",
+                    Leiras = "Fest√©kvastags√°g m√©r√©s√©re alkalmas digit√°lis m√ªszer",
                     Vetelar = 43500,
                     KiadasiAr = 2000,
                     BeszerzesiDatum = new DateTime(2024, 3, 10),
@@ -112,8 +114,8 @@ namespace SzerszamKolcsonzo.Data
                 {
                     EszkozID = 4,
                     KategoriaID = 2,
-                    Nev = "infra hımÈrı",
-                    Leiras = "…rintÈsmentes hımÈrsÈkletmÈrı -50 Ès 800∞C kˆzˆtt",
+                    Nev = "infra h√µm√©r√µ",
+                    Leiras = "√ârint√©smentes h√µm√©rs√©kletm√©r√µ -50 √©s 800¬∞C k√∂z√∂tt",
                     Vetelar = 87999,
                     KiadasiAr = 5000,
                     BeszerzesiDatum = new DateTime(2024, 4, 5),
@@ -124,8 +126,8 @@ namespace SzerszamKolcsonzo.Data
                 {
                     EszkozID = 5,
                     KategoriaID = 3,
-                    Nev = "sˆrpad",
-                    Leiras = "÷sszecsukhatÛ fa sˆrpad garnit˙ra",
+                    Nev = "s√∂rpad",
+                    Leiras = "√ñsszecsukhat√≥ fa s√∂rpad garnit√∫ra",
                     Vetelar = 35000,
                     KiadasiAr = 500,
                     BeszerzesiDatum = new DateTime(2023, 5, 12),
@@ -136,8 +138,8 @@ namespace SzerszamKolcsonzo.Data
                 {
                     EszkozID = 6,
                     KategoriaID = 3,
-                    Nev = "bogr·cs·llv·ny",
-                    Leiras = "H·roml·b˙ bogr·cs·llv·ny, ·llÌthatÛ l·nccal",
+                    Nev = "bogr√°cs√°llv√°ny",
+                    Leiras = "H√°roml√°b√∫ bogr√°cs√°llv√°ny, √°ll√≠that√≥ l√°nccal",
                     Vetelar = 17000,
                     KiadasiAr = 500,
                     BeszerzesiDatum = new DateTime(2023, 6, 1),
@@ -146,37 +148,42 @@ namespace SzerszamKolcsonzo.Data
                 }
             );
 
-            // PÈlda foglal·sok
+
+            // P√©lda foglal√°sok - friss√≠tve √∫j s√©m√°ra
             modelBuilder.Entity<Foglalas>().HasData(
                 new Foglalas
                 {
                     FoglalasID = 1,
                     EszkozID = 1,
-                    Nev = "Kov·cs J·nos",
+                    Nev = "Kov√°cs J√°nos",
                     Email = "kovacs.janos@example.com",
                     Telefonszam = "+36301234567",
-                    Cim = "Budapest, Fı utca 1.",
+                    Cim = "Budapest, F≈ë utca 1.",
                     FoglalasKezdete = new DateTime(2025, 1, 10, 9, 0, 0),
-                    FoglalasVege = new DateTime(2025, 1, 10, 19, 0, 0),
-                    OraSzam = 10,
-                    Bevetel = 15000,
+                    Bevetel = 14875,
                     Status = FoglalasStatus.Lezart,
-                    LetrehozasDatum = new DateTime(2025, 1, 9, 14, 30, 0)
+                    LetrehozasDatum = new DateTime(2025, 1, 9, 14, 30, 0),
+                    KiadasIdopontja = new DateTime(2025, 1, 10, 9, 5, 0),
+                    VisszahozasIdopontja = new DateTime(2025, 1, 10, 19, 0, 0),
+                    ElszamolhatoIdo = 595,
+                    FizetendoOsszeg = 14875
                 },
                 new Foglalas
                 {
                     FoglalasID = 2,
                     EszkozID = 5,
-                    Nev = "Nagy PÈter",
+                    Nev = "Nagy P√©ter",
                     Email = "nagy.peter@example.com",
                     Telefonszam = "+36209876543",
                     Cim = "Szeged, Kossuth utca 12.",
                     FoglalasKezdete = new DateTime(2025, 3, 20, 10, 0, 0),
-                    FoglalasVege = new DateTime(2025, 3, 21, 22, 0, 0),
-                    OraSzam = 36,
-                    Bevetel = 18000,
+                    Bevetel = 17916.67m,
                     Status = FoglalasStatus.Lezart,
-                    LetrehozasDatum = new DateTime(2025, 3, 18, 11, 15, 0)
+                    LetrehozasDatum = new DateTime(2025, 3, 18, 11, 15, 0),
+                    KiadasIdopontja = new DateTime(2025, 3, 20, 10, 10, 0),
+                    VisszahozasIdopontja = new DateTime(2025, 3, 21, 22, 0, 0),
+                    ElszamolhatoIdo = 2150,
+                    FizetendoOsszeg = 17916.67m
                 }
             );
         }

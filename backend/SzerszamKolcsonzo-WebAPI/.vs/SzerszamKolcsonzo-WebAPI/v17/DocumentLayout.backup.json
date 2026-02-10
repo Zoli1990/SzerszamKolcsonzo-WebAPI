@@ -3,28 +3,124 @@
   "WorkspaceRootPath": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\controllers\\eszkozokcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\controllers\\eszkozokcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\szerszamkolcsonzo.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\szerszamkolcsonzo.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\services\\foglalasstatusupdateservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\services\\foglalasstatusupdateservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\services\\foglalascleanupservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\services\\foglalascleanupservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\controllers\\createeszkozformdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\controllers\\createeszkozformdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\dtos\\kategoriadto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\dtos\\kategoriadto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\dtos\\eszkozdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\dtos\\eszkozdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\dtos\\foglalasdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\dtos\\foglalasdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\controllers\\eszkozokcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\controllers\\eszkozokcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\models\\eszkoz.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\models\\eszkoz.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\features\\push\\services\\pushnotificationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\features\\push\\services\\pushnotificationservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\szerszamkolcsonzo.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
-      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\szerszamkolcsonzo.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\features\\auth\\services\\_context.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\features\\auth\\services\\_context.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\controllers\\foglalasokcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\controllers\\foglalasokcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\models\\foglalas.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\models\\foglalas.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\features\\push\\extensions\\pushserviceextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\features\\push\\extensions\\pushserviceextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\models\\foglalasstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\models\\foglalasstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\features\\toolrental\\extensions\\toolrentalserviceextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\features\\toolrental\\extensions\\toolrentalserviceextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\features\\push\\services\\vapidsettings.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\features\\push\\services\\vapidsettings.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\features\\auth\\dtos\\profiledto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\features\\auth\\dtos\\profiledto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\features\\push\\controllers\\pushcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\features\\push\\controllers\\pushcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\features\\auth\\data\\authdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\features\\auth\\data\\authdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\models\\eszkozstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\models\\eszkozstatus.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\features\\auth\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\features\\auth\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\features\\auth\\dtos\\authresponsedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\features\\auth\\dtos\\authresponsedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\features\\auth\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\features\\auth\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\features\\auth\\dtos\\logindto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\features\\auth\\dtos\\logindto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\features\\auth\\services\\iauthservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\features\\auth\\services\\iauthservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|d:\\mi\\desktop\\projekt elolrol githez\\szerszamkolcsonzo-webapi\\szerszamkolcsonzo\\features\\auth\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{533749FD-4D47-4C04-A25D-EDA1C98D98D4}|SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj|solutionrelative:szerszamkolcsonzo\\features\\auth\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -34,50 +130,140 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 5,
           "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "FoglalasStatusUpdateService.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Services\\FoglalasStatusUpdateService.cs",
+              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\Services\\FoglalasStatusUpdateService.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Services\\FoglalasStatusUpdateService.cs",
+              "RelativeToolTip": "SzerszamKolcsonzo\\Services\\FoglalasStatusUpdateService.cs",
+              "ViewState": "AgIAAAcAAAAAAAAAAAAqwBAAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-15T21:48:13.436Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "FoglalasDto.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\DTOs\\FoglalasDto.cs",
+              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\DTOs\\FoglalasDto.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\DTOs\\FoglalasDto.cs",
+              "RelativeToolTip": "SzerszamKolcsonzo\\DTOs\\FoglalasDto.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAAwB8AAAACAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-29T23:49:49.436Z"
+            },
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "AppDbContext.cs",
-              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Data\\AppDbContext.cs",
-              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\Data\\AppDbContext.cs",
-              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Data\\AppDbContext.cs",
-              "RelativeToolTip": "SzerszamKolcsonzo\\Data\\AppDbContext.cs",
-              "ViewState": "AgIAAB8AAAAAAAAAAAAuwAAAAAAAAAAAAAAAAA==",
+              "Title": "Foglalascleanupservice.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Services\\Foglalascleanupservice.cs",
+              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\Services\\Foglalascleanupservice.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Services\\Foglalascleanupservice.cs",
+              "RelativeToolTip": "SzerszamKolcsonzo\\Services\\Foglalascleanupservice.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-06T21:12:36.829Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "SzerszamKolcsonzo",
-              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj",
-              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj",
-              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj",
-              "RelativeToolTip": "SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-11-06T20:41:59.88Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "appsettings.Development.json",
-              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\appsettings.Development.json",
-              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\appsettings.Development.json",
-              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\appsettings.Development.json",
-              "RelativeToolTip": "SzerszamKolcsonzo\\appsettings.Development.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-11-06T20:41:55.442Z",
+              "WhenOpened": "2025-11-29T23:52:36.949Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 3,
+              "Title": "CreateEszkozFormDto.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Controllers\\CreateEszkozFormDto.cs",
+              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\Controllers\\CreateEszkozFormDto.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Controllers\\CreateEszkozFormDto.cs",
+              "RelativeToolTip": "SzerszamKolcsonzo\\Controllers\\CreateEszkozFormDto.cs",
+              "ViewState": "AgIAAAEAAAAAAAAAAAAowAwAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-07T11:03:49.336Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "SzerszamKolcsonzo.csproj",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj",
+              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj",
+              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj",
+              "RelativeToolTip": "SzerszamKolcsonzo\\SzerszamKolcsonzo.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-12-13T08:01:48.299Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "EszkozDto.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\DTOs\\EszkozDto.cs",
+              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\DTOs\\EszkozDto.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\DTOs\\EszkozDto.cs",
+              "RelativeToolTip": "SzerszamKolcsonzo\\DTOs\\EszkozDto.cs",
+              "ViewState": "AgIAACIAAAAAAAAAAAAkwCsAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-03T21:44:25.661Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "EszkozokController.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Controllers\\EszkozokController.cs",
+              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\Controllers\\EszkozokController.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Controllers\\EszkozokController.cs",
+              "RelativeToolTip": "SzerszamKolcsonzo\\Controllers\\EszkozokController.cs",
+              "ViewState": "AgIAADsAAAAAAAAAAAAgwEMAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-03T21:51:33.618Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Eszkoz.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Models\\Eszkoz.cs",
+              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\Models\\Eszkoz.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Models\\Eszkoz.cs",
+              "RelativeToolTip": "SzerszamKolcsonzo\\Models\\Eszkoz.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAAwB4AAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-07T20:09:53.163Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "KategoriaDto.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\DTOs\\KategoriaDto.cs",
+              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\DTOs\\KategoriaDto.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\DTOs\\KategoriaDto.cs",
+              "RelativeToolTip": "SzerszamKolcsonzo\\DTOs\\KategoriaDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-07T20:19:24.695Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "FoglalasokController.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Controllers\\FoglalasokController.cs",
+              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\Controllers\\FoglalasokController.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Controllers\\FoglalasokController.cs",
+              "RelativeToolTip": "SzerszamKolcsonzo\\Controllers\\FoglalasokController.cs",
+              "ViewState": "AgIAAP0AAAAAAAAAAAASwAYBAAA6AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-29T22:44:20.277Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
               "Title": "appsettings.json",
               "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\appsettings.json",
               "RelativeDocumentMoniker": "SzerszamKolcsonzo\\appsettings.json",
@@ -85,34 +271,235 @@
               "RelativeToolTip": "SzerszamKolcsonzo\\appsettings.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-11-06T20:41:45.565Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-01-23T15:54:53.264Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "EszkozokController.cs",
-              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Controllers\\EszkozokController.cs",
-              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\Controllers\\EszkozokController.cs",
-              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Controllers\\EszkozokController.cs",
-              "RelativeToolTip": "SzerszamKolcsonzo\\Controllers\\EszkozokController.cs",
-              "ViewState": "AgIAABUAAAAAAAAAAAAswCwAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 10,
+              "Title": "PushNotificationService.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Features\\Push\\Services\\PushNotificationService.cs",
+              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\Features\\Push\\Services\\PushNotificationService.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Features\\Push\\Services\\PushNotificationService.cs",
+              "RelativeToolTip": "SzerszamKolcsonzo\\Features\\Push\\Services\\PushNotificationService.cs",
+              "ViewState": "AgIAADkBAAAAAAAAAAASwEQBAAAwAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-03T21:51:33.618Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-06T11:29:22.479Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "EszkozDto.cs",
-              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\DTOs\\EszkozDto.cs",
-              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\DTOs\\EszkozDto.cs",
-              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\DTOs\\EszkozDto.cs",
-              "RelativeToolTip": "SzerszamKolcsonzo\\DTOs\\EszkozDto.cs",
+              "DocumentIndex": 11,
+              "Title": "_context.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Features\\Auth\\Services\\_context.cs",
+              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\Features\\Auth\\Services\\_context.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Features\\Auth\\Services\\_context.cs",
+              "RelativeToolTip": "SzerszamKolcsonzo\\Features\\Auth\\Services\\_context.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-17T10:22:44.065Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "Foglalas.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Models\\Foglalas.cs",
+              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\Models\\Foglalas.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Models\\Foglalas.cs",
+              "RelativeToolTip": "SzerszamKolcsonzo\\Models\\Foglalas.cs",
+              "ViewState": "AgIAADIAAAAAAAAAAAAIwEYAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-29T23:38:51.878Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "PushServiceExtensions.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Features\\Push\\Extensions\\PushServiceExtensions.cs",
+              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\Features\\Push\\Extensions\\PushServiceExtensions.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Features\\Push\\Extensions\\PushServiceExtensions.cs",
+              "RelativeToolTip": "SzerszamKolcsonzo\\Features\\Push\\Extensions\\PushServiceExtensions.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAxwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-09T20:55:59.881Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "FoglalasStatus.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Models\\FoglalasStatus.cs",
+              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\Models\\FoglalasStatus.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Models\\FoglalasStatus.cs",
+              "RelativeToolTip": "SzerszamKolcsonzo\\Models\\FoglalasStatus.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAwwCkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-29T23:38:17.251Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": ".gitignore",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\.gitignore",
+              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\.gitignore",
+              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\.gitignore",
+              "RelativeToolTip": "SzerszamKolcsonzo\\.gitignore",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-01-09T20:56:56.453Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "ToolRentalServiceExtensions.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Features\\ToolRental\\Extensions\\ToolRentalServiceExtensions.cs",
+              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\Features\\ToolRental\\Extensions\\ToolRentalServiceExtensions.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Features\\ToolRental\\Extensions\\ToolRentalServiceExtensions.cs",
+              "RelativeToolTip": "SzerszamKolcsonzo\\Features\\ToolRental\\Extensions\\ToolRentalServiceExtensions.cs",
+              "ViewState": "AgIAABUAAAAAAAAAAAAzwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-21T15:49:40.481Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "AuthDbContext.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Features\\Auth\\Data\\AuthDbContext.cs",
+              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\Features\\Auth\\Data\\AuthDbContext.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Features\\Auth\\Data\\AuthDbContext.cs",
+              "RelativeToolTip": "SzerszamKolcsonzo\\Features\\Auth\\Data\\AuthDbContext.cs",
+              "ViewState": "AgIAABUAAAAAAAAAAAAuwCkAAABPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-20T20:30:48.117Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "AppDbContext.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Data\\AppDbContext.cs",
+              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\Data\\AppDbContext.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Data\\AppDbContext.cs",
+              "RelativeToolTip": "SzerszamKolcsonzo\\Data\\AppDbContext.cs",
+              "ViewState": "AgIAAHoAAAAAAAAAAAAwwAwAAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-06T21:12:36.829Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "VapidSettings.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Features\\Push\\Services\\VapidSettings.cs",
+              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\Features\\Push\\Services\\VapidSettings.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Features\\Push\\Services\\VapidSettings.cs",
+              "RelativeToolTip": "SzerszamKolcsonzo\\Features\\Push\\Services\\VapidSettings.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-03T21:44:25.661Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-06T11:29:16.997Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "PushController.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Features\\Push\\Controllers\\PushController.cs",
+              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\Features\\Push\\Controllers\\PushController.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Features\\Push\\Controllers\\PushController.cs",
+              "RelativeToolTip": "SzerszamKolcsonzo\\Features\\Push\\Controllers\\PushController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-06T12:00:08.021Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "EszkozStatus.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Models\\EszkozStatus.cs",
+              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\Models\\EszkozStatus.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Models\\EszkozStatus.cs",
+              "RelativeToolTip": "SzerszamKolcsonzo\\Models\\EszkozStatus.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-29T23:37:47.526Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 27,
+              "Title": "LoginDto.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Features\\Auth\\DTOs\\LoginDto.cs",
+              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\Features\\Auth\\DTOs\\LoginDto.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Features\\Auth\\DTOs\\LoginDto.cs",
+              "RelativeToolTip": "SzerszamKolcsonzo\\Features\\Auth\\DTOs\\LoginDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAIBJwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-22T20:48:34.726Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "AuthService.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Features\\Auth\\Services\\AuthService.cs",
+              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\Features\\Auth\\Services\\AuthService.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Features\\Auth\\Services\\AuthService.cs",
+              "RelativeToolTip": "SzerszamKolcsonzo\\Features\\Auth\\Services\\AuthService.cs",
+              "ViewState": "AgIAAKgAAAAAAAAAAAAiwMgAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-20T20:19:22.15Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 25,
+              "Title": "AuthResponseDto.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Features\\Auth\\DTOs\\AuthResponseDto.cs",
+              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\Features\\Auth\\DTOs\\AuthResponseDto.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Features\\Auth\\DTOs\\AuthResponseDto.cs",
+              "RelativeToolTip": "SzerszamKolcsonzo\\Features\\Auth\\DTOs\\AuthResponseDto.cs",
+              "ViewState": "AgIAAAIAAAAAAAAAAAAUwBMAAAAGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-20T20:18:32.131Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 26,
+              "Title": "User.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Features\\Auth\\Models\\User.cs",
+              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\Features\\Auth\\Models\\User.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Features\\Auth\\Models\\User.cs",
+              "RelativeToolTip": "SzerszamKolcsonzo\\Features\\Auth\\Models\\User.cs",
+              "ViewState": "AgIAADEAAAAAAAAAAAAwwDoAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-20T20:16:06.522Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 28,
+              "Title": "IAuthService.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Features\\Auth\\Services\\IAuthService.cs",
+              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\Features\\Auth\\Services\\IAuthService.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Features\\Auth\\Services\\IAuthService.cs",
+              "RelativeToolTip": "SzerszamKolcsonzo\\Features\\Auth\\Services\\IAuthService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-22T10:27:10.447Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "ProfileDto.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Features\\Auth\\DTOs\\ProfileDto.cs",
+              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\Features\\Auth\\DTOs\\ProfileDto.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Features\\Auth\\DTOs\\ProfileDto.cs",
+              "RelativeToolTip": "SzerszamKolcsonzo\\Features\\Auth\\DTOs\\ProfileDto.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB4AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-22T10:28:06.392Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 29,
+              "Title": "AuthController.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Features\\Auth\\Controllers\\AuthController.cs",
+              "RelativeDocumentMoniker": "SzerszamKolcsonzo\\Features\\Auth\\Controllers\\AuthController.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\projekt elolrol githez\\SzerszamKolcsonzo-WebAPI\\SzerszamKolcsonzo\\Features\\Auth\\Controllers\\AuthController.cs",
+              "RelativeToolTip": "SzerszamKolcsonzo\\Features\\Auth\\Controllers\\AuthController.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAG4AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-22T10:26:42.602Z"
             }
           ]
         }

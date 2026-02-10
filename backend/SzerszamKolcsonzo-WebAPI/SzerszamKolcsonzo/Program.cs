@@ -1,13 +1,19 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using SzerszamKolcsonzo.Features.Auth.Extensions;
-using SzerszamKolcsonzo.Features.ToolRental.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-
+using Microsoft.EntityFrameworkCore;
+using SzerszamKolcsonzo.Data;
+using SzerszamKolcsonzo.Features.Auth.Extensions;
+using SzerszamKolcsonzo.Features.Push.Extensions;
+using SzerszamKolcsonzo.Features.Push.Services;
+using SzerszamKolcsonzo.Features.ToolRental.Extensions;
+using SzerszamKolcsonzo.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// =====================
 // Controllers + JSON config
+// =====================
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -16,13 +22,22 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     });
 
-// ✅ Auth modul regisztrálása (teljesen elkülönítve)
+// =====================
+// Modulok regisztrációja
+// =====================
 builder.Services.AddAuthModule(builder.Configuration);
-
-// ✅ ToolRental modul regisztrálása (teljesen elkülönítve)
 builder.Services.AddToolRentalModule(builder.Configuration);
+builder.Services.AddPushModule(builder.Configuration);
 
-// CORS
+// =====================
+// Background services
+// =====================
+builder.Services.AddHostedService<FoglalasCleanupService>();
+builder.Services.AddHostedService<FoglalasStatusUpdateService>();
+
+// =====================
+// CORS - Development & Production
+// =====================
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -33,7 +48,9 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Swagger
+// =====================
+// Swagger (csak Development-ben)
+// =====================
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -41,10 +58,9 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "Szerszámkölcsönző API",
         Version = "v1",
-        Description = ".NET 8 WebAPI - Szerszámkölcsönző + Auth"
+        Description = ".NET 8 WebAPI - Szerszámkölcsönző + Auth + PWA"
     });
 
-    // JWT Bearer support Swagger-ben
     c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
         Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
@@ -70,25 +86,69 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// =====================
+// Build app
+// =====================
 var app = builder.Build();
 
-// ✅ Auto migration (mindkét adatbázis)
-await app.MigrateAuthDatabaseAsync();
-await app.MigrateToolRentalDatabaseAsync();
+// =====================
+// Adatbázis migráció automatikusan
+// =====================
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<Program>>();
 
-// Configure pipeline
+    try
+    {
+        // Auth DB migráció
+        var authContext = services.GetRequiredService<SzerszamKolcsonzo.Features.Auth.Data.AuthDbContext>();
+        await authContext.Database.MigrateAsync();
+        logger.LogInformation("✅ Auth adatbázis migrációja sikeres!");
+
+        // App DB migráció
+        var appContext = services.GetRequiredService<AppDbContext>();
+        await appContext.Database.MigrateAsync();
+        logger.LogInformation("✅ Szerszámkölcsönző adatbázis migrációja sikeres!");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "❌ Hiba történt az adatbázis migráció során!");
+        throw;
+    }
+}
+
+// =====================
+// Middleware pipeline (HELYES SORREND!)
+// =====================
+
+// Swagger (csak Development-ben)
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// Statikus fájlok (wwwroot) - ELSŐ helyen!
+app.UseStaticFiles();
+
+// HTTPS redirect (Production-ben ajánlott)
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
+// CORS
 app.UseCors("AllowAll");
 
-app.UseAuthentication();  // ✅ JWT validálás
+// Authentikáció & Authorizáció
+app.UseAuthentication();
 app.UseAuthorization();
 
+// Controllers
 app.MapControllers();
 
+// =====================
+// App futtatása
+// =====================
 app.Run();

@@ -1,5 +1,5 @@
-// ============================================================================
-// Features/Auth/Services/AuthService.cs
+﻿// ============================================================================
+// Features/Auth/Services/AuthService.cs - JAVÍTOTT VERZIÓ
 // ============================================================================
 
 using System.IdentityModel.Tokens.Jwt;
@@ -25,38 +25,60 @@ namespace SzerszamKolcsonzo.Features.Auth.Services
             _configuration = configuration;
         }
 
+        // ==========================================================================================
+        // LOGIN
+        // ==========================================================================================
+
         public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
 
             if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
-            {
-                throw new UnauthorizedAccessException("Hib�s email vagy jelsz�.");
-            }
+                throw new UnauthorizedAccessException("Hibás email vagy jelszó.");
 
-            // Last login friss�t�se
             user.LastLoginAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
             var token = GenerateJwtToken(user);
             var expiresAt = DateTime.UtcNow.AddMinutes(GetJwtExpirationMinutes());
 
-            return new AuthResponseDto(token, user.Email, user.Role, expiresAt);
+            return new AuthResponseDto(
+                token,
+                user.Email,
+                user.Role,
+                expiresAt,
+                user.Iranyitoszam,
+                user.Telepules,
+                user.Utca,
+                user.Hazszam,
+                user.Telefonszam,
+                user.Cim
+            );
         }
+
+        // ==========================================================================================
+        // REGISZTRÁCIÓ
+        // ==========================================================================================
 
         public async Task<AuthResponseDto> RegisterAsync(RegisterDto dto)
         {
-            // Ellen�rz�s: l�tezik-e m�r az email
             if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
-            {
-                throw new InvalidOperationException("Ez az email c�m m�r regisztr�lva van.");
-            }
+                throw new InvalidOperationException("Ez az email cím már regisztrálva van.");
+
+            var cimOsszeallitva =
+                $"{dto.Iranyitoszam} {dto.Telepules}, {dto.Utca} {dto.Hazszam}".Trim();
 
             var user = new User
             {
                 Email = dto.Email,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
                 Role = "User",
+                Iranyitoszam = dto.Iranyitoszam,
+                Telepules = dto.Telepules,
+                Utca = dto.Utca,
+                Hazszam = dto.Hazszam,
+                Telefonszam = dto.Telefonszam,
+                Cim = dto.Cim ?? cimOsszeallitva,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -66,13 +88,85 @@ namespace SzerszamKolcsonzo.Features.Auth.Services
             var token = GenerateJwtToken(user);
             var expiresAt = DateTime.UtcNow.AddMinutes(GetJwtExpirationMinutes());
 
-            return new AuthResponseDto(token, user.Email, user.Role, expiresAt);
+            return new AuthResponseDto(
+                token,
+                user.Email,
+                user.Role,
+                expiresAt,
+                user.Iranyitoszam,
+                user.Telepules,
+                user.Utca,
+                user.Hazszam,
+                user.Telefonszam,
+                user.Cim
+            );
         }
+
+        // ==========================================================================================
+        // PROFIL LEKÉRÉSE
+        // ==========================================================================================
+
+        public async Task<ProfileDto> GetProfileAsync(int userId)
+        {
+            var user = await _context.Users.FindAsync(userId);
+
+            if (user == null)
+                throw new InvalidOperationException("Felhasználó nem található.");
+
+            return new ProfileDto(
+                user.Email,
+                user.Nev,
+                user.Telefonszam,
+                user.Iranyitoszam,
+                user.Telepules,
+                user.Utca,
+                user.Hazszam,
+                user.Cim
+            );
+        }
+
+        // ==========================================================================================
+        // PROFIL FRISSÍTÉSE
+        // ==========================================================================================
+
+        public async Task<ProfileDto> UpdateProfileAsync(int userId, UpdateProfileDto dto)
+        {
+            var user = await _context.Users.FindAsync(userId);
+
+            if (user == null)
+                throw new InvalidOperationException("Felhasználó nem található.");
+
+            // Összes mező frissítése
+            user.Nev = dto.Nev;
+            user.Telefonszam = dto.Telefonszam;
+            user.Iranyitoszam = dto.Iranyitoszam;
+            user.Telepules = dto.Telepules;
+            user.Utca = dto.Utca;
+            user.Hazszam = dto.Hazszam;
+            user.Cim = dto.Cim;
+
+            await _context.SaveChangesAsync();
+
+            return new ProfileDto(
+                user.Email,
+                user.Nev,
+                user.Telefonszam,
+                user.Iranyitoszam,
+                user.Telepules,
+                user.Utca,
+                user.Hazszam,
+                user.Cim
+            );
+        }
+
+        // ==========================================================================================
+        // JWT TOKEN GENERÁLÁS
+        // ==========================================================================================
 
         private string GenerateJwtToken(User user)
         {
             var jwtSettings = _configuration.GetSection("Jwt");
-            var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey hi�nyzik!");
+            var secretKey = jwtSettings["SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey hiányzik!");
             var issuer = jwtSettings["Issuer"];
             var audience = jwtSettings["Audience"];
 

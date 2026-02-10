@@ -30,6 +30,10 @@ namespace SzerszamKolcsonzo.Features.Auth.Data.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("UserId"));
 
+                    b.Property<string>("Cim")
+                        .HasMaxLength(300)
+                        .HasColumnType("varchar(300)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
@@ -38,8 +42,20 @@ namespace SzerszamKolcsonzo.Features.Auth.Data.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
 
+                    b.Property<string>("Hazszam")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("Iranyitoszam")
+                        .HasMaxLength(4)
+                        .HasColumnType("varchar(4)");
+
                     b.Property<DateTime?>("LastLoginAt")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Nev")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -49,6 +65,18 @@ namespace SzerszamKolcsonzo.Features.Auth.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
+
+                    b.Property<string>("Telefonszam")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
+                    b.Property<string>("Telepules")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<string>("Utca")
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)");
 
                     b.HasKey("UserId");
 
@@ -61,10 +89,16 @@ namespace SzerszamKolcsonzo.Features.Auth.Data.Migrations
                         new
                         {
                             UserId = 1,
-                            CreatedAt = new DateTime(2025, 11, 4, 21, 51, 11, 198, DateTimeKind.Utc).AddTicks(8924),
+                            Cim = "1011 Budapest, Fő utca 1",
+                            CreatedAt = new DateTime(2025, 11, 22, 8, 59, 23, 350, DateTimeKind.Utc).AddTicks(9570),
                             Email = "admin@szerszam.hu",
-                            PasswordHash = "$2a$11$Ae9g7miTnP5zYeJAVsUtUuAQgwb0rDnbnH0kIgd58gpnoAlnfc1He",
-                            Role = "Admin"
+                            Hazszam = "1",
+                            Iranyitoszam = "1011",
+                            Nev = "Admin",
+                            PasswordHash = "$2a$11$ujY7SBx/c5UtghicVamb/.PnWyJ1gtYRBINwp9Y/dxMmlEdHW7MUq",
+                            Role = "Admin",
+                            Telepules = "Budapest",
+                            Utca = "Fő utca"
                         });
                 });
 #pragma warning restore 612, 618

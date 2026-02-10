@@ -1,5 +1,5 @@
-// ============================================================================
-// Features/Auth/Data/AuthDbContext.cs
+﻿// ============================================================================
+// Features/Auth/Data/AuthDbContext.cs - FRISSÍTETT (kibővített User mezőkkel)
 // ============================================================================
 
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +21,15 @@ namespace SzerszamKolcsonzo.Features.Auth.Data
 
             modelBuilder.Entity<User>(entity =>
             {
+                // Email egyedi index
                 entity.HasIndex(e => e.Email).IsUnique();
+
+                // Cím mezők konfigurálása
+                entity.Property(u => u.Iranyitoszam).HasMaxLength(4);
+                entity.Property(u => u.Telepules).HasMaxLength(100);
+                entity.Property(u => u.Utca).HasMaxLength(150);
+                entity.Property(u => u.Hazszam).HasMaxLength(20);
+                entity.Property(u => u.Cim).HasMaxLength(300);
             });
 
             // Seed: Admin user
@@ -30,9 +38,8 @@ namespace SzerszamKolcsonzo.Features.Auth.Data
 
         private static void SeedAdminUser(ModelBuilder modelBuilder)
         {
-            // Password: Admin123!
-            // BCrypt hash
-            string adminPasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!");
+            // Admin jelszó: "Admin123"
+            string adminPasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123");
 
             modelBuilder.Entity<User>().HasData(
                 new User
@@ -41,10 +48,17 @@ namespace SzerszamKolcsonzo.Features.Auth.Data
                     Email = "admin@szerszam.hu",
                     PasswordHash = adminPasswordHash,
                     Role = "Admin",
+                    // Admin-nak nem kötelezőek a cím mezők
+                    Iranyitoszam = "1011",
+                    Telepules = "Budapest",
+                    Utca = "Fő utca",
+                    Hazszam = "1",
+                    Telefonszam = null,
+                    Cim = "1011 Budapest, Fő utca 1",
+                    Nev = "Admin",
                     CreatedAt = DateTime.UtcNow
                 }
             );
         }
     }
 }
-

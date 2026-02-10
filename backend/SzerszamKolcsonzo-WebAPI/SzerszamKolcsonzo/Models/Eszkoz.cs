@@ -23,16 +23,22 @@ namespace SzerszamKolcsonzo.Models
         public string? KepUrl { get; set; }  // ✅ ÚJ MEZŐ!
 
         [Required]
-        public int Vetelar { get; set; }
+        public decimal Vetelar { get; set; }
 
         [Required]
-        public int KiadasiAr { get; set; }
+        public decimal KiadasiAr { get; set; }
 
         [Required]
         public DateTime BeszerzesiDatum { get; set; }
 
         [Required]
         public EszkozStatus Status { get; set; } = EszkozStatus.Elerheto;
+
+        /// <summary>
+        /// Megjegyzés az eszköz állapotához (pl. "Szervizben", "Nem hozták vissza", "Leégett")
+        /// </summary>
+        [MaxLength(500)]
+        public string? Megjegyzes { get; set; }
 
         // Navigation properties
         [ForeignKey(nameof(KategoriaID))]

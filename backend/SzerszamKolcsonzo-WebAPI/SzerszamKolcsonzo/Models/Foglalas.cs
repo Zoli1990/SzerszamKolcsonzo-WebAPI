@@ -1,9 +1,8 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SzerszamKolcsonzo.Models
 {
-    
     public class Foglalas
     {
         [Key]
@@ -33,20 +32,37 @@ namespace SzerszamKolcsonzo.Models
         [Required]
         public DateTime FoglalasKezdete { get; set; }
 
-        [Required]
-        public DateTime FoglalasVege { get; set; }
+        // ❌ FoglalasVege - TÖRÖLVE (már nincs befejező időpont)
+        // ❌ OraSzam - TÖRÖLVE (automatikusan számolódik visszahozáskor)
+
+        // ✅ Bevetel még létezik de nullable, mert visszahozáskor számolódik
+        public decimal? Bevetel { get; set; }
 
         [Required]
-        public int OraSzam { get; set; }
-
-        [Required]
-        public int Bevetel { get; set; }
-
-        [Required]
-        public FoglalasStatus Status { get; set; } = FoglalasStatus.Aktiv;
+        public FoglalasStatus Status { get; set; } = FoglalasStatus.Elofoglalas; // ← JAVÍTVA! (Aktiv → Elofoglalas)
 
         [Required]
         public DateTime LetrehozasDatum { get; set; } = DateTime.Now;
+
+        /// <summary>
+        /// Amikor az admin jóváhagyta és kiadta az eszközt (null, ha még nem hagyta jóvá)
+        /// </summary>
+        public DateTime? KiadasIdopontja { get; set; }
+
+        /// <summary>
+        /// Amikor az ügyfél visszahozta az eszközt (null, ha még nem hozta vissza)
+        /// </summary>
+        public DateTime? VisszahozasIdopontja { get; set; }
+
+        /// <summary>
+        /// Elszámolható idő percekben (kiadás → visszahozás)
+        /// </summary>
+        public int? ElszamolhatoIdo { get; set; }
+
+        /// <summary>
+        /// Fizetendő összeg (ElszamolhatoIdo * óradíj alapján számolva)
+        /// </summary>
+        public decimal? FizetendoOsszeg { get; set; }
 
         // Navigation property
         [ForeignKey(nameof(EszkozID))]

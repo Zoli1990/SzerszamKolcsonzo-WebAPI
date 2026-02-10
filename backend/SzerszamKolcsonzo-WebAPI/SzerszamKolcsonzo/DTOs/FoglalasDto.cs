@@ -1,4 +1,4 @@
-using SzerszamKolcsonzo.Models;
+﻿using SzerszamKolcsonzo.Models;
 
 public record FoglalasDto(
         int FoglalasID,
@@ -9,11 +9,15 @@ public record FoglalasDto(
         string Telefonszam,
         string Cim,
         DateTime FoglalasKezdete,
-        DateTime FoglalasVege,
-        int OraSzam,
-        int Bevetel,
+        // ❌ FoglalasVege - TÖRÖLVE
+        // ❌ OraSzam - TÖRÖLVE
+        decimal? Bevetel,  // Nullable, mert visszahozáskor számolódik
         FoglalasStatus Status,
-        DateTime LetrehozasDatum
+        DateTime LetrehozasDatum,
+        DateTime? KiadasIdopontja,      // Amikor admin kiadta
+        DateTime? VisszahozasIdopontja, // ✅ ÚJ - Amikor visszahozták
+        int? ElszamolhatoIdo,           // ✅ ÚJ - Percekben
+        decimal? FizetendoOsszeg        // ✅ ÚJ - Számolt összeg
     );
 
 public record CreateFoglalasDto(
@@ -22,7 +26,7 @@ public record CreateFoglalasDto(
     string Email,
     string Telefonszam,
     string Cim,
-    DateTime FoglalasKezdete,
-    DateTime FoglalasVege,
-    int OraSzam
+    DateTime FoglalasKezdete
+// ❌ FoglalasVege - TÖRÖLVE
+// ❌ OraSzam - TÖRÖLVE (automatikusan számolódik visszahozáskor)
 );
