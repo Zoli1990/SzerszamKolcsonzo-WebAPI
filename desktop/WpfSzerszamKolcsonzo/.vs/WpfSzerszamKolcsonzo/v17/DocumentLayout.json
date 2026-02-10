@@ -1,0 +1,230 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{6EF07690-F465-44BA-B57F-C5E91710C2BD}|WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj|d:\\mi\\desktop\\wpfszerszamkolcsonzo\\wpfszerszamkolcsonzo\\viewmodels\\mainviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6EF07690-F465-44BA-B57F-C5E91710C2BD}|WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj|solutionrelative:wpfszerszamkolcsonzo\\viewmodels\\mainviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6EF07690-F465-44BA-B57F-C5E91710C2BD}|WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj|d:\\mi\\desktop\\wpfszerszamkolcsonzo\\wpfszerszamkolcsonzo\\wpfszerszamkolcsonzo.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{6EF07690-F465-44BA-B57F-C5E91710C2BD}|WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj|solutionrelative:wpfszerszamkolcsonzo\\wpfszerszamkolcsonzo.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6EF07690-F465-44BA-B57F-C5E91710C2BD}|WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj|d:\\mi\\desktop\\wpfszerszamkolcsonzo\\wpfszerszamkolcsonzo\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6EF07690-F465-44BA-B57F-C5E91710C2BD}|WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj|solutionrelative:wpfszerszamkolcsonzo\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6EF07690-F465-44BA-B57F-C5E91710C2BD}|WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj|d:\\mi\\desktop\\wpfszerszamkolcsonzo\\wpfszerszamkolcsonzo\\assemblyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6EF07690-F465-44BA-B57F-C5E91710C2BD}|WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj|solutionrelative:wpfszerszamkolcsonzo\\assemblyinfo.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6EF07690-F465-44BA-B57F-C5E91710C2BD}|WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj|d:\\mi\\desktop\\wpfszerszamkolcsonzo\\wpfszerszamkolcsonzo\\app.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{6EF07690-F465-44BA-B57F-C5E91710C2BD}|WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj|solutionrelative:wpfszerszamkolcsonzo\\app.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6EF07690-F465-44BA-B57F-C5E91710C2BD}|WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj|d:\\mi\\desktop\\wpfszerszamkolcsonzo\\wpfszerszamkolcsonzo\\viewmodels\\relaycommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6EF07690-F465-44BA-B57F-C5E91710C2BD}|WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj|solutionrelative:wpfszerszamkolcsonzo\\viewmodels\\relaycommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6EF07690-F465-44BA-B57F-C5E91710C2BD}|WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj|D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\wpfszerszamkolcsonzo\\properties\\settings.settings||{6D2695F9-5365-4A78-89ED-F205C045BFE6}",
+      "RelativeMoniker": "D:0:0:{6EF07690-F465-44BA-B57F-C5E91710C2BD}|WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj|solutionrelative:wpfszerszamkolcsonzo\\properties\\settings.settings||{6D2695F9-5365-4A78-89ED-F205C045BFE6}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6EF07690-F465-44BA-B57F-C5E91710C2BD}|WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj|d:\\mi\\desktop\\wpfszerszamkolcsonzo\\wpfszerszamkolcsonzo\\dtos\\foglalasdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6EF07690-F465-44BA-B57F-C5E91710C2BD}|WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj|solutionrelative:wpfszerszamkolcsonzo\\dtos\\foglalasdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6EF07690-F465-44BA-B57F-C5E91710C2BD}|WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj|d:\\mi\\desktop\\wpfszerszamkolcsonzo\\wpfszerszamkolcsonzo\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{6EF07690-F465-44BA-B57F-C5E91710C2BD}|WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj|solutionrelative:wpfszerszamkolcsonzo\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6EF07690-F465-44BA-B57F-C5E91710C2BD}|WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj|d:\\mi\\desktop\\wpfszerszamkolcsonzo\\wpfszerszamkolcsonzo\\converters\\inversebooleantovisibilityconverter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6EF07690-F465-44BA-B57F-C5E91710C2BD}|WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj|solutionrelative:wpfszerszamkolcsonzo\\converters\\inversebooleantovisibilityconverter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6EF07690-F465-44BA-B57F-C5E91710C2BD}|WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj|d:\\mi\\desktop\\wpfszerszamkolcsonzo\\wpfszerszamkolcsonzo\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6EF07690-F465-44BA-B57F-C5E91710C2BD}|WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj|solutionrelative:wpfszerszamkolcsonzo\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6EF07690-F465-44BA-B57F-C5E91710C2BD}|WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj|d:\\mi\\desktop\\wpfszerszamkolcsonzo\\wpfszerszamkolcsonzo\\settings.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{6EF07690-F465-44BA-B57F-C5E91710C2BD}|WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj|solutionrelative:wpfszerszamkolcsonzo\\settings.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{6EF07690-F465-44BA-B57F-C5E91710C2BD}|WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj|d:\\mi\\desktop\\wpfszerszamkolcsonzo\\wpfszerszamkolcsonzo\\wpfszerszamkolcsonzo.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|",
+      "RelativeMoniker": "D:0:0:{6EF07690-F465-44BA-B57F-C5E91710C2BD}|WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj|solutionrelative:wpfszerszamkolcsonzo\\wpfszerszamkolcsonzo.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 6,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "AssemblyInfo.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\AssemblyInfo.cs",
+              "RelativeDocumentMoniker": "WpfSzerszamKolcsonzo\\AssemblyInfo.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\AssemblyInfo.cs",
+              "RelativeToolTip": "WpfSzerszamKolcsonzo\\AssemblyInfo.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-17T10:45:57.769Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Settings.settings",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\Properties\\Settings.settings",
+              "RelativeDocumentMoniker": "WpfSzerszamKolcsonzo\\Properties\\Settings.settings",
+              "ToolTip": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\Properties\\Settings.settings",
+              "RelativeToolTip": "WpfSzerszamKolcsonzo\\Properties\\Settings.settings",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.002767|",
+              "WhenOpened": "2026-01-17T10:41:48.903Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "App.xaml.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\App.xaml.cs",
+              "RelativeDocumentMoniker": "WpfSzerszamKolcsonzo\\App.xaml.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\App.xaml.cs",
+              "RelativeToolTip": "WpfSzerszamKolcsonzo\\App.xaml.cs",
+              "ViewState": "AgIAABUAAAAAAAAAAAAAACAAAABPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-17T10:39:36.836Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "RelayCommand.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\ViewModels\\RelayCommand.cs",
+              "RelativeDocumentMoniker": "WpfSzerszamKolcsonzo\\ViewModels\\RelayCommand.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\ViewModels\\RelayCommand.cs",
+              "RelativeToolTip": "WpfSzerszamKolcsonzo\\ViewModels\\RelayCommand.cs",
+              "ViewState": "AgIAACcAAAAAAAAAAADwvz8AAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-17T07:58:16.959Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "WpfSzerszamKolcsonzo.csproj",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj",
+              "RelativeDocumentMoniker": "WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj",
+              "ToolTip": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj",
+              "RelativeToolTip": "WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-01-17T07:55:59.193Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "MainViewModel.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\ViewModels\\MainViewModel.cs",
+              "RelativeDocumentMoniker": "WpfSzerszamKolcsonzo\\ViewModels\\MainViewModel.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\ViewModels\\MainViewModel.cs",
+              "RelativeToolTip": "WpfSzerszamKolcsonzo\\ViewModels\\MainViewModel.cs",
+              "ViewState": "AgIAADMBAAAAAAAAAAAUwEEBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-17T07:54:30.187Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "FoglalasDto.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\DTOs\\FoglalasDto.cs",
+              "RelativeDocumentMoniker": "WpfSzerszamKolcsonzo\\DTOs\\FoglalasDto.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\DTOs\\FoglalasDto.cs",
+              "RelativeToolTip": "WpfSzerszamKolcsonzo\\DTOs\\FoglalasDto.cs",
+              "ViewState": "AgIAAOsAAAAAAAAAAAAcwPsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-17T07:56:29.208Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "App.config",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\App.config",
+              "RelativeDocumentMoniker": "WpfSzerszamKolcsonzo\\App.config",
+              "ToolTip": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\App.config",
+              "RelativeToolTip": "WpfSzerszamKolcsonzo\\App.config",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000601|",
+              "WhenOpened": "2026-01-17T09:24:45.773Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "Inversebooleantovisibilityconverter.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\Converters\\Inversebooleantovisibilityconverter.cs",
+              "RelativeDocumentMoniker": "WpfSzerszamKolcsonzo\\Converters\\Inversebooleantovisibilityconverter.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\Converters\\Inversebooleantovisibilityconverter.cs",
+              "RelativeToolTip": "WpfSzerszamKolcsonzo\\Converters\\Inversebooleantovisibilityconverter.cs",
+              "ViewState": "AgIAABYAAAAAAAAAAAAcwCYAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-17T08:32:40.249Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "MainWindow.xaml",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\MainWindow.xaml",
+              "RelativeDocumentMoniker": "WpfSzerszamKolcsonzo\\MainWindow.xaml",
+              "ToolTip": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\MainWindow.xaml",
+              "RelativeToolTip": "WpfSzerszamKolcsonzo\\MainWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-01-17T07:37:32.397Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "MainWindow.xaml.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\MainWindow.xaml.cs",
+              "RelativeDocumentMoniker": "WpfSzerszamKolcsonzo\\MainWindow.xaml.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\MainWindow.xaml.cs",
+              "RelativeToolTip": "WpfSzerszamKolcsonzo\\MainWindow.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-17T07:37:30.221Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "WpfSzerszamKolcsonzo",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj",
+              "RelativeDocumentMoniker": "WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj",
+              "ToolTip": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj",
+              "RelativeToolTip": "WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-01-17T08:00:13.997Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "Settings.Designer.cs",
+              "DocumentMoniker": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\Settings.Designer.cs",
+              "RelativeDocumentMoniker": "WpfSzerszamKolcsonzo\\Settings.Designer.cs",
+              "ToolTip": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\Settings.Designer.cs",
+              "RelativeToolTip": "WpfSzerszamKolcsonzo\\Settings.Designer.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-17T08:02:23.209Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
