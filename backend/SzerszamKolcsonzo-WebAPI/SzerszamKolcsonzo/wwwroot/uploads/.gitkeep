@@ -1,0 +1,3 @@
+# Ez a fájl biztosítja hogy a wwwroot/uploads mappa Git-ben maradjon
+# A mappa tartalma (.gitignore által kizárva) NEM megy Git-be
+# Program.cs automatikusan létrehozza a mappát ha nincs
