@@ -58,17 +58,14 @@ const truncatedLeiras = computed(() => {
     : props.eszkoz.leiras
 })
 
-// ✅ Valódi kép URL használata
 const imageUrl = computed(() => {
   if (props.eszkoz.kepUrl) {
     return props.eszkoz.kepUrl
   }
-  // Fallback: placeholder
   return `https://images.unsplash.com/photo-1572981779307-38b8cabb2407?w=400&q=80`
 })
 
 function handleImageError(e) {
-  // Ha nem tölt be a kép, placeholder-t használunk
   e.target.src = 'https://images.unsplash.com/photo-1572981779307-38b8cabb2407?w=400&q=80'
 }
 
@@ -80,17 +77,24 @@ function formatAr(ar) {
 <style scoped>
 .eszkoz-card {
   background: white;
-  border-radius: 8px;
+  border-radius: 12px;
   box-shadow: 0 2px 8px rgba(61, 47, 31, 0.1);
   overflow: hidden;
-  transition:
-    transform 0.2s,
-    box-shadow 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  /* Teljes kártya kattintható mobilon */
 }
 
 .eszkoz-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 4px 16px rgba(61, 47, 31, 0.2);
+}
+
+/* Mobilon aktív állapot (tap feedback) */
+@media (max-width: 767px) {
+  .eszkoz-card:active {
+    transform: scale(0.98);
+  }
 }
 
 .card-image {
@@ -99,6 +103,13 @@ function formatAr(ar) {
   height: 200px;
   overflow: hidden;
   background: #f5f1e8;
+}
+
+/* Mobilon nagyobb kép */
+@media (max-width: 767px) {
+  .card-image {
+    height: 220px;
+  }
 }
 
 .card-image img {
@@ -116,12 +127,21 @@ function formatAr(ar) {
   position: absolute;
   top: 12px;
   right: 12px;
-  padding: 6px 12px;
+  padding: 8px 14px;
   border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 700;
   text-transform: uppercase;
   backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Mobilon nagyobb badge */
+@media (max-width: 767px) {
+  .status-badge {
+    font-size: 14px;
+    padding: 10px 16px;
+  }
 }
 
 .status-elerheto {
@@ -135,14 +155,30 @@ function formatAr(ar) {
 }
 
 .card-content {
-  padding: 16px;
+  padding: 18px;
+}
+
+/* Mobilon több padding */
+@media (max-width: 767px) {
+  .card-content {
+    padding: 20px;
+  }
 }
 
 .eszkoz-nev {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 19px;
+  font-weight: 700;
   margin: 0 0 8px 0;
   color: #3d2f1f;
+  line-height: 1.3;
+}
+
+/* Mobilon nagyobb cím */
+@media (max-width: 767px) {
+  .eszkoz-nev {
+    font-size: 21px;
+    margin-bottom: 10px;
+  }
 }
 
 .kategoria {
@@ -150,13 +186,29 @@ function formatAr(ar) {
   color: #6b5d4f;
   margin: 0 0 12px 0;
   text-transform: capitalize;
+  font-weight: 500;
+}
+
+/* Mobilon nagyobb kategória szöveg */
+@media (max-width: 767px) {
+  .kategoria {
+    font-size: 15px;
+  }
 }
 
 .leiras {
   font-size: 14px;
   color: #544838;
   margin: 0 0 16px 0;
-  line-height: 1.5;
+  line-height: 1.6;
+}
+
+/* Mobilon jobb olvashatóság */
+@media (max-width: 767px) {
+  .leiras {
+    font-size: 15px;
+    line-height: 1.7;
+  }
 }
 
 .card-footer {
@@ -165,41 +217,96 @@ function formatAr(ar) {
   align-items: center;
   padding-top: 16px;
   border-top: 1px solid #e8dcc8;
+  gap: 12px;
+}
+
+/* Mobilon vertikális layout ha szűk */
+@media (max-width: 380px) {
+  .card-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
 }
 
 .ar {
   display: flex;
   flex-direction: column;
+  gap: 2px;
 }
 
 .ar-label {
   font-size: 12px;
   color: #6b5d4f;
+  font-weight: 500;
+}
+
+/* Mobilon nagyobb label */
+@media (max-width: 767px) {
+  .ar-label {
+    font-size: 13px;
+  }
 }
 
 .ar-ertek {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 800;
   color: #6b8e23;
 }
 
+/* Mobilon NAGY ár */
+@media (max-width: 767px) {
+  .ar-ertek {
+    font-size: 24px;
+  }
+}
+
 .btn-foglalas {
-  padding: 10px 24px;
+  padding: 12px 28px;
   background: #6b8e23;
   color: white;
   border: none;
-  border-radius: 6px;
-  font-weight: 600;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
+  white-space: nowrap;
+  /* Touch-friendly minimum size */
+  min-height: 44px;
+  min-width: 100px;
+}
+
+/* Mobilon nagyobb gomb */
+@media (max-width: 767px) {
+  .btn-foglalas {
+    font-size: 16px;
+    padding: 14px 32px;
+    min-height: 48px;
+    min-width: 120px;
+  }
+}
+
+/* Kis képernyőn teljes szélesség */
+@media (max-width: 380px) {
+  .btn-foglalas {
+    width: 100%;
+  }
 }
 
 .btn-foglalas:hover:not(:disabled) {
   background: #556b1a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(107, 142, 35, 0.3);
+}
+
+.btn-foglalas:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .btn-foglalas:disabled {
   background: #a89f8d;
   cursor: not-allowed;
+  opacity: 0.7;
 }
 </style>

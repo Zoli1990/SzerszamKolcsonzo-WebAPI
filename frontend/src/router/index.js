@@ -1,13 +1,13 @@
 // ============================================================================
-// src/router/index.js - FRISSÍTETT (Profilom route)
+// src/router/index.js - HASH MODE + Wizard route
 // ============================================================================
 
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 import HomeView from '../views/HomeView.vue'
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHashHistory(), // HASH MODE (#/route)
   routes: [
     {
       path: '/',
@@ -19,6 +19,19 @@ const router = createRouter({
       name: 'admin',
       component: () => import('../views/admin/AdminView.vue'),
       meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    // ✨ ÚJ ROUTE - WIZARD
+    {
+      path: '/admin/eszkoz/uj',
+      name: 'UjEszkoz',
+      component: () => import('../components/admin/AdminEszkozWizard.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true }
+    },
+    {
+      path: '/admin-pwa',
+      name: 'admin-pwa',
+      component: () => import('../views/admin/AdminPwaView.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true, isPwa: true }
     },
     {
       path: '/profil',

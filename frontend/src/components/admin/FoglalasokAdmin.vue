@@ -1,21 +1,163 @@
 <template>
   <div class="foglalasok-admin">
-    <div class="header">
-      <h2>📋 Foglalások kezelése</h2>
-      <div class="header-actions">
-        <button class="btn-refresh" @click="fetchFoglalasok" :disabled="loading">
-          🔄 Frissítés
+    <!-- HEADER -->
+    <div class="page-header">
+      <h2 class="page-title">
+        <span class="title-icon">📋</span>
+        <span>Foglalások</span>
+      </h2>
+      <button class="btn-refresh" @click="fetchFoglalasok" :disabled="loading">
+        <span class="refresh-icon" :class="{ spinning: loading }">🔄</span>
+        <span class="refresh-text">Frissítés</span>
+      </button>
+    </div>
+
+    <!-- SZŰRŐK: MOBIL DROPDOWN -->
+    <div class="filters-section mobile-only">
+      <button class="filter-dropdown-toggle" @click="toggleFilterMenu">
+        <span class="filter-active-icon">{{ getActiveFilterIcon() }}</span>
+        <span class="filter-active-label">{{ getActiveFilterLabel() }}</span>
+        <span class="filter-active-count" v-if="getStatusCount(activeFilter) > 0">
+          {{ getStatusCount(activeFilter) }}
+        </span>
+        <span class="filter-chevron" :class="{ open: filterMenuOpen }">▾</span>
+      </button>
+      <Transition name="dropdown">
+        <div v-if="filterMenuOpen" class="filter-dropdown-menu">
+          <button
+            v-for="filter in statusFilters"
+            :key="filter.value"
+            class="filter-dropdown-item"
+            :class="{ active: activeFilter === filter.value }"
+            @click="selectFilter(filter.value)"
+          >
+            <span class="dropdown-item-icon">{{ filter.icon }}</span>
+            <span class="dropdown-item-label">{{ filter.label }}</span>
+            <span class="dropdown-item-count" v-if="getStatusCount(filter.value) > 0">
+              {{ getStatusCount(filter.value) }}
+            </span>
+            <span v-if="activeFilter === filter.value" class="dropdown-item-check">✓</span>
+          </button>
+        </div>
+      </Transition>
+    </div>
+
+    <!-- SZŰRŐK: DESKTOP CHIPS -->
+    <div class="filters-section desktop-only">
+      <div class="filter-chips">
+        <button
+          v-for="filter in statusFilters"
+          :key="filter.value"
+          class="filter-chip"
+          :class="{ active: activeFilter === filter.value }"
+          @click="activeFilter = filter.value"
+        >
+          <span class="chip-icon">{{ filter.icon }}</span>
+          <span class="chip-label">{{ filter.label }}</span>
+          <span class="chip-count" v-if="getStatusCount(filter.value) > 0">
+            {{ getStatusCount(filter.value) }}
+          </span>
         </button>
       </div>
     </div>
 
-    <div v-if="loading" class="loading">Betöltés...</div>
-
-    <div v-else-if="osszesFoglalas.length === 0" class="empty-state">
-      <p>📭 Nincs még foglalás az adatbázisban.</p>
+    <!-- LOADING -->
+    <div v-if="loading && !foglalasok.length" class="state-container">
+      <div class="loading-spinner"></div>
+      <p>Foglalások betöltése...</p>
     </div>
 
-    <template v-else>
+    <!-- ÜRES ÁLLAPOT -->
+    <div v-else-if="filteredFoglalasok.length === 0" class="state-container empty">
+      <span class="state-icon">📭</span>
+      <p v-if="activeFilter === 'all'">Nincs még foglalás az adatbázisban.</p>
+      <p v-else>Nincs {{ getFilterLabel(activeFilter) }} státuszú foglalás.</p>
+      <button v-if="activeFilter !== 'all'" class="btn-clear" @click="activeFilter = 'all'">
+        Összes mutatása
+      </button>
+    </div>
+
+    <!-- MOBIL: KÁRTYA NÉZET -->
+    <div v-else class="cards-view mobile-only">
+      <div
+        v-for="foglalas in filteredFoglalasok"
+        :key="foglalas.foglalasID"
+        class="foglalas-card"
+        :class="getCardClass(foglalas.status)"
+        @click="openDetailModal(foglalas)"
+      >
+        <!-- Kártya fejléc -->
+        <div class="card-header">
+          <div class="card-id">#{{ foglalas.foglalasID }}</div>
+          <span class="status-badge" :class="getBadgeClass(foglalas.status)">
+            {{ getStatusText(foglalas.status) }}
+          </span>
+        </div>
+
+        <!-- Eszköz név -->
+        <h3 class="card-title">{{ foglalas.eszkozNev }}</h3>
+
+        <!-- Info sorok -->
+        <div class="card-info-rows">
+          <div class="card-info-row">
+            <span class="info-icon">👤</span>
+            <span class="info-value">{{ foglalas.nev }}</span>
+          </div>
+          <div class="card-info-row">
+            <span class="info-icon">📅</span>
+            <span class="info-value">{{ formatShortDate(foglalas.foglalasKezdete) }}</span>
+          </div>
+          <div v-if="foglalas.elszamolhatoIdo" class="card-info-row">
+            <span class="info-icon">⏱️</span>
+            <span class="info-value">{{ formatIdo(foglalas.elszamolhatoIdo) }}</span>
+          </div>
+        </div>
+
+        <!-- Bevétel (ha van) -->
+        <div v-if="foglalas.bevetel" class="card-revenue">
+          <span class="revenue-label">Bevétel</span>
+          <span class="revenue-value">{{ formatAr(foglalas.bevetel) }} Ft</span>
+        </div>
+
+        <!-- Akció gombok -->
+        <div class="card-actions" @click.stop>
+          <button
+            v-if="foglalas.status === 1"
+            class="btn-card btn-kiad"
+            @click="kiadEszkoz(foglalas)"
+          >
+            <span class="btn-icon">✅</span>
+            <span>Kiadás</span>
+          </button>
+
+          <button
+            v-if="foglalas.status === 2"
+            class="btn-card btn-visszahoz"
+            @click="visszahozEszkoz(foglalas)"
+          >
+            <span class="btn-icon">🔄</span>
+            <span>Visszahozva</span>
+          </button>
+
+          <button
+            v-if="foglalas.status === 1 || foglalas.status === 2"
+            class="btn-card btn-torol"
+            @click="openDeleteConfirm(foglalas)"
+          >
+            <span class="btn-icon">❌</span>
+            <span>Törlés</span>
+          </button>
+
+          <button class="btn-card btn-details" @click="openDetailModal(foglalas)">
+            <span class="btn-icon">👁️</span>
+            <span>Részletek</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DESKTOP: TÁBLÁZAT NÉZET -->
+    <div v-if="filteredFoglalasok.length > 0" class="table-view desktop-only">
       <table class="data-table">
         <thead>
           <tr>
@@ -30,387 +172,275 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="foglalas in aktualisOldalFoglalasai" :key="foglalas.foglalasID">
+          <tr
+            v-for="foglalas in filteredFoglalasok"
+            :key="foglalas.foglalasID"
+            :class="getRowClass(foglalas.status)"
+          >
             <td><strong>#{{ foglalas.foglalasID }}</strong></td>
+            <td><div class="eszkoz-info">{{ foglalas.eszkozNev }}</div></td>
             <td>
-              <div class="eszkoz-info">
-                {{ foglalas.eszkozNev }}
-              </div>
-            </td>
-            <td>
-              <div>
+              <div class="customer-cell">
                 <strong>{{ foglalas.nev }}</strong>
-              </div>
-              <div class="small">{{ foglalas.email }}</div>
-              <div class="small">{{ foglalas.telefonszam }}</div>
-            </td>
-            <td>
-              <div class="small">{{ formatDate(foglalas.foglalasKezdete) }}</div>
-              <div v-if="foglalas.kiadasIdopontja" class="small text-success">
-                ✅ Kiadva: {{ formatDate(foglalas.kiadasIdopontja) }}
-              </div>
-              <div v-if="foglalas.visszahozasIdopontja" class="small text-info">
-                🔵 Visszahozva: {{ formatDate(foglalas.visszahozasIdopontja) }}
+                <span class="small">{{ foglalas.email }}</span>
+                <span class="small">{{ foglalas.telefonszam }}</span>
               </div>
             </td>
+            <td><span class="date-cell">{{ formatDate(foglalas.foglalasKezdete) }}</span></td>
             <td>
               <span v-if="foglalas.elszamolhatoIdo">{{ formatIdo(foglalas.elszamolhatoIdo) }}</span>
-              <span v-else-if="foglalas.status === 'Kiadva'" class="text-muted">
-                ⏱️ {{ getElapsedTime(foglalas.kiadasIdopontja) }}
-              </span>
               <span v-else class="text-muted">-</span>
             </td>
             <td>
-              <strong v-if="foglalas.fizetendoOsszeg" class="bevetel">
-                {{ formatAr(foglalas.fizetendoOsszeg) }} Ft
-              </strong>
-              <strong v-else-if="foglalas.bevetel" class="bevetel">
-                {{ formatAr(foglalas.bevetel) }} Ft
-              </strong>
+              <strong v-if="foglalas.bevetel" class="revenue">{{ formatAr(foglalas.bevetel) }} Ft</strong>
               <span v-else class="text-muted">-</span>
             </td>
             <td>
-              <span :class="['badge', getBadgeClass(foglalas.status)]">
+              <span class="status-badge" :class="getBadgeClass(foglalas.status)">
                 {{ getStatusText(foglalas.status) }}
               </span>
+              <div v-if="foglalas.kiadasIdopontja" class="small text-muted">
+                Kiadva: {{ formatShortDate(foglalas.kiadasIdopontja) }}
+              </div>
             </td>
-            <td class="actions">
-              <!-- 🟢 KIADVA gomb - csak Aktiv foglaláshoz -->
-              <button
-                v-if="foglalas.status === 'Aktiv'"
-                class="btn-kiad"
-                @click="kiadEszkoz(foglalas)"
-                title="Admin jóváhagyja - eszköz kiadása"
-              >
-                🟢 KIADVA
-              </button>
-
-              <!-- 🔵 VISSZAHOZVA gomb - csak Kiadva foglaláshoz -->
-              <button
-                v-if="foglalas.status === 'Kiadva'"
-                class="btn-visszahoz"
-                @click="visszahozEszkoz(foglalas)"
-                title="Eszköz visszahozva"
-              >
-                🔵 VISSZAHOZVA
-              </button>
-
-              <!-- 🗑️ TÖRLÉS gomb - Aktiv vagy Kiadva státuszhoz -->
-              <button
-                v-if="foglalas.status === 'Aktiv' || foglalas.status === 'Kiadva'"
-                class="btn-delete"
-                @click="torolFoglalas(foglalas)"
-                title="Foglalás törlése"
-              >
-                🗑️
-              </button>
-
-              <!-- 👁️ Részletek gomb - mindenkinek -->
-              <button class="btn-info" @click="openDetailModal(foglalas)" title="Részletek">
-                👁️
-              </button>
+            <td>
+              <div class="table-actions">
+                <button
+                  v-if="foglalas.status === 1"
+                  class="btn-table btn-kiad"
+                  @click="kiadEszkoz(foglalas)"
+                  title="Eszköz kiadása"
+                >
+                  ✅ Kiadás
+                </button>
+                <button
+                  v-if="foglalas.status === 2"
+                  class="btn-table btn-visszahoz"
+                  @click="visszahozEszkoz(foglalas)"
+                  title="Eszköz visszahozva"
+                >
+                  🔄 Vissza
+                </button>
+                <button
+                  class="btn-table btn-info"
+                  @click="openDetailModal(foglalas)"
+                  title="Részletek"
+                >
+                  👁️
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
       </table>
+    </div>
 
-      <!-- ============================================================================ -->
-      <!-- ✅ LAPOZÓ GOMBOK -->
-      <!-- ============================================================================ -->
-      <div class="pagination">
-        <button 
-          class="pagination-btn" 
-          @click="goToPage(1)" 
-          :disabled="currentPage === 1"
-          title="Első oldal"
-        >
-          ⏮️
-        </button>
-        
-        <button 
-          class="pagination-btn" 
-          @click="goToPage(currentPage - 1)" 
-          :disabled="currentPage === 1"
-          title="Előző oldal"
-        >
-          ◀️ Előző
-        </button>
-
-        <div class="pagination-info">
-          <span class="page-numbers">
-            <strong>{{ currentPage }}</strong> / {{ totalPages }}
-          </span>
-          <span class="total-count">
-            (összesen {{ osszesElemSzam }} foglalás)
-          </span>
-        </div>
-
-        <button 
-          class="pagination-btn" 
-          @click="goToPage(currentPage + 1)" 
-          :disabled="currentPage === totalPages"
-          title="Következő oldal"
-        >
-          Következő ▶️
-        </button>
-
-        <button 
-          class="pagination-btn" 
-          @click="goToPage(totalPages)" 
-          :disabled="currentPage === totalPages"
-          title="Utolsó oldal"
-        >
-          ⏭️
-        </button>
-      </div>
-    </template>
-
-    <!-- Részletek Modal -->
+    <!-- RÉSZLETEK MODAL -->
     <Teleport to="body">
-      <div v-if="modalOpen" class="modal-overlay" @click="closeModal">
-        <div class="modal-box" @click.stop>
-          <h3>📋 Foglalás részletei</h3>
-
-          <div class="detail-grid">
-            <div class="detail-item">
-              <div class="detail-label">Foglalás ID:</div>
-              <div class="detail-value">#{{ selectedFoglalas.foglalasID }}</div>
+      <Transition name="modal">
+        <div v-if="modalOpen" class="modal-overlay" @click="closeModal">
+          <div class="modal-container" @click.stop>
+            <!-- Modal header -->
+            <div class="modal-header">
+              <button class="btn-back mobile-only" @click="closeModal">← Vissza</button>
+              <h3 class="modal-title">Foglalás #{{ selectedFoglalas.foglalasID }}</h3>
+              <button class="btn-close desktop-only" @click="closeModal">✕</button>
             </div>
 
-            <div class="detail-item">
-              <div class="detail-label">Eszköz:</div>
-              <div class="detail-value">{{ selectedFoglalas.eszkozNev }}</div>
-            </div>
+            <!-- Modal content -->
+            <div class="modal-content">
+              <!-- Státusz kártya -->
+              <div class="status-card" :class="getBadgeClass(selectedFoglalas.status)">
+                <span class="status-label">Státusz</span>
+                <span class="status-value">{{ getStatusText(selectedFoglalas.status) }}</span>
+              </div>
 
-            <div class="detail-item">
-              <div class="detail-label">Ügyfél neve:</div>
-              <div class="detail-value">{{ selectedFoglalas.nev }}</div>
-            </div>
+              <!-- Részletek grid -->
+              <div class="details-grid">
+                <div class="detail-group">
+                  <h4 class="group-title">🔧 Eszköz</h4>
+                  <p class="group-value">{{ selectedFoglalas.eszkozNev }}</p>
+                </div>
 
-            <div class="detail-item">
-              <div class="detail-label">Email:</div>
-              <div class="detail-value">{{ selectedFoglalas.email }}</div>
-            </div>
+                <div class="detail-group">
+                  <h4 class="group-title">👤 Ügyfél</h4>
+                  <p class="group-value">{{ selectedFoglalas.nev }}</p>
+                  <p class="group-sub">{{ selectedFoglalas.email }}</p>
+                  <p class="group-sub">{{ selectedFoglalas.telefonszam }}</p>
+                </div>
 
-            <div class="detail-item">
-              <div class="detail-label">Telefonszám:</div>
-              <div class="detail-value">{{ selectedFoglalas.telefonszam }}</div>
-            </div>
+                <div class="detail-group">
+                  <h4 class="group-title">📍 Cím</h4>
+                  <p class="group-value">{{ selectedFoglalas.cim }}</p>
+                </div>
 
-            <div class="detail-item">
-              <div class="detail-label">Cím:</div>
-              <div class="detail-value">{{ selectedFoglalas.cim }}</div>
-            </div>
+                <div class="detail-group">
+                  <h4 class="group-title">📅 Foglalás kezdete</h4>
+                  <p class="group-value">{{ formatDate(selectedFoglalas.foglalasKezdete) }}</p>
+                </div>
 
-            <div class="detail-item">
-              <div class="detail-label">Foglalás kezdete:</div>
-              <div class="detail-value">{{ formatDate(selectedFoglalas.foglalasKezdete) }}</div>
-            </div>
+                <div v-if="selectedFoglalas.kiadasIdopontja" class="detail-group">
+                  <h4 class="group-title">✅ Kiadva</h4>
+                  <p class="group-value">{{ formatDate(selectedFoglalas.kiadasIdopontja) }}</p>
+                </div>
 
-            <div v-if="selectedFoglalas.kiadasIdopontja" class="detail-item">
-              <div class="detail-label">Kiadva:</div>
-              <div class="detail-value">{{ formatDate(selectedFoglalas.kiadasIdopontja) }}</div>
-            </div>
+                <div v-if="selectedFoglalas.visszahozasIdopontja" class="detail-group">
+                  <h4 class="group-title">🔄 Visszahozva</h4>
+                  <p class="group-value">{{ formatDate(selectedFoglalas.visszahozasIdopontja) }}</p>
+                </div>
 
-            <div v-if="selectedFoglalas.visszahozasIdopontja" class="detail-item">
-              <div class="detail-label">Visszahozva:</div>
-              <div class="detail-value">{{ formatDate(selectedFoglalas.visszahozasIdopontja) }}</div>
-            </div>
+                <div v-if="selectedFoglalas.elszamolhatoIdo" class="detail-group">
+                  <h4 class="group-title">⏱️ Eltelt idő</h4>
+                  <p class="group-value">{{ formatIdo(selectedFoglalas.elszamolhatoIdo) }}</p>
+                </div>
 
-            <div v-if="selectedFoglalas.elszamolhatoIdo" class="detail-item">
-              <div class="detail-label">Eltelt idő:</div>
-              <div class="detail-value">{{ formatIdo(selectedFoglalas.elszamolhatoIdo) }}</div>
-            </div>
+                <div v-if="selectedFoglalas.bevetel" class="detail-group highlight">
+                  <h4 class="group-title">💰 Bevétel</h4>
+                  <p class="group-value large">{{ formatAr(selectedFoglalas.bevetel) }} Ft</p>
+                </div>
 
-            <div v-if="selectedFoglalas.fizetendoOsszeg" class="detail-item">
-              <div class="detail-label">Fizetendő:</div>
-              <div class="detail-value highlight">{{ formatAr(selectedFoglalas.fizetendoOsszeg) }} Ft</div>
-            </div>
-
-            <div v-if="selectedFoglalas.bevetel" class="detail-item">
-              <div class="detail-label">Bevétel:</div>
-              <div class="detail-value highlight">{{ formatAr(selectedFoglalas.bevetel) }} Ft</div>
-            </div>
-
-            <div class="detail-item">
-              <div class="detail-label">Státusz:</div>
-              <div class="detail-value">
-                <span :class="['badge', getBadgeClass(selectedFoglalas.status)]">
-                  {{ getStatusText(selectedFoglalas.status) }}
-                </span>
+                <div v-if="selectedFoglalas.fizetendoOsszeg" class="detail-group highlight">
+                  <h4 class="group-title">💰 Fizetendő</h4>
+                  <p class="group-value large">{{ formatAr(selectedFoglalas.fizetendoOsszeg) }} Ft</p>
+                </div>
               </div>
             </div>
 
-            <div class="detail-item">
-              <div class="detail-label">Létrehozva:</div>
-              <div class="detail-value">{{ formatDate(selectedFoglalas.letrehozasDatum) }}</div>
+            <!-- Modal footer -->
+            <div class="modal-footer">
+              <button
+                v-if="selectedFoglalas.status === 1"
+                class="btn-primary"
+                @click="handleModalAction(kiadEszkoz)"
+              >
+                ✅ Eszköz kiadása
+              </button>
+
+              <button
+                v-if="selectedFoglalas.status === 2"
+                class="btn-primary"
+                @click="handleModalAction(visszahozEszkoz)"
+              >
+                🔄 Visszahozva
+              </button>
+
+              <button
+                v-if="selectedFoglalas.status === 1 || selectedFoglalas.status === 2"
+                class="btn-danger"
+                @click="handleModalAction(openDeleteConfirm)"
+              >
+                ❌ Törlés
+              </button>
+
+              <button class="btn-secondary" @click="closeModal">Bezárás</button>
             </div>
           </div>
-
-          <div class="modal-actions">
-            <button type="button" class="btn-secondary" @click="closeModal">Bezárás</button>
-          </div>
         </div>
-      </div>
+      </Transition>
     </Teleport>
+
+    <!-- TOAST NOTIFICATIONS -->
+    <Transition name="toast">
+      <div v-if="toast.show" class="toast" :class="toast.type">
+        <span class="toast-icon">{{ toast.type === 'success' ? '✅' : '❌' }}</span>
+        <span class="toast-message">{{ toast.message }}</span>
+      </div>
+    </Transition>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import axios from 'axios'
+import { foglalasService } from '@/services/foglalasService'
+import api from '@/services/api'
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5265/api'
-
-// ============================================================================
-// ✅ FRONTEND LAPOZÁS - ÖSSZES ADT LETÖLTJÜK, ITT LAPOZUNK
-// ============================================================================
-const osszesFoglalas = ref([]) // Minden foglalás a backend-től
+// State
+const foglalasok = ref([])
 const loading = ref(false)
 const modalOpen = ref(false)
 const selectedFoglalas = ref({})
-
-const currentPage = ref(1)
-const pageSize = ref(5) // 5 elem oldalanként
-
-// Computed property: aktuális oldal elemei
-const aktualisOldalFoglalasai = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value
-  const end = start + pageSize.value
-  return osszesFoglalas.value.slice(start, end)
-})
-
-// Computed property: összes elemszám
-const osszesElemSzam = computed(() => osszesFoglalas.value.length)
-
-// Computed property: összes oldal száma
-const totalPages = computed(() => {
-  return Math.ceil(osszesElemSzam.value / pageSize.value) || 1
-})
+const activeFilter = ref('all')
+const toast = ref({ show: false, message: '', type: 'success' })
+const filterMenuOpen = ref(false)
 
 let autoRefreshInterval = null
 
-onMounted(() => {
-  fetchFoglalasok()
-  
-  // Automatikus frissítés 10 másodpercenként
-  autoRefreshInterval = setInterval(() => {
-    fetchFoglalasok(true) // true = csendes frissítés
-  }, 10000)
+// Szűrő opciók
+const statusFilters = [
+  { value: 'all', label: 'Összes', icon: '📋' },
+  { value: 0, label: 'Előfoglalás', icon: '⚪' },
+  { value: 1, label: 'Várakozik', icon: '⏳' },
+  { value: 2, label: 'Kiadva', icon: '✅' },
+  { value: 3, label: 'Lezárt', icon: '🔒' },
+  { value: 4, label: 'Törölt', icon: '❌' },
+]
+
+// Computed
+const filteredFoglalasok = computed(() => {
+  if (activeFilter.value === 'all') return foglalasok.value
+  return foglalasok.value.filter(f => f.status === activeFilter.value)
 })
 
-onUnmounted(() => {
-  if (autoRefreshInterval) {
-    clearInterval(autoRefreshInterval)
-  }
-})
+// Methods
+function getStatusCount(status) {
+  if (status === 'all') return foglalasok.value.length
+  return foglalasok.value.filter(f => f.status === status).length
+}
 
-// ============================================================================
-// ✅ EREDETI BACKEND HÍVÁS - VÁLTOZATLAN
-// ============================================================================
-async function fetchFoglalasok(silent = false) {
-  if (!silent) loading.value = true
-  
-  try {
-    const response = await axios.get(`${API_BASE}/foglalasok`)
-    osszesFoglalas.value = response.data
-    
-    // Ha túl sok oldalt lapozunk előre és közben törölnek elemeket,
-    // visszalépünk az utolsó létező oldalra
-    if (currentPage.value > totalPages.value) {
-      currentPage.value = totalPages.value
-    }
-  } catch (err) {
-    console.error('Foglalások betöltése sikertelen:', err)
-  } finally {
-    if (!silent) loading.value = false
+function getFilterLabel(status) {
+  const filter = statusFilters.find(f => f.value === status)
+  return filter ? filter.label.toLowerCase() : ''
+}
+
+function getActiveFilterLabel() {
+  const filter = statusFilters.find(f => f.value === activeFilter.value)
+  return filter ? filter.label : 'Összes'
+}
+
+function getActiveFilterIcon() {
+  const filter = statusFilters.find(f => f.value === activeFilter.value)
+  return filter ? filter.icon : '📋'
+}
+
+function toggleFilterMenu() {
+  filterMenuOpen.value = !filterMenuOpen.value
+}
+
+function selectFilter(value) {
+  activeFilter.value = value
+  filterMenuOpen.value = false
+}
+
+function closeFilterMenu(e) {
+  if (filterMenuOpen.value && !e.target.closest('.filters-section')) {
+    filterMenuOpen.value = false
   }
 }
 
-// ============================================================================
-// ✅ LAPOZÓ FUNKCIÓ
-// ============================================================================
-function goToPage(page) {
-  if (page < 1 || page > totalPages.value) return
-  currentPage.value = page
+function getCardClass(status) {
+  const map = { 0: 'card-elofoglalas', 1: 'card-varakozik', 2: 'card-kiadva', 3: 'card-lezart', 4: 'card-torolt' }
+  return map[status] || ''
 }
 
-async function kiadEszkoz(foglalas) {
-  if (!confirm(`Biztosan kiadod az eszközt?\n\nEszköz: ${foglalas.eszkozNev}\nÜgyfél: ${foglalas.nev}`)) {
-    return
-  }
-
-  try {
-    const response = await axios.post(`${API_BASE}/foglalasok/${foglalas.foglalasID}/kiad`)
-    
-    alert(`✅ ${response.data.message}`)
-    await fetchFoglalasok()
-  } catch (err) {
-    alert(`❌ Hiba: ${err.response?.data?.message || 'Nem sikerült kiadni az eszközt'}`)
-    console.error('Kiadás hiba:', err)
-  }
+function getRowClass(status) {
+  const map = { 0: 'row-elofoglalas', 1: 'row-varakozik', 2: 'row-kiadva', 3: 'row-lezart', 4: 'row-torolt' }
+  return map[status] || ''
 }
 
-async function visszahozEszkoz(foglalas) {
-  if (!confirm(`Ügyfél visszahozta az eszközt?\n\nEszköz: ${foglalas.eszkozNev}`)) {
-    return
-  }
-
-  try {
-    const response = await axios.post(`${API_BASE}/eszkozok/${foglalas.eszkozID}/visszahoz`)
-    
-    // Elszámolás megjelenítése
-    if (response.data.elszamolas) {
-      const e = response.data.elszamolas
-      const ido = formatIdo(e.elszamolhatoIdo)
-      const osszeg = formatAr(e.fizetendoOsszeg)
-      
-      alert(
-        `✅ Eszköz sikeresen visszahozva!\n\n` +
-        `⏱️ Eltelt idő: ${ido}\n` +
-        `💰 Fizetendő: ${osszeg} Ft`
-      )
-    } else {
-      alert(`✅ ${response.data.message}`)
-    }
-    
-    await fetchFoglalasok()
-  } catch (err) {
-    alert(`❌ Hiba: ${err.response?.data?.message || 'Nem sikerült visszahozni az eszközt'}`)
-    console.error('Visszahozás hiba:', err)
-  }
+function getBadgeClass(status) {
+  const map = { 0: 'badge-secondary', 1: 'badge-warning', 2: 'badge-info', 3: 'badge-success', 4: 'badge-danger' }
+  return map[status] || ''
 }
 
-async function torolFoglalas(foglalas) {
-  if (!confirm(`Biztosan törölni szeretnéd a foglalást?\n\nEszköz: ${foglalas.eszkozNev}\nÜgyfél: ${foglalas.nev}\n\nEz a művelet visszavonhatatlan!`)) {
-    return
-  }
-
-  try {
-    await axios.delete(`${API_BASE}/foglalasok/${foglalas.foglalasID}`)
-    
-    alert('✅ Foglalás sikeresen törölve!')
-    await fetchFoglalasok()
-  } catch (err) {
-    alert(`❌ Hiba: ${err.response?.data?.message || 'Nem sikerült törölni a foglalást'}`)
-    console.error('Törlés hiba:', err)
-  }
+function getStatusText(status) {
+  const map = { 0: 'ELŐFOGLALÁS', 1: 'VÁRAKOZIK', 2: 'KIADVA', 3: 'LEZÁRT', 4: 'TÖRÖLT' }
+  return map[status] || 'ISMERETLEN'
 }
 
-function openDetailModal(foglalas) {
-  selectedFoglalas.value = foglalas
-  modalOpen.value = true
-}
-
-function closeModal() {
-  modalOpen.value = false
-}
-
-function formatDate(dateString) {
+function formatShortDate(dateString) {
   if (!dateString) return '-'
   const date = new Date(dateString)
   return new Intl.DateTimeFormat('hu-HU', {
-    year: 'numeric',
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
@@ -418,191 +448,677 @@ function formatDate(dateString) {
   }).format(date)
 }
 
-function formatAr(ar) {
-  if (!ar) return '0'
-  return new Intl.NumberFormat('hu-HU').format(Math.round(ar))
+function formatDate(dateString) {
+  if (!dateString) return '-'
+  const date = new Date(dateString)
+  return new Intl.DateTimeFormat('hu-HU', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date)
 }
 
 function formatIdo(percek) {
   if (!percek) return '-'
   const orak = Math.floor(percek / 60)
   const maradekPercek = percek % 60
-  if (orak === 0) return `${maradekPercek} perc`
-  return `${orak}h ${maradekPercek}m`
+  return `${orak}ó ${maradekPercek}p`
 }
 
-function getElapsedTime(kiadasIdopontja) {
-  if (!kiadasIdopontja) return '-'
-  const kiadas = new Date(kiadasIdopontja)
-  const most = new Date()
-  const percek = Math.floor((most - kiadas) / (1000 * 60))
-  return formatIdo(percek)
+function formatAr(ar) {
+  if (!ar) return '0'
+  return new Intl.NumberFormat('hu-HU').format(ar)
 }
 
-function getStatusText(status) {
-  const map = {
-    Aktiv: '🟡 Aktív',
-    Kiadva: '🔵 Kiadva',
-    Lezart: '🟢 Lezárt',
-    Torolt: '🔴 Törölt',
-    Lejart: '⏰ Lejárt'
+function showToast(message, type = 'success') {
+  toast.value = { show: true, message, type }
+  setTimeout(() => { toast.value.show = false }, 3000)
+}
+
+function openDetailModal(foglalas) {
+  selectedFoglalas.value = foglalas
+  modalOpen.value = true
+  document.body.style.overflow = 'hidden'
+}
+
+function closeModal() {
+  modalOpen.value = false
+  document.body.style.overflow = ''
+}
+
+async function handleModalAction(actionFn) {
+  await actionFn(selectedFoglalas.value)
+  closeModal()
+}
+
+function openDeleteConfirm(foglalas) {
+  if (confirm(`Biztosan törölöd ezt a foglalást?\n\nEszköz: ${foglalas.eszkozNev}\nÜgyfél: ${foglalas.nev}`)) {
+    deleteFoglalas(foglalas)
   }
-  return map[status] || status
 }
 
-function getBadgeClass(status) {
-  const map = {
-    Aktiv: 'badge-warning',
-    Kiadva: 'badge-info',
-    Lezart: 'badge-success',
-    Torolt: 'badge-danger',
-    Lejart: 'badge-secondary'
+async function fetchFoglalasok(silent = false) {
+  if (!silent) loading.value = true
+
+  try {
+    const response = await foglalasService.getAll()
+
+    foglalasok.value = response.data.map(f => ({
+      foglalasID: f.id,
+      eszkozID: f.eszkoz?.id,
+      eszkozNev: f.eszkoz?.nev,
+      eszkozAr: f.eszkoz?.ar,
+      nev: f.felhasznalo?.nev || f.nev,
+      email: f.felhasznalo?.email || f.email,
+      telefonszam: f.felhasznalo?.telefonszam || f.telefonszam,
+      cim: f.felhasznalo?.cim || f.cim,
+      foglalasKezdete: f.kezdetDatum,
+      kiadasIdopontja: f.kiadasDatum,
+      visszahozasIdopontja: f.visszahozasDatum,
+      status: f.status,
+      bevetel: f.bevetel,
+      fizetendoOsszeg: f.fizetendoOsszeg,
+      elszamolhatoIdo: f.elszamolhatoIdo,
+      createdAt: f.createdAt,
+    }))
+  } catch (err) {
+    console.error('Foglalások betöltése sikertelen:', err)
+    if (!silent) showToast('Hiba a betöltés során', 'error')
+  } finally {
+    if (!silent) loading.value = false
   }
-  return map[status] || ''
 }
+
+async function kiadEszkoz(foglalas) {
+  if (!confirm(`Kiadod az eszközt?\n\n${foglalas.eszkozNev}\nÜgyfél: ${foglalas.nev}`)) return
+
+  try {
+    await api.put(`/Foglalasok/${foglalas.foglalasID}/kiadas`)
+    showToast('Eszköz sikeresen kiadva!')
+    await fetchFoglalasok(true)
+  } catch (err) {
+    showToast(err.response?.data?.message || 'Hiba történt a kiadás során!', 'error')
+  }
+}
+
+async function visszahozEszkoz(foglalas) {
+  if (!confirm(`Visszahozták az eszközt?\n\n${foglalas.eszkozNev}`)) return
+
+  try {
+    const response = await api.put(`/Foglalasok/${foglalas.foglalasID}/lezaras`)
+
+    if (response.data.fizetendoOsszeg) {
+      showToast(`Visszahozva! Fizetendő: ${formatAr(response.data.fizetendoOsszeg)} Ft`)
+    } else {
+      showToast('Eszköz sikeresen visszahozva!')
+    }
+
+    await fetchFoglalasok(true)
+  } catch (err) {
+    showToast(err.response?.data?.message || 'Hiba történt a visszahozás során!', 'error')
+  }
+}
+
+async function deleteFoglalas(foglalas) {
+  try {
+    await foglalasService.torol(foglalas.foglalasID)
+    showToast('Foglalás törölve!')
+    await fetchFoglalasok(true)
+  } catch (err) {
+    showToast(err.response?.data?.message || 'Hiba történt a törlés során!', 'error')
+  }
+}
+
+// Lifecycle
+onMounted(() => {
+  fetchFoglalasok()
+  autoRefreshInterval = setInterval(() => fetchFoglalasok(true), 10000)
+  document.addEventListener('click', closeFilterMenu)
+})
+
+onUnmounted(() => {
+  if (autoRefreshInterval) clearInterval(autoRefreshInterval)
+  document.removeEventListener('click', closeFilterMenu)
+})
 </script>
 
 <style scoped>
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* LAYOUT                                                                    */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
 .foglalasok-admin {
-  padding: 20px;
+  padding: var(--spacing-md, 16px);
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-.header {
+@media (min-width: 768px) {
+  .foglalasok-admin {
+    padding: var(--spacing-lg, 24px);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* HEADER                                                                    */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.page-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 2px solid #e8dcc8;
+  margin-bottom: var(--spacing-md, 16px);
 }
 
-.header h2 {
-  margin: 0;
-  font-size: 28px;
-  color: #3d2f1f;
-}
-
-.header-actions {
+.page-title {
   display: flex;
-  gap: 12px;
+  align-items: center;
+  gap: var(--spacing-sm, 8px);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-text, #1f2937);
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .page-title {
+    font-size: 28px;
+  }
+}
+
+.title-icon {
+  font-size: 1.2em;
 }
 
 .btn-refresh {
-  padding: 10px 20px;
-  background: #6b8e23;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs, 6px);
+  padding: 10px 16px;
+  background: var(--color-primary, #6b8e23);
   color: white;
   border: none;
-  border-radius: 6px;
-  cursor: pointer;
+  border-radius: var(--radius-md, 8px);
   font-weight: 600;
   font-size: 14px;
-  transition: all 0.2s;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 44px;
 }
 
 .btn-refresh:hover:not(:disabled) {
-  background: #556b1a;
-  transform: translateY(-1px);
+  background: var(--color-primary-dark, #5a7a1e);
 }
 
 .btn-refresh:disabled {
-  opacity: 0.5;
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
-.loading {
-  text-align: center;
-  padding: 60px;
-  color: #6b5d4f;
-  font-size: 18px;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 60px;
-  background: #f5f1e8;
-  border-radius: 12px;
-  color: #6b5d4f;
-}
-
-.empty-state p {
-  font-size: 18px;
-  margin: 0;
-}
-
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(61, 47, 31, 0.08);
-}
-
-.data-table th,
-.data-table td {
-  padding: 14px 12px;
-  text-align: left;
-  border-bottom: 1px solid #e8dcc8;
-}
-
-.data-table th {
-  background: #f5f1e8;
-  font-weight: 600;
-  color: #3d2f1f;
-  text-transform: uppercase;
-  font-size: 12px;
-  letter-spacing: 0.5px;
-}
-
-.data-table tbody tr {
-  transition: background 0.2s;
-}
-
-.data-table tbody tr:hover {
-  background: #faf8f3;
-}
-
-.eszkoz-info {
-  font-weight: 600;
-  color: #3d2f1f;
-}
-
-.small {
-  font-size: 12px;
-  color: #6b5d4f;
-  margin-top: 2px;
-}
-
-.text-muted {
-  color: #9b8b7a;
-}
-
-.text-success {
-  color: #059669;
-}
-
-.text-info {
-  color: #0284c7;
-}
-
-.mt-1 {
-  margin-top: 4px;
-}
-
-.bevetel {
-  color: #6b8e23;
-  font-weight: 700;
-}
-
-.badge {
+.refresh-icon {
+  font-size: 16px;
   display: inline-block;
-  padding: 5px 12px;
-  border-radius: 14px;
-  font-size: 11px;
+}
+
+.refresh-icon.spinning {
+  animation: spin 1s linear infinite;
+}
+
+.refresh-text {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .refresh-text {
+    display: inline;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* FILTERS: MOBILE DROPDOWN                                                  */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.filters-section {
+  margin-bottom: var(--spacing-md, 16px);
+  position: relative;
+}
+
+.filter-dropdown-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--color-surface, white);
+  border: 2px solid var(--color-border, #e5e7eb);
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text, #1f2937);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 52px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.filter-dropdown-toggle:active {
+  transform: scale(0.99);
+}
+
+.filter-active-icon {
+  font-size: 20px;
+}
+
+.filter-active-label {
+  flex: 1;
+  text-align: left;
+}
+
+.filter-active-count {
+  background: var(--color-primary, #6b8e23);
+  color: white;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 13px;
   font-weight: 700;
-  text-transform: uppercase;
+}
+
+.filter-chevron {
+  font-size: 18px;
+  color: var(--color-text-muted, #6b7280);
+  transition: transform 0.2s ease;
+}
+
+.filter-chevron.open {
+  transform: rotate(180deg);
+}
+
+.filter-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: var(--color-surface, white);
+  border-radius: 14px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  overflow: hidden;
+  border: 1px solid var(--color-border, #e5e7eb);
+}
+
+.filter-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 18px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--color-border, #f3f4f6);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-text, #1f2937);
+  cursor: pointer;
+  transition: background 0.15s ease;
+  min-height: 52px;
+  -webkit-tap-highlight-color: transparent;
+  text-align: left;
+}
+
+.filter-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.filter-dropdown-item:active {
+  background: var(--color-background, #f5f1e8);
+}
+
+.filter-dropdown-item.active {
+  background: rgba(107, 142, 35, 0.08);
+  color: var(--color-primary, #6b8e23);
+  font-weight: 600;
+}
+
+.dropdown-item-icon {
+  font-size: 20px;
+  width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.dropdown-item-label {
+  flex: 1;
+}
+
+.dropdown-item-count {
+  background: var(--color-border, #e5e7eb);
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted, #6b7280);
+}
+
+.filter-dropdown-item.active .dropdown-item-count {
+  background: rgba(107, 142, 35, 0.15);
+  color: var(--color-primary, #6b8e23);
+}
+
+.dropdown-item-check {
+  color: var(--color-primary, #6b8e23);
+  font-weight: 700;
+  font-size: 18px;
+}
+
+/* Dropdown transition */
+.dropdown-enter-active,
+.dropdown-leave-active {
+  transition: all 0.2s ease;
+  transform-origin: top center;
+}
+
+.dropdown-enter-from,
+.dropdown-leave-to {
+  opacity: 0;
+  transform: scaleY(0.9) translateY(-4px);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* FILTERS: DESKTOP CHIPS                                                    */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.filter-chips {
+  display: flex;
+  gap: var(--spacing-sm, 8px);
+  padding-bottom: var(--spacing-xs, 4px);
+}
+
+.filter-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: var(--color-surface, white);
+  border: 2px solid var(--color-border, #e5e7eb);
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text, #1f2937);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  min-height: 44px;
+}
+
+.filter-chip:hover {
+  border-color: var(--color-primary, #6b8e23);
+}
+
+.filter-chip.active {
+  background: var(--color-primary, #6b8e23);
+  border-color: var(--color-primary, #6b8e23);
+  color: white;
+}
+
+.chip-count {
+  background: rgba(0, 0, 0, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.filter-chip.active .chip-count {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* STATE CONTAINERS                                                          */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.state-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl, 60px) var(--spacing-md, 16px);
+  text-align: center;
+}
+
+.state-icon {
+  font-size: 48px;
+  margin-bottom: var(--spacing-md, 16px);
+}
+
+.state-container p {
+  color: var(--color-text-muted, #6b7280);
+  margin: 0 0 var(--spacing-md, 16px) 0;
+  font-size: 16px;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-border, #e5e7eb);
+  border-top-color: var(--color-primary, #6b8e23);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: var(--spacing-md, 16px);
+}
+
+.btn-clear {
+  padding: 12px 20px;
+  background: var(--color-primary, #6b8e23);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md, 8px);
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* MOBILE: CARD VIEW                                                         */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.cards-view {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.foglalas-card {
+  background: var(--color-surface, white);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(61, 47, 31, 0.08);
+  border-left: 5px solid var(--color-border, #e5e7eb);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.foglalas-card:active {
+  transform: scale(0.98);
+}
+
+.foglalas-card.card-elofoglalas {
+  border-left-color: #9ca3af;
+}
+
+.foglalas-card.card-varakozik {
+  border-left-color: var(--color-waiting, #f59e0b);
+}
+
+.foglalas-card.card-kiadva {
+  border-left-color: var(--color-active, #3b82f6);
+}
+
+.foglalas-card.card-lezart {
+  border-left-color: var(--color-success, #10b981);
+}
+
+.foglalas-card.card-torolt {
+  border-left-color: var(--color-danger, #ef4444);
+  opacity: 0.7;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.card-id {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-muted, #6b7280);
   letter-spacing: 0.5px;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text, #1f2937);
+  margin: 0 0 12px 0;
+  line-height: 1.3;
+}
+
+/* ── Info sorok ────────────────────────────────────────────────── */
+
+.card-info-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.card-info-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  color: var(--color-text-muted, #6b7280);
+}
+
+.info-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+  width: 24px;
+  text-align: center;
+}
+
+.info-value {
+  line-height: 1.3;
+}
+
+/* ── Bevétel ────────────────────────────────────────────────── */
+
+.card-revenue {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+}
+
+.revenue-label {
+  font-size: 13px;
+  color: var(--color-text-muted, #6b7280);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.revenue-value {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--color-primary, #6b8e23);
+}
+
+/* ── Card action buttons ────────────────────────────────────── */
+
+.card-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+}
+
+.btn-card {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 12px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 48px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-card:active {
+  transform: scale(0.97);
+}
+
+.btn-card.btn-kiad {
+  background: var(--color-success, #10b981);
+  color: white;
+}
+
+.btn-card.btn-visszahoz {
+  background: var(--color-active, #3b82f6);
+  color: white;
+}
+
+.btn-card.btn-torol {
+  background: var(--color-danger, #ef4444);
+  color: white;
+}
+
+.btn-card.btn-details {
+  background: var(--color-background, #f5f1e8);
+  color: var(--color-text, #1f2937);
+}
+
+.btn-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* STATUS BADGE                                                              */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.badge-secondary {
+  background: #e5e7eb;
+  color: #374151;
 }
 
 .badge-warning {
@@ -625,251 +1141,520 @@ function getBadgeClass(status) {
   color: #991b1b;
 }
 
-.badge-secondary {
-  background: #e5e7eb;
-  color: #374151;
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* DESKTOP: TABLE VIEW                                                       */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-surface, white);
+  border-radius: var(--radius-lg, 12px);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.actions {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  flex-wrap: wrap;
+.data-table th,
+.data-table td {
+  padding: var(--spacing-md, 16px);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
 }
 
-.btn-kiad,
-.btn-visszahoz,
-.btn-info,
-.btn-delete,
-.btn-secondary {
-  padding: 8px 14px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
+.data-table th {
+  background: var(--color-background, #f9fafb);
   font-weight: 600;
   font-size: 12px;
-  transition: all 0.2s;
-  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-muted, #6b7280);
 }
 
-.btn-kiad {
-  background: #10b981;
-  color: white;
+.data-table tbody tr {
+  transition: background 0.2s ease;
 }
 
-.btn-kiad:hover {
-  background: #059669;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+.data-table tbody tr:hover {
+  background: var(--color-background, #f9fafb);
 }
 
-.btn-visszahoz {
-  background: #3b82f6;
-  color: white;
+.data-table tbody tr.row-elofoglalas {
+  border-left: 3px solid #9ca3af;
 }
 
-.btn-visszahoz:hover {
-  background: #2563eb;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+.data-table tbody tr.row-varakozik {
+  border-left: 3px solid var(--color-waiting, #f59e0b);
 }
 
-.btn-delete {
-  background: #ef4444;
-  color: white;
-  min-width: 36px;
+.data-table tbody tr.row-kiadva {
+  border-left: 3px solid var(--color-active, #3b82f6);
 }
 
-.btn-delete:hover {
-  background: #dc2626;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+.data-table tbody tr.row-lezart {
+  border-left: 3px solid var(--color-success, #10b981);
 }
 
-.btn-info {
-  background: #6b8e23;
-  color: white;
-  min-width: 36px;
+.data-table tbody tr.row-torolt {
+  border-left: 3px solid var(--color-danger, #ef4444);
+  opacity: 0.6;
 }
 
-.btn-info:hover {
-  background: #556b1a;
-}
-
-.btn-secondary {
-  background: white;
-  border: 2px solid #d4c5b0;
-  color: #3d2f1f;
-}
-
-.btn-secondary:hover {
-  background: #f5f1e8;
-}
-
-/* ============================================================================ */
-/* ✅ LAPOZÓ STÍLUSOK */
-/* ============================================================================ */
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-  margin-top: 24px;
-  padding: 20px;
-  background: #f5f1e8;
-  border-radius: 12px;
-}
-
-.pagination-btn {
-  padding: 10px 18px;
-  background: white;
-  border: 2px solid #d4c5b0;
-  border-radius: 8px;
-  color: #3d2f1f;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-
-.pagination-btn:hover:not(:disabled) {
-  background: #6b8e23;
-  color: white;
-  border-color: #6b8e23;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(107, 142, 35, 0.3);
-}
-
-.pagination-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  background: #e8dcc8;
-  border-color: #d4c5b0;
-  color: #9b8b7a;
-}
-
-.pagination-info {
+.customer-cell {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 0 20px;
+  gap: 2px;
 }
 
-.page-numbers {
-  font-size: 18px;
-  color: #3d2f1f;
-}
-
-.page-numbers strong {
-  font-size: 24px;
-  color: #6b8e23;
-}
-
-.total-count {
+.small {
   font-size: 12px;
-  color: #6b5d4f;
+  color: var(--color-text-muted, #6b7280);
 }
+
+.text-muted {
+  color: #9ca3af;
+}
+
+.revenue {
+  color: var(--color-primary, #6b8e23);
+  font-weight: 700;
+}
+
+.table-actions {
+  display: flex;
+  gap: var(--spacing-xs, 6px);
+}
+
+.btn-table {
+  padding: 8px 14px;
+  border: none;
+  border-radius: var(--radius-sm, 6px);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 36px;
+}
+
+.btn-table.btn-kiad {
+  background: var(--color-success, #10b981);
+  color: white;
+}
+
+.btn-table.btn-visszahoz {
+  background: var(--color-active, #3b82f6);
+  color: white;
+}
+
+.btn-table.btn-info {
+  background: var(--color-background, #f3f4f6);
+  color: var(--color-text, #374151);
+}
+
+.btn-table:hover {
+  transform: translateY(-1px);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* MODAL                                                                     */
+/* ═══════════════════════════════════════════════════════════════════════════ */
 
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(61, 47, 31, 0.7);
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2000;
-  padding: 20px;
-  overflow-y: auto;
-  backdrop-filter: blur(4px);
+  align-items: flex-end;
 }
 
-.modal-box {
-  background: white;
-  padding: 32px;
-  border-radius: 16px;
-  max-width: 700px;
+@media (min-width: 768px) {
+  .modal-overlay {
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-lg, 24px);
+    background: rgba(61, 47, 31, 0.7);
+    backdrop-filter: blur(4px);
+  }
+}
+
+.modal-container {
+  background: var(--color-surface, white);
   width: 100%;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-height: 92vh;
+  border-radius: 16px 16px 0 0;
+  display: flex;
+  flex-direction: column;
   animation: slideUp 0.3s ease-out;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .modal-container {
+    max-width: 600px;
+    border-radius: var(--radius-lg, 16px);
+    animation: scaleIn 0.2s ease-out;
+  }
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
 }
 
-.modal-box h3 {
-  margin: 0 0 24px 0;
-  color: #3d2f1f;
-  font-size: 24px;
+@keyframes scaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
-.detail-grid {
-  display: grid;
-  gap: 12px;
-  margin-bottom: 24px;
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  flex-shrink: 0;
 }
 
-.detail-item {
-  display: grid;
-  grid-template-columns: 160px 1fr;
-  gap: 16px;
-  padding: 14px;
-  background: #f5f1e8;
-  border-radius: 8px;
+.modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.btn-back {
+  background: none;
+  border: none;
+  color: var(--color-primary, #6b8e23);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px;
+  margin: -8px;
+  font-size: 16px;
+  min-height: 44px;
+  display: flex;
   align-items: center;
 }
 
-.detail-label {
-  font-weight: 600;
-  color: #6b5d4f;
-  font-size: 13px;
+.btn-close {
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: var(--color-text-muted, #6b7280);
+  cursor: pointer;
+  border-radius: var(--radius-md, 8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.detail-value {
-  color: #3d2f1f;
-  font-size: 14px;
+.modal-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  -webkit-overflow-scrolling: touch;
 }
 
-.detail-value.highlight {
+.status-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+.status-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+.status-value {
+  font-size: 16px;
   font-weight: 700;
-  color: #6b8e23;
-  font-size: 18px;
 }
 
-.modal-actions {
+.details-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detail-group {
+  padding: 14px 16px;
+  background: var(--color-background, #f9fafb);
+  border-radius: 10px;
+}
+
+.detail-group.highlight {
+  background: #d1fae5;
+}
+
+.group-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted, #6b7280);
+  margin: 0 0 6px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.group-value {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-text, #1f2937);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.group-value.large {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-primary, #6b8e23);
+}
+
+.group-sub {
+  font-size: 14px;
+  color: var(--color-text-muted, #6b7280);
+  margin: 4px 0 0 0;
+}
+
+.modal-footer {
   display: flex;
   gap: 12px;
-  justify-content: flex-end;
-  border-top: 2px solid #e8dcc8;
-  padding-top: 24px;
+  padding: 16px 20px;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+  flex-shrink: 0;
 }
 
-/* Reszponzív lapozó kisebb képernyőkön */
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+  flex: 1;
+  padding: 14px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  min-height: 48px;
+}
+
+.btn-primary {
+  background: var(--color-primary, #6b8e23);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-dark, #5a7a1e);
+}
+
+.btn-danger {
+  background: var(--color-danger, #ef4444);
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+}
+
+.btn-secondary {
+  background: var(--color-surface, white);
+  border: 2px solid var(--color-border, #e5e7eb);
+  color: var(--color-text, #1f2937);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* TOAST                                                                     */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.toast {
+  position: fixed;
+  bottom: calc(var(--bottom-nav-height, 0px) + 16px);
+  left: 16px;
+  right: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 2000;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  font-weight: 600;
+  font-size: 15px;
+}
+
+@media (min-width: 768px) {
+  .toast {
+    left: auto;
+    right: 24px;
+    bottom: 24px;
+    max-width: 400px;
+  }
+}
+
+.toast.success {
+  background: var(--color-success, #10b981);
+  color: white;
+}
+
+.toast.error {
+  background: var(--color-danger, #ef4444);
+  color: white;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* TRANSITIONS                                                               */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.toast-enter-active,
+.toast-leave-active {
+  transition: all 0.3s ease;
+}
+
+.toast-enter-from {
+  transform: translateY(100px);
+  opacity: 0;
+}
+
+.toast-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* RESPONSIVE HELPERS                                                        */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.mobile-only {
+  display: block;
+}
+
+.desktop-only {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .mobile-only {
+    display: none;
+  }
+  .desktop-only {
+    display: block;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* MOBILE BREAKPOINT (max-width: 768px)                                      */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
 @media (max-width: 768px) {
-  .pagination {
+  .page-header {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  /* ── Modal full-screen mobilon ─────────────────────────────── */
+  .modal-container {
+    max-height: 100vh;
+    height: 100vh;
+    border-radius: 0;
+  }
+
+  .modal-header {
+    position: sticky;
+    top: 0;
+    background: var(--color-surface, white);
+    z-index: 10;
+  }
+
+  .modal-content {
+    flex: 1;
+    max-height: none;
+  }
+
+  .modal-footer {
+    position: sticky;
+    bottom: 0;
+    background: var(--color-surface, white);
+    flex-direction: column;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* EXTRA SMALL (max-width: 480px)                                            */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+  .foglalasok-admin {
+    padding: 12px;
+  }
+
+  .page-title {
+    font-size: 18px;
+  }
+
+  .cards-view {
+    gap: 12px;
+  }
+
+  .foglalas-card {
+    padding: 16px;
+  }
+
+  .card-title {
+    font-size: 17px;
+  }
+
+  .card-info-row {
+    font-size: 14px;
+  }
+
+  .revenue-value {
+    font-size: 18px;
+  }
+
+  .card-actions {
     flex-wrap: wrap;
   }
 
-  .pagination-btn {
+  .btn-card {
+    min-height: 48px;
+    font-size: 15px;
+  }
+
+  .filter-chip {
     padding: 8px 12px;
-    font-size: 12px;
+    font-size: 13px;
+    min-height: 40px;
   }
 
-  .page-numbers {
-    font-size: 16px;
+  .status-badge {
+    font-size: 11px;
+    padding: 4px 10px;
   }
+}
 
-  .page-numbers strong {
-    font-size: 20px;
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* LANDSCAPE                                                                 */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) and (orientation: landscape) {
+  .modal-container {
+    max-height: 100vh;
   }
 }
 </style>

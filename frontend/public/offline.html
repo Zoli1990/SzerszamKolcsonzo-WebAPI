@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline - Szerszámkölcsönző</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f1e8;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .offline-container {
+      max-width: 400px;
+    }
+    
+    .offline-icon {
+      font-size: 80px;
+      margin-bottom: 24px;
+    }
+    
+    h1 {
+      font-size: 24px;
+      color: #3d2f1f;
+      margin-bottom: 16px;
+    }
+    
+    p {
+      font-size: 16px;
+      color: #6b5d4f;
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+    
+    .btn-retry {
+      padding: 14px 28px;
+      background: #6b8e23;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .btn-retry:hover {
+      background: #556b1a;
+    }
+    
+    .btn-retry:active {
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body>
+  <div class="offline-container">
+    <div class="offline-icon">📡</div>
+    <h1>Nincs internetkapcsolat</h1>
+    <p>Úgy tűnik, jelenleg offline vagy. Ellenőrizd az internetkapcsolatodat és próbáld újra.</p>
+    <button class="btn-retry" onclick="window.location.reload()">
+      🔄 Újrapróbálás
+    </button>
+  </div>
+  
+  <script>
+    // Automatikus újratöltés, ha visszajön a kapcsolat
+    window.addEventListener('online', () => {
+      window.location.reload();
+    });
+  </script>
+</body>
+</html>

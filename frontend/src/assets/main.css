@@ -245,3 +245,56 @@ body {
     font-size: 20px;
   }
 }
+
+
+/* ====================================
+   MOBILE FIXES - 2025
+   ==================================== */
+
+/* iOS Input Zoom Fix */
+input, select, textarea, button {
+  font-size: 16px !important;
+}
+
+/* Touch Targets (iOS minimum 44px) */
+button, .btn, a[role="button"], .clickable {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 12px 16px;
+  -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+}
+
+/* Prevent Horizontal Scroll */
+body {
+  overflow-x: hidden;
+}
+
+/* Mobile/Desktop Utilities */
+.mobile-only {
+  display: block;
+}
+
+.desktop-only {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .mobile-only {
+    display: none;
+  }
+  
+  .desktop-only {
+    display: block;
+  }
+}
+
+/* Responsive Containers */
+@media (max-width: 640px) {
+  .container {
+    padding: 0 1rem;
+  }
+  
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.25rem; }
+  h3 { font-size: 1.125rem; }
+}

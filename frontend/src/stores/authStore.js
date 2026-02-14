@@ -82,38 +82,49 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   // ✅ JAVÍTOTT: signIn - összes mező mentése
-  async function signIn(email, password) {
-    loading.value = true
+  // ✅ JAVÍTOTT: signIn - Profil automatikus betöltése
+async function signIn(email, password) {
+  loading.value = true
 
-    try {
-      const response = await authService.login(email, password)
+  try {
+    const response = await authService.login(email, password)
 
-      token.value = response.token
-      authService.saveToken(response.token)
+    token.value = response.token
+    authService.saveToken(response.token)
 
-      user.value = {
-        email: response.email,
-        role: response.role,
-        expiresAt: response.expiresAt,
-        nev: response.nev || '',
-        telefonszam: response.telefonszam || '',
-        iranyitoszam: response.iranyitoszam || '',
-        telepules: response.telepules || '',
-        utca: response.utca || '',
-        hazszam: response.hazszam || '',
-        cim: response.cim || ''
-      }
-
-      authService.saveUser(user.value)
-
-      return response
-    } catch (error) {
-      console.error('Bejelentkezési hiba:', error)
-      throw error
-    } finally {
-      loading.value = false
+    user.value = {
+      email: response.email,
+      role: response.role,
+      expiresAt: response.expiresAt,
+      nev: response.nev || '',
+      telefonszam: response.telefonszam || '',
+      iranyitoszam: response.iranyitoszam || '',
+      telepules: response.telepules || '',
+      utca: response.utca || '',
+      hazszam: response.hazszam || '',
+      cim: response.cim || ''
     }
+
+    authService.saveUser(user.value)
+
+    // ✅ Profil automatikus betöltése bejelentkezés után
+    try {
+      console.log('🔄 Fetching profile after login...')
+      await fetchProfile()
+      console.log('✅ Profile fetched successfully')
+    } catch (profileError) {
+      console.warn('⚠️ Profile fetch failed:', profileError)
+      // Nem throw-oljuk, hogy a login sikeres legyen akkor is
+    }
+
+    return response
+  } catch (error) {
+    console.error('Bejelentkezési hiba:', error)
+    throw error
+  } finally {
+    loading.value = false
   }
+}
 
   // ✅ JAVÍTOTT: signUp - összes mező
   async function signUp(email, password, iranyitoszam, telepules, utca, hazszam, telefonszam) {

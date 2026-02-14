@@ -1,7 +1,3 @@
-// ============================================================================ // 2.
-src/components/admin/AdminDashboard.vue - Statisztikák //
-============================================================================
-
 <template>
   <div class="dashboard">
     <h2>Áttekintés</h2>
@@ -155,5 +151,79 @@ function formatAr(ar) {
   text-align: center;
   padding: 40px;
   color: #6b5d4f;
+}
+
+@media (max-width: 768px) {
+  /* Dashboard header */
+  .dashboard h2 {
+    font-size: 20px; /* 24px → 20px */
+    margin-bottom: 16px;
+  }
+
+  /* ──────────────────────────────────────────
+     STATS GRID - 1 OSZLOP
+     ────────────────────────────────────────── */
+  .stats-grid {
+    grid-template-columns: 1fr; /* auto-fit → 1fr */
+    gap: 12px;
+  }
+
+  /* ──────────────────────────────────────────
+     STAT CARD KOMPAKT
+     ────────────────────────────────────────── */
+  .stat-card {
+    padding: 16px; /* 24px → 16px */
+    gap: 12px; /* 16px → 12px */
+  }
+
+  /* Highlight kártya NE legyen span 2 mobilon */
+  .stat-card.highlight {
+    grid-column: span 1; /* span 2 → span 1 */
+  }
+
+  /* ──────────────────────────────────────────
+     TYPOGRAPHY SCALING
+     ────────────────────────────────────────── */
+  .stat-icon {
+    font-size: 36px; /* 48px → 36px */
+  }
+
+  .stat-value {
+    font-size: 24px; /* 32px → 24px */
+  }
+
+  .stat-label {
+    font-size: 13px; /* 14px → 13px */
+  }
+}
+
+/* ============================================================================
+   EXTRA SMALL (max-width: 480px)
+   ============================================================================ */
+@media (max-width: 480px) {
+  .dashboard h2 {
+    font-size: 18px;
+  }
+
+  .stats-grid {
+    gap: 10px;
+  }
+
+  .stat-card {
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .stat-icon {
+    font-size: 32px;
+  }
+
+  .stat-value {
+    font-size: 20px;
+  }
+
+  .stat-label {
+    font-size: 12px;
+  }
 }
 </style>
