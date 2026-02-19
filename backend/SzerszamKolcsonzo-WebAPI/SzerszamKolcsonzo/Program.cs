@@ -9,13 +9,13 @@ using SzerszamKolcsonzo.Features.ToolRental.Extensions;
 using SzerszamKolcsonzo.Services;
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ✅ ROBUSZTUS PROGRAM.CS - AUTOMATIKUS SETUP
+// PROGRAM.CS
 // ═══════════════════════════════════════════════════════════════════════════
 
 var builder = WebApplication.CreateBuilder(args);
 
 // ═══════════════════════════════════════════════════════════════════════════
-// LOGGING KONFIGURÁCIÓ
+// LOGGING
 // ═══════════════════════════════════════════════════════════════════════════
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
@@ -39,17 +39,17 @@ builder.Services.AddControllers()
     });
 
 // ═══════════════════════════════════════════════════════════════════════════
-// MODULOK REGISZTRÁCIÓJA
+// MODULOK
 // ═══════════════════════════════════════════════════════════════════════════
 try
 {
     logger.LogInformation("📦 Modulok betöltése...");
     builder.Services.AddAuthModule(builder.Configuration);
     logger.LogInformation("  ✅ Auth modul betöltve");
-    
+
     builder.Services.AddToolRentalModule(builder.Configuration);
     logger.LogInformation("  ✅ ToolRental modul betöltve");
-    
+
     builder.Services.AddPushModule(builder.Configuration);
     logger.LogInformation("  ✅ Push modul betöltve");
 }
@@ -60,11 +60,10 @@ catch (Exception ex)
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// BACKGROUND SERVICES
+// BACKGROUND SERVICE
 // ═══════════════════════════════════════════════════════════════════════════
 builder.Services.AddHostedService<FoglalasCleanupService>();
-builder.Services.AddHostedService<FoglalasStatusUpdateService>();
-logger.LogInformation("⏰ Background services regisztrálva");
+logger.LogInformation("⏰ FoglalasCleanupService regisztrálva (15 perc auto-törlés)");
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CORS
@@ -78,7 +77,6 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader();
     });
 });
-logger.LogInformation("🌐 CORS konfiguráció: AllowAll");
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SWAGGER
@@ -122,10 +120,10 @@ builder.Services.AddSwaggerGen(c =>
 // BUILD APP
 // ═══════════════════════════════════════════════════════════════════════════
 var app = builder.Build();
-logger.LogInformation("🏗️  Application built sikeresen");
+logger.LogInformation("🏗️  Application built");
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ✅ AUTOMATIKUS SETUP - MAPPÁK, ADATBÁZIS, MIGRATIONS
+// ADATBÁZIS SETUP
 // ═══════════════════════════════════════════════════════════════════════════
 using (var scope = app.Services.CreateScope())
 {
@@ -134,86 +132,87 @@ using (var scope = app.Services.CreateScope())
 
     try
     {
-        // ─────────────────────────────────────────────────────────────────
-        // 1. WWWROOT/UPLOADS MAPPA LÉTREHOZÁSA
-        // ─────────────────────────────────────────────────────────────────
+        // UPLOADS MAPPA
         var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
         if (!Directory.Exists(uploadsPath))
         {
             Directory.CreateDirectory(uploadsPath);
-            setupLogger.LogInformation("📁 'wwwroot/uploads' mappa létrehozva: {Path}", uploadsPath);
-        }
-        else
-        {
-            setupLogger.LogInformation("📁 'wwwroot/uploads' mappa már létezik");
+            setupLogger.LogInformation("📁 'wwwroot/uploads' mappa létrehozva");
         }
 
+        // ╔═══════════════════════════════════════════════════════════════╗
+        // ║  🔧 FEJLESZTŐI KÖRNYEZET - ADATBÁZIS ÚJRALÉTREHOZÁS         ║
+        // ║                                                               ║
+        // ║  Ez a blokk CSAK Debug buildben és Development környezetben   ║
+        // ║  fut le. Release/Production buildben a fordító KIHAGYJA.      ║
+        // ║                                                               ║
+        // ║  Használat (sémaváltás, enum módosítás után):                 ║
+        // ║    Windows:  set RECREATE_DB=true && dotnet run               ║
+        // ║    Linux:    RECREATE_DB=true dotnet run                      ║
+        // ║                                                               ║
+        // ║  PUBLIKÁLÁSHOZ: `dotnet publish -c Release` → ez a blokk     ║
+        // ║  automatikusan KIMARAD a lefordított kódból.                  ║
+        // ╚═══════════════════════════════════════════════════════════════╝
+#if DEBUG
+        if (app.Environment.IsDevelopment())
+        {
+            var forceRecreate = Environment.GetEnvironmentVariable("RECREATE_DB") == "true";
+            if (forceRecreate)
+            {
+                setupLogger.LogWarning("╔══════════════════════════════════════════════════╗");
+                setupLogger.LogWarning("║  ⚠️  RECREATE_DB=true AKTÍV                      ║");
+                setupLogger.LogWarning("║  Mindkét adatbázis TÖRLÉSE és ÚJRALÉTREHOZÁSA!   ║");
+                setupLogger.LogWarning("╚══════════════════════════════════════════════════╝");
+
+                var authCtxDev = services.GetRequiredService<SzerszamKolcsonzo.Features.Auth.Data.AuthDbContext>();
+                await authCtxDev.Database.EnsureDeletedAsync();
+                setupLogger.LogWarning("  🗑️  Auth adatbázis törölve");
+
+                var appCtxDev = services.GetRequiredService<AppDbContext>();
+                await appCtxDev.Database.EnsureDeletedAsync();
+                setupLogger.LogWarning("  🗑️  App adatbázis törölve");
+            }
+        }
+#endif
+        // ╔═══════════════════════════════════════════════════════════════╗
+        // ║  🔧 FEJLESZTŐI BLOKK VÉGE                                    ║
+        // ╚═══════════════════════════════════════════════════════════════╝
+
         // ─────────────────────────────────────────────────────────────────
-        // 2. AUTH ADATBÁZIS MIGRÁCIÓ
+        // ADATBÁZIS LÉTREHOZÁS (Production + Development egyaránt)
+        // Ha az adatbázis nem létezik → létrehozza a sémát + seed adatok
+        // Ha már létezik → nem nyúl hozzá
         // ─────────────────────────────────────────────────────────────────
-        setupLogger.LogInformation("🗄️  Auth adatbázis ellenőrzése...");
+
+        // AUTH ADATBÁZIS
+        setupLogger.LogInformation("🗄️  Auth adatbázis...");
         var authContext = services.GetRequiredService<SzerszamKolcsonzo.Features.Auth.Data.AuthDbContext>();
-        
-        var authPendingMigrations = await authContext.Database.GetPendingMigrationsAsync();
-        if (authPendingMigrations.Any())
-        {
-            setupLogger.LogWarning("  ⚠️  {Count} függőben lévő Auth migration", authPendingMigrations.Count());
-            setupLogger.LogInformation("  🔄 Migrations futtatása...");
-            await authContext.Database.MigrateAsync();
-            setupLogger.LogInformation("  ✅ Auth adatbázis migrálva!");
-        }
-        else
-        {
-            setupLogger.LogInformation("  ✅ Auth adatbázis naprakész (0 migration)");
-        }
+        var authCreated = await authContext.Database.EnsureCreatedAsync();
+        setupLogger.LogInformation(authCreated
+            ? "  ✅ Auth adatbázis LÉTREHOZVA (seed adatokkal)"
+            : "  ✅ Auth adatbázis már létezik");
 
-        // ─────────────────────────────────────────────────────────────────
-        // 3. APP ADATBÁZIS MIGRÁCIÓ
-        // ─────────────────────────────────────────────────────────────────
-        setupLogger.LogInformation("🗄️  Szerszámkölcsönző adatbázis ellenőrzése...");
+        // APP ADATBÁZIS
+        setupLogger.LogInformation("🗄️  Szerszámkölcsönző adatbázis...");
         var appContext = services.GetRequiredService<AppDbContext>();
-        
-        var appPendingMigrations = await appContext.Database.GetPendingMigrationsAsync();
-        if (appPendingMigrations.Any())
-        {
-            setupLogger.LogWarning("  ⚠️  {Count} függőben lévő App migration", appPendingMigrations.Count());
-            setupLogger.LogInformation("  🔄 Migrations futtatása...");
-            await appContext.Database.MigrateAsync();
-            setupLogger.LogInformation("  ✅ Szerszámkölcsönző adatbázis migrálva!");
-        }
-        else
-        {
-            setupLogger.LogInformation("  ✅ Szerszámkölcsönző adatbázis naprakész (0 migration)");
-        }
+        var appCreated = await appContext.Database.EnsureCreatedAsync();
+        setupLogger.LogInformation(appCreated
+            ? "  ✅ App adatbázis LÉTREHOZVA (seed adatokkal)"
+            : "  ✅ App adatbázis már létezik");
 
-        // ─────────────────────────────────────────────────────────────────
-        // 4. ADATBÁZIS KAPCSOLAT TESZT
-        // ─────────────────────────────────────────────────────────────────
-        setupLogger.LogInformation("🔌 Adatbázis kapcsolat tesztelése...");
+        // KAPCSOLAT TESZT
         var canConnectAuth = await authContext.Database.CanConnectAsync();
         var canConnectApp = await appContext.Database.CanConnectAsync();
+        setupLogger.LogInformation("🔌 DB kapcsolat: Auth={Auth}, App={App}",
+            canConnectAuth ? "OK" : "FAIL",
+            canConnectApp ? "OK" : "FAIL");
 
-        if (canConnectAuth && canConnectApp)
-        {
-            setupLogger.LogInformation("  ✅ Adatbázis kapcsolat sikeres!");
-        }
-        else
-        {
-            setupLogger.LogError("  ❌ Adatbázis kapcsolat sikertelen!");
-            setupLogger.LogError("     Auth: {AuthStatus}", canConnectAuth ? "OK" : "FAIL");
-            setupLogger.LogError("     App: {AppStatus}", canConnectApp ? "OK" : "FAIL");
-        }
-
-        // ─────────────────────────────────────────────────────────────────
-        // 5. STATISZTIKÁK
-        // ─────────────────────────────────────────────────────────────────
+        // STATISZTIKÁK
         try
         {
             var eszkozokCount = await appContext.Eszkozok.CountAsync();
             var foglalasokCount = await appContext.Foglalasok.CountAsync();
-            setupLogger.LogInformation("📊 Jelenlegi adatok:");
-            setupLogger.LogInformation("   Eszközök: {Count}", eszkozokCount);
-            setupLogger.LogInformation("   Foglalások: {Count}", foglalasokCount);
+            setupLogger.LogInformation("📊 Eszközök: {E}, Foglalások: {F}", eszkozokCount, foglalasokCount);
         }
         catch (Exception ex)
         {
@@ -222,8 +221,7 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-        setupLogger.LogCritical(ex, "❌❌❌ KRITIKUS HIBA az automatikus setup során! ❌❌❌");
-        setupLogger.LogError("Az alkalmazás nem tud elindulni.");
+        setupLogger.LogCritical(ex, "❌ KRITIKUS HIBA az adatbázis setup során!");
         throw;
     }
 }
@@ -231,14 +229,8 @@ using (var scope = app.Services.CreateScope())
 // ═══════════════════════════════════════════════════════════════════════════
 // MIDDLEWARE PIPELINE
 // ═══════════════════════════════════════════════════════════════════════════
-
-logger.LogInformation("⚙️  Middleware pipeline konfigurálása...");
-
-// ✅ STATIC FILES - LEGELSŐ!
 app.UseStaticFiles();
-logger.LogInformation("  ✅ Static files middleware aktív");
 
-// SWAGGER - csak Development-ben
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -247,59 +239,35 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Szerszámkölcsönző API v1");
         c.RoutePrefix = "swagger";
     });
-    logger.LogInformation("  ✅ Swagger UI elérhető: /swagger");
-}
-else
-{
-    logger.LogInformation("  ℹ️  Swagger letiltva (Production mode)");
+    logger.LogInformation("📚 Swagger: /swagger");
 }
 
-// HTTPS REDIRECT - csak Production-ben
 if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
-    logger.LogInformation("  ✅ HTTPS redirect aktív");
-}
-else
-{
-    logger.LogInformation("  ℹ️  HTTPS redirect kikapcsolva (Development mode)");
 }
 
 app.UseCors("AllowAll");
-logger.LogInformation("  ✅ CORS middleware aktív");
-
 app.UseAuthentication();
-logger.LogInformation("  ✅ Authentication middleware aktív");
-
 app.UseAuthorization();
-logger.LogInformation("  ✅ Authorization middleware aktív");
-
 app.MapControllers();
-logger.LogInformation("  ✅ Controllers mapped");
 
 // ═══════════════════════════════════════════════════════════════════════════
-// STARTUP BANNER
+// START
 // ═══════════════════════════════════════════════════════════════════════════
 logger.LogInformation("");
 logger.LogInformation("╔════════════════════════════════════════════════════════════════╗");
-logger.LogInformation("║                                                                ║");
-logger.LogInformation("║          🔧 SZERSZÁMKÖLCSÖNZŐ API SIKERESEN ELINDULT 🔧       ║");
-logger.LogInformation("║                                                                ║");
+logger.LogInformation("║       🔧 SZERSZÁMKÖLCSÖNZŐ API SIKERESEN ELINDULT 🔧          ║");
 logger.LogInformation("╚════════════════════════════════════════════════════════════════╝");
 logger.LogInformation("");
-logger.LogInformation("📍 API endpoints: http://localhost:5000/api/*");
+logger.LogInformation("📍 API: http://localhost:5000/api/*");
 if (app.Environment.IsDevelopment())
 {
-    logger.LogInformation("📚 Swagger UI:    http://localhost:5000/swagger");
+    logger.LogInformation("📚 Swagger: http://localhost:5000/swagger");
 }
-logger.LogInformation("📁 Static files:  http://localhost:5000/uploads/*");
-logger.LogInformation("");
-logger.LogInformation("▶️  Nyomd meg CTRL+C a leállításhoz");
+logger.LogInformation("📁 Uploads: http://localhost:5000/uploads/*");
 logger.LogInformation("");
 
-// ═══════════════════════════════════════════════════════════════════════════
-// APP FUTTATÁSA
-// ═══════════════════════════════════════════════════════════════════════════
 try
 {
     app.Run();

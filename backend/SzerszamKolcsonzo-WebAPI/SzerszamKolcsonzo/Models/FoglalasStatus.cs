@@ -1,42 +1,40 @@
-// ============================================================================
-// Models/FoglalasStatus.cs - FRISSÕTETT (5 st·tusz)
+Ôªø// ============================================================================
+// Models/FoglalasStatus.cs - EGYSZER≈∞S√çTETT (4 st√°tusz)
 // ============================================================================
 
 namespace SzerszamKolcsonzo.Models
 {
     /// <summary>
-    /// Foglal·s st·tuszok
+    /// Foglal√°s st√°tuszok (egyszer≈±s√≠tett)
+    /// 
+    /// Foglalva  ‚Üí Kiadva  ‚Üí Lez√°rt
+    ///    ‚Üì          ‚Üì
+    ///  T√∂r√∂lt     T√∂r√∂lt
     /// </summary>
     public enum FoglalasStatus
     {
         /// <summary>
-        /// Elıfoglal·s - Jˆvıbeli foglal·s, mÈg nem ·tvehetı
-        /// NEM blokkol eszkˆzt, NEM jelenik meg Admin PWA-ban
+        /// Foglalva - User leadta a foglal√°st, admin m√©g nem hagyta j√≥v√°
+        /// Eszk√∂z blokkolva, admin l√°tja a foglal√°st
+        /// 15 perc ut√°n automatikusan t√∂rl≈ëdik ha nem hagyja j√≥v√° az admin
         /// </summary>
-        Elofoglalas = 0,
+        Foglalva = 0,
 
         /// <summary>
-        /// V·rakozik - Most ·tvehetı, admin l·tja PWA-ban
-        /// Blokkol eszkˆzt, Admin PWA-ban l·thatÛ
+        /// Kiadva - Admin j√≥v√°hagyta, eszk√∂z fizikailag kiadva az √ºgyf√©lnek
         /// </summary>
-        Varakozik = 1,
+        Kiadva = 1,
 
         /// <summary>
-        /// Kiadva - User-nÈl van az eszkˆz
-        /// Blokkol eszkˆzt, Admin PWA-ban l·thatÛ
+        /// Lez√°rt - Eszk√∂z visszahozva, elsz√°mol√°s megt√∂rt√©nt
+        /// Eszk√∂z felszabadul
         /// </summary>
-        Kiadva = 2,
+        Lezart = 2,
 
         /// <summary>
-        /// Lez·rt - Visszahozva, foglal·s kÈsz
-        /// NEM blokkol eszkˆzt, NEM jelenik meg Admin PWA-ban
+        /// T√∂r√∂lt - Admin k√©zzel t√∂r√∂lte vagy automatikus t√∂rl√©s (15 perc)
+        /// Eszk√∂z felszabadul
         /// </summary>
-        Lezart = 3,
-
-        /// <summary>
-        /// Tˆrˆlt - User nem jˆtt / automatikus tˆrlÈs
-        /// NEM blokkol eszkˆzt, NEM jelenik meg Admin PWA-ban
-        /// </summary>
-        Torolt = 4
+        Torolt = 3
     }
 }

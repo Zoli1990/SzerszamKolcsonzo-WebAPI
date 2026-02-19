@@ -1,5 +1,5 @@
 ﻿// ============================================================================
-// Controllers/FoglalasokController.cs - FRISSÍTETT (státusz validációkkal)
+// Controllers/FoglalasokController.cs - EGYSZERŰSÍTETT (4 státusz)
 // ============================================================================
 
 using System.Security.Claims;
@@ -32,7 +32,7 @@ namespace SzerszamKolcsonzo.Controllers
         }
 
         // ====================================================================
-        // GET: api/Foglalas
+        // GET: api/Foglalasok
         // ====================================================================
         [HttpGet]
         [Authorize]
@@ -55,28 +55,22 @@ namespace SzerszamKolcsonzo.Controllers
                 .OrderByDescending(f => f.LetrehozasDatum)
                 .Select(f => new
                 {
-                    id = f.FoglalasID,
-                    eszkoz = new
-                    {
-                        id = f.Eszkoz.EszkozID,
-                        nev = f.Eszkoz.Nev,
-                        ar = f.Eszkoz.KiadasiAr
-                    },
-                    felhasznalo = new
-                    {
-                        nev = f.Nev,
-                        email = f.Email,
-                        telefonszam = f.Telefonszam,
-                        cim = f.Cim
-                    },
-                    kezdetDatum = f.FoglalasKezdete,
-                    kiadasDatum = f.KiadasIdopontja,
-                    visszahozasDatum = f.VisszahozasIdopontja,
-                    status = (int)f.Status,
+                    foglalasID = f.FoglalasID,
+                    eszkozID = f.EszkozID,
+                    eszkozNev = f.Eszkoz.Nev,
+                    eszkozAr = f.Eszkoz.KiadasiAr,
+                    nev = f.Nev,
+                    email = f.Email,
+                    telefonszam = f.Telefonszam,
+                    cim = f.Cim,
+                    foglalasKezdete = f.FoglalasKezdete,
+                    kiadasIdopontja = f.KiadasIdopontja,
+                    visszahozasIdopontja = f.VisszahozasIdopontja,
+                    status = f.Status.ToString(),
                     bevetel = f.Bevetel,
                     fizetendoOsszeg = f.FizetendoOsszeg,
                     elszamolhatoIdo = f.ElszamolhatoIdo,
-                    createdAt = f.LetrehozasDatum
+                    letrehozasDatum = f.LetrehozasDatum
                 })
                 .ToListAsync();
 
@@ -84,56 +78,97 @@ namespace SzerszamKolcsonzo.Controllers
         }
 
         // ====================================================================
-        // POST: api/Foglalas - Új foglalás létrehozása
+        // POST: api/Foglalasok - Új foglalás létrehozása
         // ====================================================================
         [HttpPost]
         [Authorize]
         public async Task<ActionResult<Foglalas>> CreateFoglalas([FromBody] FoglalasCreateDto dto)
         {
-            // Eszköz létezik?
-            var eszkoz = await _context.Eszkozok.FindAsync(dto.EszkozID);
-            if (eszkoz == null)
+            // ═══════════════════════════════════════════════════════════════
+            // TRANZAKCIÓ + FOR UPDATE ZÁROLÁS
+            // Megakadályozza, hogy két foglalás egyszerre érkezzen
+            // ugyanarra az eszközre (race condition védelem)
+            // ═══════════════════════════════════════════════════════════════
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
             {
-                return NotFound(new { message = "Eszköz nem található!" });
+                // FOR UPDATE: sorszintű zárolás — amíg ez a tranzakció fut,
+                // más kérés VÁRAKOZIK ha ugyanerre az eszközre próbál foglalni
+                var eszkoz = await _context.Eszkozok
+                    .FromSqlRaw("SELECT * FROM Eszkozok WHERE EszkozID = {0} FOR UPDATE", dto.EszkozID)
+                    .FirstOrDefaultAsync();
+
+                if (eszkoz == null)
+                {
+                    await transaction.RollbackAsync();
+                    return NotFound(new { message = "Eszköz nem található!" });
+                }
+
+                // Státusz ellenőrzés — a zárolás garantálja, hogy ez MINDIG friss
+                if (eszkoz.Status != EszkozStatus.Elerheto)
+                {
+                    await transaction.RollbackAsync();
+                    return BadRequest(new { message = "Eszköz jelenleg nem elérhető! Valaki épp most foglalta le." });
+                }
+
+                // User adatok
+                var userEmail = User.FindFirstValue(ClaimTypes.Email);
+                var userName = User.FindFirstValue(ClaimTypes.Name);
+
+                // Új foglalás
+                var foglalas = new Foglalas
+                {
+                    EszkozID = dto.EszkozID,
+                    Nev = dto.Nev ?? userName ?? "Ismeretlen",
+                    Email = dto.Email ?? userEmail ?? "nincs@email.com",
+                    Telefonszam = dto.Telefonszam ?? "",
+                    Cim = dto.Cim ?? "",
+                    FoglalasKezdete = dto.FoglalasKezdete,
+                    Status = FoglalasStatus.Foglalva,
+                    LetrehozasDatum = DateTime.UtcNow
+                };
+
+                _context.Foglalasok.Add(foglalas);
+
+                // Eszköz státusz: FOGLALVA
+                eszkoz.Status = EszkozStatus.Foglalva;
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync(); // ✅ COMMIT — lock feloldódik
+
+                _logger.LogInformation($"[Foglalas] Új foglalás létrehozva: #{foglalas.FoglalasID}");
+
+                // Push notification adminnak (COMMIT után, tranzakción kívül)
+                try
+                {
+                    await _pushService.NotifyNewBookingAsync(
+                        foglalas.FoglalasID,
+                        eszkoz.Nev,
+                        foglalas.Nev
+                    );
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"[Foglalas] Push notification hiba: #{foglalas.FoglalasID}");
+                }
+
+                return CreatedAtAction(nameof(GetFoglalasok), new { id = foglalas.FoglalasID }, new
+                {
+                    id = foglalas.FoglalasID,
+                    message = "Foglalás sikeresen létrehozva!"
+                });
             }
-
-            // Eszköz elérhető?
-            if (eszkoz.Status != EszkozStatus.Elerheto)
+            catch (Exception ex)
             {
-                return BadRequest(new { message = "Eszköz jelenleg nem elérhető!" });
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "[Foglalas] Hiba a foglalás létrehozásakor");
+                return StatusCode(500, new { message = "Hiba történt a foglalás során. Próbáld újra!" });
             }
-
-            // User adatok
-            var userEmail = User.FindFirstValue(ClaimTypes.Email);
-            var userName = User.FindFirstValue(ClaimTypes.Name);
-
-            // Új foglalás
-            var foglalas = new Foglalas
-            {
-                EszkozID = dto.EszkozID,
-                Nev = dto.Nev ?? userName ?? "Ismeretlen",
-                Email = dto.Email ?? userEmail ?? "nincs@email.com",
-                Telefonszam = dto.Telefonszam ?? "",
-                Cim = dto.Cim ?? "",
-                FoglalasKezdete = dto.KezdetDatum,
-                Status = FoglalasStatus.Elofoglalas, // ← MINDIG ELŐFOGLALÁS!
-                LetrehozasDatum = DateTime.UtcNow
-            };
-
-            _context.Foglalasok.Add(foglalas);
-            await _context.SaveChangesAsync();
-
-            _logger.LogInformation($"[Foglalas] Új előfoglalás létrehozva: #{foglalas.FoglalasID}");
-
-            return CreatedAtAction(nameof(GetFoglalasok), new { id = foglalas.FoglalasID }, new
-            {
-                id = foglalas.FoglalasID,
-                message = "Foglalás sikeresen létrehozva!"
-            });
         }
 
         // ====================================================================
-        // PUT: api/Foglalas/{id}/kiadas - VÁRAKOZIK → KIADVA
+        // PUT: api/Foglalasok/{id}/kiadas - FOGLALVA → KIADVA
         // ====================================================================
         [HttpPut("{id}/kiadas")]
         [Authorize(Roles = "Admin")]
@@ -148,18 +183,18 @@ namespace SzerszamKolcsonzo.Controllers
                 return NotFound(new { message = "Foglalás nem található!" });
             }
 
-            // Státusz validáció: CSAK VÁRAKOZIK → KIADVA
-            if (foglalas.Status != FoglalasStatus.Varakozik)
+            // Státusz validáció: CSAK FOGLALVA → KIADVA
+            if (foglalas.Status != FoglalasStatus.Foglalva)
             {
                 return BadRequest(new
                 {
-                    message = "Csak VÁRAKOZIK státuszú foglalást lehet kiadni!",
+                    message = "Csak FOGLALVA státuszú foglalást lehet kiadni!",
                     currentStatus = foglalas.Status.ToString()
                 });
             }
 
             // Státusz váltás
-            foglalas.Status = FoglalasStatus.Kiadva; // 1 → 2
+            foglalas.Status = FoglalasStatus.Kiadva;
             foglalas.KiadasIdopontja = DateTime.UtcNow;
 
             // Eszköz státusz: KIADVA
@@ -176,52 +211,7 @@ namespace SzerszamKolcsonzo.Controllers
         }
 
         // ====================================================================
-        // PUT: api/Foglalas/{id}/torles - VÁRAKOZIK → TÖRÖLT (NEM JÖTT)
-        // ====================================================================
-        [HttpPut("{id}/torles")]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult> Torles(int id)
-        {
-            var foglalas = await _context.Foglalasok
-                .Include(f => f.Eszkoz)
-                .FirstOrDefaultAsync(f => f.FoglalasID == id);
-
-            if (foglalas == null)
-            {
-                return NotFound(new { message = "Foglalás nem található!" });
-            }
-
-            // Státusz validáció: CSAK VÁRAKOZIK → TÖRÖLT
-            if (foglalas.Status != FoglalasStatus.Varakozik)
-            {
-                return BadRequest(new
-                {
-                    message = "Csak VÁRAKOZIK státuszú foglalást lehet törölni!",
-                    currentStatus = foglalas.Status.ToString()
-                });
-            }
-
-            // Státusz váltás
-            foglalas.Status = FoglalasStatus.Torolt; // 1 → 4
-
-            // Eszköz státusz: ELÉRHETŐ (felszabadul)
-            if (foglalas.Eszkoz != null)
-            {
-                foglalas.Eszkoz.Status = EszkozStatus.Elerheto;
-            }
-
-            await _context.SaveChangesAsync();
-
-            _logger.LogInformation($"[Foglalas] Foglalás törölve (nem jött): #{id}");
-
-            // TODO: Email küldés user-nek
-            // await _emailService.SendCancellationEmail(foglalas);
-
-            return Ok(new { message = "Foglalás törölve!" });
-        }
-
-        // ====================================================================
-        // PUT: api/Foglalas/{id}/lezaras - KIADVA → LEZÁRT (VISSZAHOZVA)
+        // PUT: api/Foglalasok/{id}/lezaras - KIADVA → LEZÁRT (VISSZAHOZVA)
         // ====================================================================
         [HttpPut("{id}/lezaras")]
         [Authorize(Roles = "Admin")]
@@ -253,24 +243,21 @@ namespace SzerszamKolcsonzo.Controllers
             if (foglalas.KiadasIdopontja.HasValue && foglalas.Eszkoz != null)
             {
                 var elapsed = foglalas.VisszahozasIdopontja.Value - foglalas.KiadasIdopontja.Value;
-                var elapsedMinutes = (int)elapsed.TotalMinutes;
+                var elapsedMinutes = (int)Math.Ceiling(elapsed.TotalMinutes);
 
                 // Elszámolható idő (percekben)
                 foglalas.ElszamolhatoIdo = elapsedMinutes;
 
-                // Fizetendő összeg (napi díj / 24 * órák)
-                var elapsedHours = elapsed.TotalHours;
-                var hourlyRate = foglalas.Eszkoz.KiadasiAr/ 24m;
-                var totalPrice = (decimal)elapsedHours * hourlyRate;
-
-                foglalas.FizetendoOsszeg = Math.Ceiling(totalPrice); // Felkerekítés
+                // Fizetendő összeg (percenkénti díj: KiadasiAr / 60)
+                decimal percenkentiDij = foglalas.Eszkoz.KiadasiAr / 60m;
+                foglalas.FizetendoOsszeg = elapsedMinutes * percenkentiDij;
                 foglalas.Bevetel = foglalas.FizetendoOsszeg;
 
-                _logger.LogInformation($"[Foglalas] Díjszámítás: {elapsedMinutes} perc, {totalPrice:F2} Ft");
+                _logger.LogInformation($"[Foglalas] Díjszámítás: {elapsedMinutes} perc, {foglalas.FizetendoOsszeg:F2} Ft");
             }
 
             // Státusz váltás
-            foglalas.Status = FoglalasStatus.Lezart; // 2 → 3
+            foglalas.Status = FoglalasStatus.Lezart;
 
             // Eszköz státusz: ELÉRHETŐ (felszabadul)
             if (foglalas.Eszkoz != null)
@@ -291,17 +278,68 @@ namespace SzerszamKolcsonzo.Controllers
         }
 
         // ====================================================================
-        // DELETE: api/Foglalas/{id} - Foglalás végleges törlése (ADMIN)
+        // PUT: api/Foglalasok/{id}/torles - FOGLALVA/KIADVA → TÖRÖLT
+        // ====================================================================
+        [HttpPut("{id}/torles")]
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult> Torles(int id)
+        {
+            var foglalas = await _context.Foglalasok
+                .Include(f => f.Eszkoz)
+                .FirstOrDefaultAsync(f => f.FoglalasID == id);
+
+            if (foglalas == null)
+            {
+                return NotFound(new { message = "Foglalás nem található!" });
+            }
+
+            // Státusz validáció: CSAK FOGLALVA vagy KIADVA → TÖRÖLT
+            if (foglalas.Status != FoglalasStatus.Foglalva && foglalas.Status != FoglalasStatus.Kiadva)
+            {
+                return BadRequest(new
+                {
+                    message = "Csak FOGLALVA vagy KIADVA státuszú foglalást lehet törölni!",
+                    currentStatus = foglalas.Status.ToString()
+                });
+            }
+
+            // Státusz váltás
+            foglalas.Status = FoglalasStatus.Torolt;
+
+            // Eszköz státusz: ELÉRHETŐ (felszabadul)
+            if (foglalas.Eszkoz != null)
+            {
+                foglalas.Eszkoz.Status = EszkozStatus.Elerheto;
+            }
+
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation($"[Foglalas] Foglalás törölve: #{id}");
+
+            return Ok(new { message = "Foglalás törölve!" });
+        }
+
+        // ====================================================================
+        // DELETE: api/Foglalasok/{id} - Foglalás végleges törlése (ADMIN)
         // ====================================================================
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult> DeleteFoglalas(int id)
         {
-            var foglalas = await _context.Foglalasok.FindAsync(id);
+            var foglalas = await _context.Foglalasok
+                .Include(f => f.Eszkoz)
+                .FirstOrDefaultAsync(f => f.FoglalasID == id);
 
             if (foglalas == null)
             {
                 return NotFound(new { message = "Foglalás nem található!" });
+            }
+
+            // Ha az eszköz foglalva/kiadva volt, felszabadítjuk
+            if (foglalas.Eszkoz != null &&
+                (foglalas.Status == FoglalasStatus.Foglalva || foglalas.Status == FoglalasStatus.Kiadva))
+            {
+                foglalas.Eszkoz.Status = EszkozStatus.Elerheto;
             }
 
             _context.Foglalasok.Remove(foglalas);
@@ -323,6 +361,6 @@ namespace SzerszamKolcsonzo.Controllers
         public string? Email { get; set; }
         public string? Telefonszam { get; set; }
         public string? Cim { get; set; }
-        public DateTime KezdetDatum { get; set; }
+        public DateTime FoglalasKezdete { get; set; }
     }
 }

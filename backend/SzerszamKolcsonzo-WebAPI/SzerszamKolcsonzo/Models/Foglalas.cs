@@ -32,14 +32,11 @@ namespace SzerszamKolcsonzo.Models
         [Required]
         public DateTime FoglalasKezdete { get; set; }
 
-        // ❌ FoglalasVege - TÖRÖLVE (már nincs befejező időpont)
-        // ❌ OraSzam - TÖRÖLVE (automatikusan számolódik visszahozáskor)
-
-        // ✅ Bevetel még létezik de nullable, mert visszahozáskor számolódik
+        // ✅ Bevetel nullable, visszahozáskor számolódik
         public decimal? Bevetel { get; set; }
 
         [Required]
-        public FoglalasStatus Status { get; set; } = FoglalasStatus.Elofoglalas; // ← JAVÍTVA! (Aktiv → Elofoglalas)
+        public FoglalasStatus Status { get; set; } = FoglalasStatus.Foglalva;
 
         [Required]
         public DateTime LetrehozasDatum { get; set; } = DateTime.Now;

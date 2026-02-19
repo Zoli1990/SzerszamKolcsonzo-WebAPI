@@ -5,17 +5,15 @@ using SzerszamKolcsonzo.Models;
 namespace SzerszamKolcsonzo.Services
 {
     /// <summary>
-    /// Háttérszolgáltatás, ami automatikusan törli a foglalásokat, 
-    /// ha a FoglalasKezdete időponthoz képest 15 percen belül nem lett kiadva az eszköz
-    /// MEGJEGYZÉS: Ez a service TOVÁBBRA IS FUT, de az új FoglalasStatusUpdateService-szel együtt.
-    /// Ez a service a régi logikát tartalmazza (LetrehozasDatum alapján törlés)
-    /// Az új service pedig a FoglalasKezdete alapján vált státuszt.
+    /// Háttérszolgáltatás: automatikusan törli a foglalásokat,
+    /// ha 15 percen belül nem lett kiadva az eszköz (admin nem hagyta jóvá).
+    /// Foglalva → Törölt + Eszköz felszabadul
     /// </summary>
     public class FoglalasCleanupService : BackgroundService
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<FoglalasCleanupService> _logger;
-        private readonly TimeSpan _checkInterval = TimeSpan.FromMinutes(5); // 5 percenként ellenőriz
+        private readonly TimeSpan _checkInterval = TimeSpan.FromMinutes(1); // 1 percenként ellenőriz
         private readonly TimeSpan _foglalasTimeout = TimeSpan.FromMinutes(15); // 15 perc várakozás
 
         public FoglalasCleanupService(
@@ -28,9 +26,9 @@ namespace SzerszamKolcsonzo.Services
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("🚀 FoglalasCleanupService elindult (RÉGI cleanup logic)");
+            _logger.LogInformation("[FoglalasCleanup] Service elindult");
 
-            // Várunk 30 másodpercet, mielőtt az első ellenőrzést futtatnánk
+            // Várunk 30 másodpercet az első ellenőrzés előtt
             await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
 
             while (!stoppingToken.IsCancellationRequested)
@@ -41,14 +39,13 @@ namespace SzerszamKolcsonzo.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "❌ Hiba történt a foglalások ellenőrzése közben");
+                    _logger.LogError(ex, "[FoglalasCleanup] Hiba történt az ellenőrzés közben");
                 }
 
-                // Várunk a következő ellenőrzésig
                 await Task.Delay(_checkInterval, stoppingToken);
             }
 
-            _logger.LogInformation("🛑 FoglalasCleanupService leállt");
+            _logger.LogInformation("[FoglalasCleanup] Service leállt");
         }
 
         private async Task TorolLejartFoglalasokat()
@@ -59,13 +56,13 @@ namespace SzerszamKolcsonzo.Services
             var hatarido = DateTime.UtcNow.Subtract(_foglalasTimeout);
 
             // Foglalások keresése, ahol:
-            // - Status = Elofoglalas VAGY Varakozik (még nincs kiadva)
-            // - KiadasIdopontja = null (admin nem hagyta jóvá)
+            // - Status = Foglalva (admin még nem hagyta jóvá)
+            // - KiadasIdopontja = null (nem lett kiadva)
             // - LetrehozasDatum + 15 perc < Most
             var lejartFoglalasok = await context.Foglalasok
                 .Include(f => f.Eszkoz)
                 .Where(f =>
-                    (f.Status == FoglalasStatus.Elofoglalas || f.Status == FoglalasStatus.Varakozik) &&
+                    f.Status == FoglalasStatus.Foglalva &&
                     f.KiadasIdopontja == null &&
                     f.LetrehozasDatum < hatarido)
                 .ToListAsync();
@@ -73,28 +70,27 @@ namespace SzerszamKolcsonzo.Services
             if (lejartFoglalasok.Any())
             {
                 _logger.LogWarning(
-                    "⏰ {Count} darab lejárt foglalást találtunk (15+ perc múlva nem lettek kiadva)",
+                    "[FoglalasCleanup] {Count} lejárt foglalás (15+ perc, nem kiadva)",
                     lejartFoglalasok.Count);
 
                 foreach (var foglalas in lejartFoglalasok)
                 {
                     _logger.LogInformation(
-                        "🗑️ Foglalás törlése: ID={FoglalasID}, Eszköz={EszkozNev}, Létrehozva={LetrehozasDatum}",
+                        "[FoglalasCleanup] Törlés: #{FoglalasID} - {EszkozNev} (létrehozva: {Datum})",
                         foglalas.FoglalasID,
-                        foglalas.Eszkoz.Nev,
+                        foglalas.Eszkoz?.Nev ?? "?",
                         foglalas.LetrehozasDatum);
 
-                    // Foglalás státusz módosítása
-                    foglalas.Status = FoglalasStatus.Torolt; // ← JAVÍTVA! (Torolt már létezik az új enum-ban)
+                    // Foglalás → Törölt
+                    foglalas.Status = FoglalasStatus.Torolt;
 
-                    // Eszköz státusz visszaállítása ELÉRHETŐ-re
-                    // (csak akkor, ha még Foglalva státuszban van)
-                    if (foglalas.Eszkoz.Status == EszkozStatus.Foglalva)
+                    // Eszköz felszabadítása (ha még Foglalva státuszban van)
+                    if (foglalas.Eszkoz != null && foglalas.Eszkoz.Status == EszkozStatus.Foglalva)
                     {
                         foglalas.Eszkoz.Status = EszkozStatus.Elerheto;
 
                         _logger.LogInformation(
-                            "✅ Eszköz szabaddá téve: ID={EszkozID}, Név={EszkozNev}",
+                            "[FoglalasCleanup] Eszköz felszabadítva: #{EszkozID} - {EszkozNev}",
                             foglalas.Eszkoz.EszkozID,
                             foglalas.Eszkoz.Nev);
                     }
@@ -103,18 +99,14 @@ namespace SzerszamKolcsonzo.Services
                 await context.SaveChangesAsync();
 
                 _logger.LogInformation(
-                    "✅ {Count} darab foglalás sikeresen törölve",
+                    "[FoglalasCleanup] {Count} foglalás törölve",
                     lejartFoglalasok.Count);
-            }
-            else
-            {
-                _logger.LogDebug("✔️ Nincsenek lejárt foglalások");
             }
         }
 
         public override async Task StopAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("🛑 FoglalasCleanupService leállítás folyamatban...");
+            _logger.LogInformation("[FoglalasCleanup] Leállítás...");
             await base.StopAsync(cancellationToken);
         }
     }
