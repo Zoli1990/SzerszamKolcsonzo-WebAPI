@@ -1,12 +1,15 @@
 // ============================================================================
-// 3. src/services/api.js - FRISSÍTETT (JWT token interceptor)
+// src/services/api.js - JWT token interceptor + BASE_URL
 // ============================================================================
 
 import axios from 'axios'
 import { authService } from './authService'
 
+// ✅ BASE_URL (CSAK szerver cím, /api nélkül!)
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: `${BASE_URL}/api`,  // ← /api ITT van hozzáadva!
   headers: {
     'Content-Type': 'application/json'
   }
@@ -48,5 +51,5 @@ api.interceptors.response.use(
   }
 )
 
-export default api
-
+// ✅ Export BASE_URL is (képek URL-jéhez kell!)
+export { api as default, BASE_URL }

@@ -206,7 +206,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import api from '@/services/api'
 
 const router = useRouter()
 
@@ -325,7 +325,7 @@ function getKategoriaNev(id) {
  */
 async function loadKategoriak() {
   try {
-    const response = await axios.get('/api/kategoriak')
+    const response = await api.get('/kategoriak')
     kategoriak.value = response.data
     console.log('✅ Kategóriák betöltve:', kategoriak.value)
   } catch (error) {
@@ -347,7 +347,7 @@ async function addKategoria() {
   kategoriaLoading.value = true
 
   try {
-    const response = await axios.post('/api/kategoriak', {
+    const response = await api.post('/kategoriak', {
       nev: ujKategoriaNev.value.trim(),
       kepUrl: '', // Opcionális, üres string
     })
@@ -405,7 +405,7 @@ async function saveEszkoz() {
     console.log('📤 Eszköz mentése backend-re...')
 
     // ✅ API hívás
-    const response = await axios.post('/api/eszkozok', fd, {
+    const response = await api.post('/eszkozok', fd, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

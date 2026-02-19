@@ -1,7 +1,7 @@
 <template>
   <div id="app" :class="{ 'has-bottom-nav': showBottomNav }">
-    <!-- HEADER -->
-    <header class="app-header" data-testid="app-header">
+    <!-- HEADER: PWA route-on NEM jelenik meg -->
+    <header v-if="!isPwaRoute" class="app-header" data-testid="app-header">
       <div class="header-container">
         <!-- Logo -->
         <RouterLink to="/" class="logo" id="logo-link" data-testid="logo-link">
@@ -11,11 +11,31 @@
 
         <!-- Desktop navigáció -->
         <nav class="desktop-nav" data-testid="desktop-nav">
-          <a href="#" class="nav-link" data-testid="nav-home" @click.prevent="handleHomeClick">Főoldal</a>
-          <a href="#eszkozok" class="nav-link" data-testid="nav-eszkozok" @click.prevent="scrollToEszkozok">Eszközök</a>
-          <a href="#velemenyek" class="nav-link" data-testid="nav-velemenyek" @click.prevent="scrollToVelemenyek">Vélemények</a>
-          <a href="#kapcsolat" class="nav-link" data-testid="nav-kapcsolat" @click.prevent="scrollToKapcsolat">Kapcsolat</a>
-          
+          <a href="#" class="nav-link" data-testid="nav-home" @click.prevent="handleHomeClick"
+            >Főoldal</a
+          >
+          <a
+            href="#eszkozok"
+            class="nav-link"
+            data-testid="nav-eszkozok"
+            @click.prevent="scrollToEszkozok"
+            >Eszközök</a
+          >
+          <a
+            href="#velemenyek"
+            class="nav-link"
+            data-testid="nav-velemenyek"
+            @click.prevent="scrollToVelemenyek"
+            >Vélemények</a
+          >
+          <a
+            href="#kapcsolat"
+            class="nav-link"
+            data-testid="nav-kapcsolat"
+            @click.prevent="scrollToKapcsolat"
+            >Kapcsolat</a
+          >
+
           <RouterLink v-if="authStore.isAdmin" to="/admin" class="nav-link" data-testid="nav-admin">
             Admin
           </RouterLink>
@@ -102,19 +122,39 @@
       <!-- Mobil menü (slide down) -->
       <Transition name="slide-down">
         <div v-if="mobileMenuOpen" class="mobile-menu" data-testid="mobile-menu">
-          <a href="#" class="mobile-menu-item" data-testid="mobile-menu-home" @click.prevent="handleHomeClick">
+          <a
+            href="#"
+            class="mobile-menu-item"
+            data-testid="mobile-menu-home"
+            @click.prevent="handleHomeClick"
+          >
             🏠 Főoldal
           </a>
-          
-          <a href="#eszkozok" class="mobile-menu-item" data-testid="mobile-menu-eszkozok" @click.prevent="scrollToEszkozok">
+
+          <a
+            href="#eszkozok"
+            class="mobile-menu-item"
+            data-testid="mobile-menu-eszkozok"
+            @click.prevent="scrollToEszkozok"
+          >
             🔨 Eszközök
           </a>
-          
-          <a href="#velemenyek" class="mobile-menu-item" data-testid="mobile-menu-velemenyek" @click.prevent="scrollToVelemenyek">
+
+          <a
+            href="#velemenyek"
+            class="mobile-menu-item"
+            data-testid="mobile-menu-velemenyek"
+            @click.prevent="scrollToVelemenyek"
+          >
             💬 Vélemények
           </a>
-          
-          <a href="#kapcsolat" class="mobile-menu-item" data-testid="mobile-menu-kapcsolat" @click.prevent="scrollToKapcsolat">
+
+          <a
+            href="#kapcsolat"
+            class="mobile-menu-item"
+            data-testid="mobile-menu-kapcsolat"
+            @click.prevent="scrollToKapcsolat"
+          >
             📍 Kapcsolat
           </a>
 
@@ -172,12 +212,12 @@
     </header>
 
     <!-- MAIN CONTENT -->
-    <main class="app-main" data-testid="app-main">
+    <main :class="isPwaRoute ? 'app-main-pwa' : 'app-main'" data-testid="app-main">
       <RouterView />
     </main>
 
-    <!-- FOOTER -->
-    <footer class="app-footer" data-testid="app-footer">
+    <!-- FOOTER: PWA route-on NEM jelenik meg -->
+    <footer v-if="!isPwaRoute" class="app-footer" data-testid="app-footer">
       <div class="footer-container">
         <p>&copy; 2025 Szerszámkölcsönző - Vizsgamunka</p>
       </div>
@@ -229,6 +269,14 @@ const truncatedEmail = computed(() => {
 })
 
 // ═══════════════════════════════════════════════════════════════════════════
+// PWA ROUTE DETECTION
+// Ha /pwa route-on vagyunk → header, footer, bottom nav elrejtése
+// ═══════════════════════════════════════════════════════════════════════════
+const isPwaRoute = computed(() => {
+  return route.meta?.isPwa === true
+})
+
+// ═══════════════════════════════════════════════════════════════════════════
 // SCROLL FUNKCIÓK
 // ═══════════════════════════════════════════════════════════════════════════
 
@@ -247,7 +295,7 @@ function handleHomeClick(event) {
 
 function scrollToEszkozok() {
   mobileMenuOpen.value = false
-  
+
   if (router.currentRoute.value.path !== '/') {
     router.push('/').then(() => {
       setTimeout(() => {
@@ -267,7 +315,7 @@ function scrollToEszkozok() {
 
 function scrollToVelemenyek() {
   mobileMenuOpen.value = false
-  
+
   if (router.currentRoute.value.path !== '/') {
     router.push('/').then(() => {
       setTimeout(() => {
@@ -287,7 +335,7 @@ function scrollToVelemenyek() {
 
 function scrollToKapcsolat() {
   mobileMenuOpen.value = false
-  
+
   if (router.currentRoute.value.path !== '/') {
     router.push('/').then(() => {
       setTimeout(() => {
@@ -464,7 +512,11 @@ const vClickOutside = {
 }
 
 body {
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family:
+    'Segoe UI',
+    system-ui,
+    -apple-system,
+    sans-serif;
   background: var(--color-background);
   color: var(--color-text);
   line-height: 1.5;
@@ -736,6 +788,15 @@ body {
 .app-main {
   flex: 1;
   width: 100%;
+}
+
+/* PWA fullscreen mód - header/footer nélkül */
+.app-main-pwa {
+  flex: 1;
+  width: 100%;
+  min-height: 100vh;
+  padding: 0;
+  margin: 0;
 }
 
 .app-footer {

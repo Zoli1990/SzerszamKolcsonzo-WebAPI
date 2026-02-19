@@ -44,7 +44,13 @@ defineEmits(['foglalas'])
 const isElerheto = computed(() => props.eszkoz.status === 'Elerheto')
 
 const statusText = computed(() => {
-  return props.eszkoz.status === 'Elerheto' ? 'Elérhető' : 'Kiadva'
+  const map = {
+    'Elerheto': 'Elérhető',
+    'Foglalva': 'Foglalva',
+    'Kiadva': 'Kiadva',
+    'Kivonva': 'Nem elérhető'
+  }
+  return map[props.eszkoz.status] || props.eszkoz.status
 })
 
 const statusClass = computed(() => {

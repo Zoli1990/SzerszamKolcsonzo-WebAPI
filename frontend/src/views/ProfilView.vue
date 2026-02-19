@@ -69,8 +69,12 @@
         </div>
 
         <!-- Státusz információ -->
-        <div v-if="foglalas.status === 'Aktiv'" class="status-info warning">
-          ⏰ A foglalás kezdetétől 15 percen belül meg kell jelenni, különben automatikusan törlődik.
+        <div
+          v-if="foglalas.status === 'Varakozik' || foglalas.status === 'Elofoglalas'"
+          class="status-info warning"
+        >
+          ⏰ A foglalás kezdetétől 15 percen belül meg kell jelenni, különben automatikusan
+          törlődik.
         </div>
         <div v-if="foglalas.status === 'Kiadva'" class="status-info info">
           🔧 Az eszköz nálad van. Visszahozáskor számolódik a fizetendő összeg.
@@ -99,11 +103,7 @@ async function fetchFoglalasok() {
   loading.value = true
   try {
     const response = await foglalasService.getAll()
-    
-    // Szűrés: csak a saját email címre szóló foglalások
-    foglalasok.value = response.data.filter(
-      f => f.email.toLowerCase() === authStore.userEmail?.toLowerCase()
-    )
+    foglalasok.value = response.data
   } catch (err) {
     console.error('Foglalások betöltése sikertelen:', err)
   } finally {
@@ -138,22 +138,20 @@ function formatIdo(percek) {
 
 function getStatusText(status) {
   const map = {
-    'Aktiv': '🟡 Aktív',
-    'Kiadva': '🔵 Kiadva',
-    'Lezart': '🟢 Lezárt',
-    'Torolt': '🔴 Törölt',
-    'Lejart': '⏰ Lejárt'
+    'Foglalva': '📌 Foglalva',
+    'Kiadva': '🔧 Kiadva',
+    'Lezart': '✅ Lezárt',
+    'Torolt': '❌ Törölt'
   }
   return map[status] || status
 }
 
 function getBadgeClass(status) {
   const map = {
-    'Aktiv': 'badge-warning',
+    'Foglalva': 'badge-warning',
     'Kiadva': 'badge-info',
     'Lezart': 'badge-success',
-    'Torolt': 'badge-danger',
-    'Lejart': 'badge-secondary'
+    'Torolt': 'badge-danger'
   }
   return map[status] || ''
 }

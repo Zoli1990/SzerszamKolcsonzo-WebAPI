@@ -1,15 +1,44 @@
 <!-- ============================================================================ -->
-<!-- src/components/admin/AdminPwaDashboard.vue - Notification-focused PWA UI -->
+<!-- src/components/admin/AdminPwaDashboard.vue - PWA Admin Dashboard           -->
 <!-- ============================================================================ -->
 
 <template>
   <div class="pwa-dashboard">
     <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- PWA TELEPÍTÉS BANNER -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <Transition name="banner">
+      <div v-if="showInstallBanner" class="pwa-install-banner">
+        <div class="install-content">
+          <div class="install-icon">📲</div>
+          <div class="install-text">
+            <strong>Telepítsd az alkalmazást!</strong>
+            <p>Valós idejű értesítések és gyorsabb elérés.</p>
+          </div>
+        </div>
+        <div class="install-actions">
+          <button class="btn-install" @click="installPwa">Telepítés</button>
+          <button class="btn-dismiss" @click="dismissInstallBanner">Később</button>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <!-- FŐKÉPERNYŐ - Értesítések & Új foglalás -->
     <!-- ═══════════════════════════════════════════════════════════════════ -->
     <section class="notifications-section">
-      <h2 class="section-title">FŐKÉPERNYŐ</h2>
-      <p class="section-subtitle">Értesítések & Aktív foglalások</p>
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">FŐKÉPERNYŐ</h2>
+          <p class="section-subtitle">Értesítések & Aktív foglalások</p>
+        </div>
+        <div class="header-actions">
+          <span class="refresh-indicator" :class="{ active: isRefreshing }">
+            {{ isRefreshing ? '🔄' : '●' }}
+          </span>
+          <button class="btn-refresh-mini" @click="fetchFoglalasok" :disabled="loading">🔄</button>
+        </div>
+      </div>
 
       <!-- Új foglalás értesítés -->
       <div v-if="latestPendingFoglalas" class="notification-card highlight">
@@ -21,19 +50,19 @@
         <div class="notification-body">
           <div class="info-row">
             <span class="label">Foglalás</span>
-            <span class="value">#{{ latestPendingFoglalas.id }}</span>
+            <span class="value">#{{ latestPendingFoglalas.foglalasID }}</span>
           </div>
           <div class="info-row">
             <span class="label">Eszköz:</span>
-            <span class="value">{{ latestPendingFoglalas.eszkoz?.nev }}</span>
+            <span class="value">{{ latestPendingFoglalas.eszkozNev }}</span>
           </div>
           <div class="info-row">
             <span class="label">Ügyfél:</span>
-            <span class="value">{{ latestPendingFoglalas.felhasznalo?.nev }}</span>
+            <span class="value">{{ latestPendingFoglalas.nev }}</span>
           </div>
           <div class="info-row">
             <span class="label">Kezdés:</span>
-            <span class="value">{{ formatDateTime(latestPendingFoglalas.kezdetDatum) }}</span>
+            <span class="value">{{ formatDateTime(latestPendingFoglalas.foglalasKezdete) }}</span>
           </div>
           <div class="info-row warning">
             <span class="label">Jóváhagyható:</span>
@@ -80,7 +109,7 @@
       <div class="foglalasok-list">
         <div
           v-for="foglalas in aktivFoglalasok"
-          :key="foglalas.id"
+          :key="foglalas.foglalasID"
           class="foglalas-card"
           :class="getStatusClass(foglalas.status)"
         >
@@ -89,7 +118,7 @@
             <div class="status-badge" :class="getStatusClass(foglalas.status)">
               <span class="status-icon">{{ getStatusIcon(foglalas.status) }}</span>
               <span class="status-text">{{ getStatusText(foglalas.status) }}</span>
-              <span class="status-id">(#{{ foglalas.id }})</span>
+              <span class="status-id">(#{{ foglalas.foglalasID }})</span>
             </div>
           </div>
 
@@ -97,30 +126,34 @@
           <div class="card-body">
             <div class="info-row">
               <span class="label">Eszköz:</span>
-              <span class="value bold">{{ foglalas.eszkoz?.nev }}</span>
+              <span class="value bold">{{ foglalas.eszkozNev }}</span>
             </div>
 
-            <!-- VÁRAKOZIK státusz -->
-            <template v-if="foglalas.status === 1">
+            <!-- FOGLALVA státusz -->
+            <template v-if="foglalas.status === 'Foglalva'">
               <div class="info-row">
                 <span class="label">Ügyfél:</span>
-                <span class="value">{{ foglalas.felhasznalo?.nev }}</span>
+                <span class="value">{{ foglalas.nev }}</span>
               </div>
               <div class="info-row">
                 <span class="label">Kezdés:</span>
-                <span class="value">{{ formatTime(foglalas.kezdetDatum) }}</span>
+                <span class="value">{{ formatTime(foglalas.foglalasKezdete) }}</span>
+              </div>
+              <div class="info-row warning">
                 <span class="label">Lejár:</span>
-                <span class="value warning">{{ jovahagyhatoIg(foglalas) }}</span>
+                <span class="value">{{ jovahagyhatoIg(foglalas) }}</span>
               </div>
             </template>
 
             <!-- KIADVA státusz -->
-            <template v-else-if="foglalas.status === 2">
+            <template v-else-if="foglalas.status === 'Kiadva'">
               <div class="info-row">
                 <span class="label">Kiadva:</span>
-                <span class="value">{{ formatTime(foglalas.kiadasDatum) }}</span>
+                <span class="value">{{ formatTime(foglalas.kiadasIdopontja) }}</span>
+              </div>
+              <div class="info-row">
                 <span class="label">Eltelt idő:</span>
-                <span class="value primary">{{ elteltIdo(foglalas.kiadasDatum) }}</span>
+                <span class="value primary">{{ elteltIdo(foglalas.kiadasIdopontja) }}</span>
               </div>
               <div class="info-row price">
                 <span class="label">Jelenlegi díj:</span>
@@ -131,8 +164,8 @@
 
           <!-- Akció gombok -->
           <div class="card-actions">
-            <!-- VÁRAKOZIK → KIADVA / NEM JÖTT -->
-            <template v-if="foglalas.status === 1">
+            <!-- FOGLALVA → KIADVA / TÖRLÉS -->
+            <template v-if="foglalas.status === 'Foglalva'">
               <button
                 class="btn-action btn-approve small"
                 @click="handleKiadva(foglalas)"
@@ -150,7 +183,7 @@
             </template>
 
             <!-- KIADVA → VISSZAHOZVA -->
-            <template v-else-if="foglalas.status === 2">
+            <template v-else-if="foglalas.status === 'Kiadva'">
               <button
                 class="btn-action btn-return"
                 @click="handleVisszahozva(foglalas)"
@@ -179,37 +212,138 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import axios from 'axios'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import api from '@/services/api'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'https://szerszamkolcsonzo.runasp.net/api'
+// ═══════════════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════════════
 
-// State
 const foglalasok = ref([])
 const loading = ref(false)
+const isRefreshing = ref(false)
 
-// Computed
+// PWA Install
+const showInstallBanner = ref(false)
+let deferredPrompt = null
+
+// Timers
+let autoRefreshInterval = null
+let elapsedTimeInterval = null
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COMPUTED
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Legújabb "Foglalva" státuszú foglalás (amit az admin még nem hagyott jóvá)
 const latestPendingFoglalas = computed(() => {
   return foglalasok.value
-    .filter((f) => f.status === 1) // VÁRAKOZIK (nem előfoglalás!)
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0]
+    .filter((f) => f.status === 'Foglalva')
+    .sort((a, b) => new Date(b.letrehozasDatum) - new Date(a.letrehozasDatum))[0]
 })
 
+// Aktív foglalások: Foglalva + Kiadva
 const aktivFoglalasok = computed(() => {
+  const statusOrder = { Foglalva: 0, Kiadva: 1 }
   return foglalasok.value
-    .filter((f) => f.status === 1 || f.status === 2) // VÁRAKOZIK vagy KIADVA
+    .filter((f) => f.status === 'Foglalva' || f.status === 'Kiadva')
     .sort((a, b) => {
-      // VÁRAKOZIK first, then KIADVA
-      if (a.status !== b.status) return a.status - b.status
-      return new Date(b.createdAt) - new Date(a.createdAt)
+      const orderA = statusOrder[a.status] ?? 99
+      const orderB = statusOrder[b.status] ?? 99
+      if (orderA !== orderB) return orderA - orderB
+      return new Date(b.letrehozasDatum) - new Date(a.letrehozasDatum)
     })
 })
 
-// Helpers
-const formatDateTime = (date) => {
-  if (!date) return ''
-  const d = new Date(date)
-  return d.toLocaleString('hu-HU', {
+const pendingCount = computed(() => {
+  return foglalasok.value.filter((f) => f.status === 'Foglalva').length
+})
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PWA INSTALL
+// ═══════════════════════════════════════════════════════════════════════════
+
+function onBeforeInstallPrompt(e) {
+  e.preventDefault()
+  deferredPrompt = e
+  const dismissed = sessionStorage.getItem('pwa-install-dismissed')
+  if (!dismissed) {
+    showInstallBanner.value = true
+  }
+}
+
+async function installPwa() {
+  if (!deferredPrompt) return
+  deferredPrompt.prompt()
+  const { outcome } = await deferredPrompt.userChoice
+  if (outcome === 'accepted') {
+    showInstallBanner.value = false
+  }
+  deferredPrompt = null
+}
+
+function dismissInstallBanner() {
+  showInstallBanner.value = false
+  sessionStorage.setItem('pwa-install-dismissed', 'true')
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// NOTIFICATION SOUND
+// ═══════════════════════════════════════════════════════════════════════════
+
+function playNotificationSound() {
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+    const oscillator = audioCtx.createOscillator()
+    const gainNode = audioCtx.createGain()
+
+    oscillator.connect(gainNode)
+    gainNode.connect(audioCtx.destination)
+
+    oscillator.frequency.setValueAtTime(880, audioCtx.currentTime)
+    oscillator.frequency.setValueAtTime(1108, audioCtx.currentTime + 0.15)
+    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime)
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4)
+
+    oscillator.start(audioCtx.currentTime)
+    oscillator.stop(audioCtx.currentTime + 0.4)
+  } catch (err) {
+    console.warn('Hangjelzés nem sikerült:', err)
+  }
+}
+
+watch(pendingCount, (newCount, oldCount) => {
+  if (newCount > oldCount && oldCount !== undefined) {
+    playNotificationSound()
+    flashTitle('🔔 ÚJ FOGLALÁS!')
+  }
+})
+
+let titleFlashInterval = null
+
+function flashTitle(message) {
+  const originalTitle = document.title
+  let isOriginal = false
+
+  clearInterval(titleFlashInterval)
+  titleFlashInterval = setInterval(() => {
+    document.title = isOriginal ? originalTitle : message
+    isOriginal = !isOriginal
+  }, 1000)
+
+  setTimeout(() => {
+    clearInterval(titleFlashInterval)
+    document.title = originalTitle
+  }, 10000)
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FORMATTERS
+// ═══════════════════════════════════════════════════════════════════════════
+
+function formatDateTime(date) {
+  if (!date) return '-'
+  return new Date(date).toLocaleString('hu-HU', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
@@ -218,170 +352,192 @@ const formatDateTime = (date) => {
   })
 }
 
-const formatTime = (date) => {
-  if (!date) return ''
-  const d = new Date(date)
-  return d.toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit' })
+function formatTime(date) {
+  if (!date) return '-'
+  return new Date(date).toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit' })
 }
 
-const jovahagyhatoIg = (foglalas) => {
-  if (!foglalas?.kezdetDatum) return ''
-  const start = new Date(foglalas.kezdetDatum)
-  const deadline = new Date(start.getTime() + 2.25 * 60 * 60 * 1000) // 2h 15m
+/**
+ * Jóváhagyási határidő: létrehozástól 15 perc
+ */
+function jovahagyhatoIg(foglalas) {
+  if (!foglalas?.letrehozasDatum) return ''
+  const created = new Date(foglalas.letrehozasDatum)
+  const deadline = new Date(created.getTime() + 15 * 60 * 1000) // 15 perc
   const now = new Date()
 
   if (now > deadline) return '⚠️ Lejárt!'
 
   const diff = deadline - now
-  const hours = Math.floor(diff / (1000 * 60 * 60))
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+  const minutes = Math.floor(diff / (1000 * 60))
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000)
 
-  return `${formatTime(deadline)} (${hours}:${minutes.toString().padStart(2, '0')}-ig)`
+  return `${minutes}:${seconds.toString().padStart(2, '0')} perc`
 }
 
-const elteltIdo = (kiadasDatum) => {
-  if (!kiadasDatum) return ''
-  const start = new Date(kiadasDatum)
-  const now = new Date()
-  const diff = now - start
-
+function elteltIdo(kiadasIdopontja) {
+  if (!kiadasIdopontja) return '-'
+  const diff = Date.now() - new Date(kiadasIdopontja)
   const hours = Math.floor(diff / (1000 * 60 * 60))
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-
   return `${hours}h ${minutes}m`
 }
 
-const jelenlegiDij = (foglalas) => {
-  if (!foglalas?.kiadasDatum || !foglalas?.eszkoz?.ar) return 0
-
-  const start = new Date(foglalas.kiadasDatum)
-  const now = new Date()
-  const diffMs = now - start
-  const diffHours = diffMs / (1000 * 60 * 60)
-
-  const perHourPrice = foglalas.eszkoz.ar / 24
-  const currentPrice = Math.ceil(diffHours * perHourPrice)
-
-  return currentPrice.toLocaleString('hu-HU')
+function jelenlegiDij(foglalas) {
+  if (!foglalas?.kiadasIdopontja || !foglalas?.eszkozAr) return '0'
+  const diffMs = Date.now() - new Date(foglalas.kiadasIdopontja)
+  const diffMinutes = diffMs / (1000 * 60)
+  const perMinutePrice = foglalas.eszkozAr / 60
+  return Math.ceil(diffMinutes * perMinutePrice).toLocaleString('hu-HU')
 }
 
-const getStatusIcon = (status) => {
+// ═══════════════════════════════════════════════════════════════════════════
+// STATUS HELPERS
+// ═══════════════════════════════════════════════════════════════════════════
+
+function getStatusIcon(status) {
   const icons = {
-    0: '📅', // ELŐFOGLALÁS (nem jelenik meg PWA-ban)
-    1: '🟠', // VÁRAKOZIK
-    2: '🔵', // KIADVA
-    3: '🟢', // LEZÁRT
-    4: '🔴', // TÖRÖLT
+    Foglalva: '📌',
+    Kiadva: '🔧',
+    Lezart: '✅',
+    Torolt: '❌',
   }
   return icons[status] || '⚪'
 }
 
-const getStatusText = (status) => {
+function getStatusText(status) {
   const texts = {
-    0: 'ELŐFOGLALÁS',
-    1: 'VÁRAKOZIK',
-    2: 'KIADVA',
-    3: 'LEZÁRT',
-    4: 'TÖRÖLT',
+    Foglalva: 'FOGLALVA',
+    Kiadva: 'KIADVA',
+    Lezart: 'LEZÁRT',
+    Torolt: 'TÖRÖLT',
   }
   return texts[status] || 'Ismeretlen'
 }
 
-const getStatusClass = (status) => {
+function getStatusClass(status) {
   const classes = {
-    0: 'status-prefoglalas',
-    1: 'status-pending',
-    2: 'status-active',
-    3: 'status-closed',
-    4: 'status-deleted',
+    Foglalva: 'status-pending',
+    Kiadva: 'status-active',
+    Lezart: 'status-closed',
+    Torolt: 'status-deleted',
   }
   return classes[status] || ''
 }
 
-// Actions
-const handleKiadva = async (foglalas) => {
-  if (!confirm(`Kiadod az eszközt: ${foglalas.eszkoz?.nev}?`)) return
+// ═══════════════════════════════════════════════════════════════════════════
+// API ACTIONS
+// ═══════════════════════════════════════════════════════════════════════════
+
+async function fetchFoglalasok(silent = false) {
+  if (!silent) loading.value = true
+  isRefreshing.value = true
+
+  try {
+    const response = await api.get('/Foglalasok')
+    const data = response.data
+
+    if (Array.isArray(data)) {
+      foglalasok.value = data
+    } else if (data && Array.isArray(data.data)) {
+      foglalasok.value = data.data
+    } else if (data && Array.isArray(data.$values)) {
+      foglalasok.value = data.$values
+    } else {
+      console.warn('Váratlan API válasz formátum:', typeof data, data)
+      foglalasok.value = []
+    }
+  } catch (error) {
+    console.error('Foglalások lekérése hiba:', error)
+    if (!silent) alert('❌ Hiba a foglalások betöltése során!')
+  } finally {
+    loading.value = false
+    isRefreshing.value = false
+  }
+}
+
+async function handleKiadva(foglalas) {
+  if (!confirm(`Kiadod az eszközt: ${foglalas.eszkozNev}?`)) return
 
   loading.value = true
   try {
-    // Status 1 (VÁRAKOZIK) → 2 (KIADVA)
-    await axios.put(`${API_BASE}/Foglalasok/${foglalas.id}/kiadas`)
-    await fetchFoglalasok()
+    await api.put(`/Foglalasok/${foglalas.foglalasID}/kiadas`)
+    await fetchFoglalasok(true)
     alert('✅ Eszköz kiadva!')
   } catch (error) {
     console.error('Kiadás hiba:', error)
-    alert('❌ Hiba történt a kiadás során!')
+    alert(error.response?.data?.message || '❌ Hiba történt a kiadás során!')
   } finally {
     loading.value = false
   }
 }
 
-const handleNemJott = async (foglalas) => {
-  if (!confirm(`Törlöd a foglalást: #${foglalas.id}?`)) return
+async function handleNemJott(foglalas) {
+  if (!confirm(`Törlöd a foglalást: #${foglalas.foglalasID}?`)) return
 
   loading.value = true
   try {
-    // Status 1 (VÁRAKOZIK) → 4 (TÖRÖLT)
-    await axios.put(`${API_BASE}/Foglalasok/${foglalas.id}/torles`)
-    await fetchFoglalasok()
+    await api.put(`/Foglalasok/${foglalas.foglalasID}/torles`)
+    await fetchFoglalasok(true)
     alert('✅ Foglalás törölve!')
   } catch (error) {
     console.error('Törlés hiba:', error)
-    alert('❌ Hiba történt a törlés során!')
+    alert(error.response?.data?.message || '❌ Hiba történt a törlés során!')
   } finally {
     loading.value = false
   }
 }
 
-const handleVisszahozva = async (foglalas) => {
-  if (!confirm(`Visszahozta az eszközt: ${foglalas.eszkoz?.nev}?`)) return
+async function handleVisszahozva(foglalas) {
+  if (!confirm(`Visszahozta az eszközt: ${foglalas.eszkozNev}?`)) return
 
   loading.value = true
   try {
-    // Status 2 (KIADVA) → 3 (LEZÁRT)
-    await axios.put(`${API_BASE}/Foglalasok/${foglalas.id}/lezaras`)
-    await fetchFoglalasok()
+    await api.put(`/Foglalasok/${foglalas.foglalasID}/lezaras`)
+    await fetchFoglalasok(true)
     alert('✅ Eszköz visszahozva, foglalás lezárva!')
   } catch (error) {
     console.error('Lezárás hiba:', error)
-    alert('❌ Hiba történt a lezárás során!')
+    alert(error.response?.data?.message || '❌ Hiba történt a lezárás során!')
   } finally {
     loading.value = false
   }
 }
 
-const fetchFoglalasok = async () => {
-  loading.value = true
-  try {
-    const token = localStorage.getItem('auth_token')
-    const response = await axios.get(`${API_BASE}/Foglalasok`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-    foglalasok.value = response.data
-    console.log('[AdminPwaDashboard] Foglalások betöltve:', foglalasok.value.length)
-  } catch (error) {
-    console.error('Foglalások lekérése hiba:', error)
-    alert('❌ Hiba a foglalások betöltése során!')
-  } finally {
-    loading.value = false
-  }
-}
+// ═══════════════════════════════════════════════════════════════════════════
+// LIFECYCLE
+// ═══════════════════════════════════════════════════════════════════════════
 
-// Lifecycle
 onMounted(() => {
   fetchFoglalasok()
 
-  // Auto-refresh every 30 seconds
-  const interval = setInterval(fetchFoglalasok, 30000)
+  // Auto-refresh: 10 másodpercenként
+  autoRefreshInterval = setInterval(() => fetchFoglalasok(true), 10000)
 
-  // Cleanup
-  return () => clearInterval(interval)
+  // Eltelt idő frissítése: 1 percenként
+  elapsedTimeInterval = setInterval(() => {
+    foglalasok.value = [...foglalasok.value]
+  }, 60000)
+
+  // PWA install prompt
+  window.addEventListener('beforeinstallprompt', onBeforeInstallPrompt)
+
+  if (window.matchMedia('(display-mode: standalone)').matches) {
+    showInstallBanner.value = false
+  }
+})
+
+onUnmounted(() => {
+  clearInterval(autoRefreshInterval)
+  clearInterval(elapsedTimeInterval)
+  clearInterval(titleFlashInterval)
+  window.removeEventListener('beforeinstallprompt', onBeforeInstallPrompt)
 })
 </script>
 
 <style scoped>
 /* ============================================================================ */
-/* PWA DASHBOARD STYLES */
+/* PWA DASHBOARD STYLES                                                         */
 /* ============================================================================ */
 
 .pwa-dashboard {
@@ -391,7 +547,150 @@ onMounted(() => {
 }
 
 /* ============================================================================ */
-/* SECTIONS */
+/* PWA INSTALL BANNER                                                           */
+/* ============================================================================ */
+
+.pwa-install-banner {
+  position: sticky;
+  top: 0;
+  z-index: 500;
+  background: linear-gradient(135deg, #6b8e23, #8ba83e);
+  color: white;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 4px 16px rgba(107, 142, 35, 0.3);
+}
+
+.install-content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.install-icon {
+  font-size: 36px;
+  flex-shrink: 0;
+}
+
+.install-text strong {
+  display: block;
+  font-size: 17px;
+  margin-bottom: 4px;
+}
+
+.install-text p {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.install-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-install {
+  flex: 1;
+  padding: 14px;
+  background: white;
+  color: #6b8e23;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  min-height: 48px;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-install:active {
+  transform: scale(0.97);
+}
+
+.btn-dismiss {
+  padding: 14px 20px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 48px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-dismiss:active {
+  transform: scale(0.97);
+}
+
+/* Banner transition */
+.banner-enter-active,
+.banner-leave-active {
+  transition: all 0.4s ease;
+}
+
+.banner-enter-from {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
+.banner-leave-to {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
+/* ============================================================================ */
+/* SECTION HEADER                                                               */
+/* ============================================================================ */
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.refresh-indicator {
+  font-size: 12px;
+  color: #10b981;
+  transition: all 0.3s;
+}
+
+.refresh-indicator.active {
+  font-size: 16px;
+  animation: spin 1s linear infinite;
+}
+
+.btn-refresh-mini {
+  width: 44px;
+  height: 44px;
+  border: 2px solid #e8dcc8;
+  border-radius: 50%;
+  background: white;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-refresh-mini:active {
+  transform: scale(0.95);
+}
+
+/* ============================================================================ */
+/* SECTIONS                                                                     */
 /* ============================================================================ */
 
 .notifications-section,
@@ -414,13 +713,13 @@ onMounted(() => {
 }
 
 .section-subtitle {
-  margin: 0 0 20px 0;
+  margin: 0;
   font-size: 16px;
   color: #6b5d4f;
 }
 
 /* ============================================================================ */
-/* NOTIFICATION CARD (Highlighted) */
+/* NOTIFICATION CARD (Highlighted)                                              */
 /* ============================================================================ */
 
 .notification-card {
@@ -520,7 +819,7 @@ onMounted(() => {
 }
 
 /* ============================================================================ */
-/* ACTION BUTTONS */
+/* ACTION BUTTONS                                                               */
 /* ============================================================================ */
 
 .notification-actions,
@@ -545,6 +844,8 @@ onMounted(() => {
   cursor: pointer;
   transition: all 0.2s;
   min-height: 80px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .btn-action.small {
@@ -559,14 +860,16 @@ onMounted(() => {
   cursor: not-allowed;
 }
 
+.btn-action:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
 .btn-icon {
   font-size: 24px;
 }
-
 .btn-text {
   font-size: 18px;
 }
-
 .btn-subtext {
   font-size: 12px;
   opacity: 0.8;
@@ -576,37 +879,26 @@ onMounted(() => {
   background: #4caf50;
   color: white;
 }
-
 .btn-approve:hover:not(:disabled) {
   background: #45a049;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
 }
-
 .btn-reject {
   background: #f44336;
   color: white;
 }
-
 .btn-reject:hover:not(:disabled) {
   background: #da190b;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
 }
-
 .btn-return {
   background: #2196f3;
   color: white;
 }
-
 .btn-return:hover:not(:disabled) {
   background: #0b7dda;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
 }
 
 /* ============================================================================ */
-/* FOGLALÁS CARDS */
+/* FOGLALÁS CARDS                                                               */
 /* ============================================================================ */
 
 .foglalasok-list {
@@ -626,7 +918,6 @@ onMounted(() => {
 .foglalas-card.status-pending {
   border-left-color: #ff9800;
 }
-
 .foglalas-card.status-active {
   border-left-color: #2196f3;
 }
@@ -650,7 +941,6 @@ onMounted(() => {
   background: #fff3e0;
   color: #f57c00;
 }
-
 .status-badge.status-active {
   background: #e3f2fd;
   color: #1976d2;
@@ -659,7 +949,6 @@ onMounted(() => {
 .status-icon {
   font-size: 16px;
 }
-
 .status-id {
   font-size: 12px;
   opacity: 0.8;
@@ -669,14 +958,13 @@ onMounted(() => {
   font-size: 18px;
   color: #3d2f1f;
 }
-
 .card-body .value.primary {
   color: #2196f3;
   font-weight: 700;
 }
 
 /* ============================================================================ */
-/* EMPTY STATES */
+/* EMPTY STATES                                                                 */
 /* ============================================================================ */
 
 .empty-state,
@@ -689,7 +977,6 @@ onMounted(() => {
   font-size: 64px;
   margin-bottom: 16px;
 }
-
 .empty-text {
   margin: 0;
   font-size: 18px;
@@ -697,7 +984,7 @@ onMounted(() => {
 }
 
 /* ============================================================================ */
-/* LOADING OVERLAY */
+/* LOADING OVERLAY                                                              */
 /* ============================================================================ */
 
 .loading-overlay {
@@ -731,463 +1018,292 @@ onMounted(() => {
 }
 
 /* ============================================================================ */
-/* RESPONSIVE - TELJES MOBIL OPTIMALIZÁLÁS */
+/* RESPONSIVE                                                                   */
 /* ============================================================================ */
 
-/* ============================================================================
-   📱 MOBIL (max-width: 768px) - FŐSODOR
-   ============================================================================ */
 @media (max-width: 768px) {
-  /* ─────────────────────────────────────────────────────────────────────
-     1. DASHBOARD LAYOUT
-     ───────────────────────────────────────────────────────────────────── */
   .pwa-dashboard {
-    /* Padding bottom a biztonság kedvéért (iOS safe area) */
     padding-bottom: env(safe-area-inset-bottom, 20px);
   }
 
-  /* ─────────────────────────────────────────────────────────────────────
-     2. SECTIONS - Kompaktabb padding
-     ───────────────────────────────────────────────────────────────────── */
   .notifications-section,
   .active-section {
-    padding: 16px 14px; /* 20px→16px top/bottom, 16px→14px oldalt */
+    padding: 16px 14px;
   }
 
-  /* ─────────────────────────────────────────────────────────────────────
-     3. TYPOGRAPHY - Kisebb méret mobilra
-     ───────────────────────────────────────────────────────────────────── */
   .section-title {
-    font-size: 19px; /* 22px → 19px (3px csökkentés) */
-    margin-bottom: 6px; /* 4px → 6px (jobb lélegzés) */
-    letter-spacing: 0.3px; /* Kisebb tracking */
+    font-size: 19px;
   }
-
   .section-subtitle {
-    font-size: 14px; /* 16px → 14px */
-    margin-bottom: 16px; /* 20px → 16px */
+    font-size: 14px;
   }
 
-  /* ─────────────────────────────────────────────────────────────────────
-     4. NOTIFICATION CARD - Highlight kártya optimalizálás
-     ───────────────────────────────────────────────────────────────────── */
   .notification-card {
-    padding: 16px; /* 20px → 16px */
-    border-radius: 10px; /* 12px → 10px (kevésbé kerek) */
+    padding: 16px;
+    border-radius: 10px;
   }
-
   .notification-card.highlight {
-    border-width: 2px; /* 3px → 2px (vékonyabb) */
+    border-width: 2px;
   }
-
   .notification-card.empty {
-    padding: 36px 16px; /* 40px → 36px */
+    padding: 36px 16px;
   }
 
-  /* ─────────────────────────────────────────────────────────────────────
-     5. NOTIFICATION HEADER
-     ───────────────────────────────────────────────────────────────────── */
   .notification-header {
-    gap: 10px; /* 12px → 10px */
-    margin-bottom: 14px; /* 16px → 14px */
+    gap: 10px;
+    margin-bottom: 14px;
   }
-
   .notification-icon {
-    font-size: 28px; /* 32px → 28px */
+    font-size: 28px;
   }
-
   .notification-title {
-    font-size: 17px; /* 20px → 17px */
-    line-height: 1.3; /* Jobb olvashatóság */
+    font-size: 17px;
+    line-height: 1.3;
   }
 
-  /* ─────────────────────────────────────────────────────────────────────
-     6. NOTIFICATION BODY
-     ───────────────────────────────────────────────────────────────────── */
-  .notification-body {
-    margin-bottom: 16px; /* 20px → 16px */
-  }
-
-  /* ─────────────────────────────────────────────────────────────────────
-     7. INFO ROWS - KRITIKUS JAVÍTÁS!
-     ───────────────────────────────────────────────────────────────────── */
   .info-row {
-    padding: 9px 0; /* 10px → 9px */
-    font-size: 15px; /* 16px → 15px */
-    gap: 8px; /* Space label és value között */
-    flex-wrap: wrap; /* 🔑 FONTOS: engedélyezi a tördelést! */
+    padding: 9px 0;
+    font-size: 15px;
+    gap: 8px;
+    flex-wrap: wrap;
   }
 
   .info-row .label {
     font-size: 15px;
-    font-weight: 600;
-    min-width: 90px; /* 🔑 Minimum szélesség konzisztencia miatt */
-    flex-shrink: 0; /* Ne zsugorodjon */
+    min-width: 90px;
+    flex-shrink: 0;
   }
-
   .info-row .value {
     font-size: 15px;
-    font-weight: 700;
-    text-align: right;
-    flex: 1; /* Foglalja el a maradék helyet */
-    word-break: break-word; /* 🔑 FONTOS: hosszú szavak tördelése */
-    hyphens: auto; /* Szóelválasztás ha kell */
+    flex: 1;
+    word-break: break-word;
   }
-
-  .info-row.warning .value {
-    font-size: 15px; /* Konzisztens méret */
-  }
-
-  .info-row.price {
-    padding: 10px 0; /* 12px → 10px */
-    margin-top: 8px;
-  }
-
   .info-row .price-value {
-    font-size: 19px; /* 20px → 19px */
+    font-size: 19px;
   }
 
-  /* ─────────────────────────────────────────────────────────────────────
-     8. ACTION BUTTONS - TOUCH OPTIMALIZÁLÁS!
-     ───────────────────────────────────────────────────────────────────── */
   .notification-actions,
   .card-actions {
-    gap: 10px; /* 12px → 10px */
-    margin-top: 14px; /* 16px → 14px */
+    gap: 10px;
+    margin-top: 14px;
   }
 
   .btn-action {
-    /* 🎯 iOS guideline: minimum 44pt (≈44px) touch target
-       🎯 Ajánlott: 48-56px a kényelmes használathoz */
-    min-height: 60px; /* 80px → 60px (még mindig bőven touch-friendly!) */
-    min-width: 44px; /* iOS minimum */
-    padding: 14px 12px; /* 16px → 14px */
-    font-size: 15px; /* 16px → 15px */
-    border-radius: 10px; /* 12px → 10px */
-    gap: 5px; /* 4px → 5px */
-
-    /* Touch feedback */
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
-    touch-action: manipulation; /* Gyorsabb tap response */
+    min-height: 60px;
+    min-width: 44px;
+    padding: 14px 12px;
+    font-size: 15px;
+    border-radius: 10px;
   }
 
   .btn-action.small {
-    flex-direction: row; /* Megtartjuk a horizontal layoutot */
-    min-height: 50px; /* 52px → 50px (még mindig 44px felett!) */
-    padding: 12px 14px; /* Kissé több oldalsó padding */
-    gap: 8px;
+    min-height: 50px;
+    padding: 12px 14px;
   }
-
   .btn-icon {
-    font-size: 22px; /* 24px → 22px */
+    font-size: 22px;
   }
-
   .btn-text {
-    font-size: 16px; /* 18px → 16px */
-    font-weight: 700; /* Megtartjuk a vastag betűt */
-    line-height: 1.2; /* Szorosabb line-height */
+    font-size: 16px;
   }
-
   .btn-subtext {
-    font-size: 11px; /* 12px → 11px */
-    opacity: 0.85; /* 0.8 → 0.85 (kicsit jobban látszik) */
+    font-size: 11px;
   }
 
-  /* ─────────────────────────────────────────────────────────────────────
-     9. FOGLALÁS CARDS - Aktív foglalások lista
-     ───────────────────────────────────────────────────────────────────── */
   .foglalasok-list {
-    gap: 12px; /* 16px → 12px */
+    gap: 12px;
   }
-
   .foglalas-card {
-    padding: 14px; /* 16px → 14px */
-    border-radius: 10px; /* 12px → 10px */
-    border-left-width: 3px; /* 4px → 3px */
+    padding: 14px;
+    border-radius: 10px;
+    border-left-width: 3px;
   }
-
   .card-header {
-    margin-bottom: 10px; /* 12px → 10px */
+    margin-bottom: 10px;
   }
-
   .status-badge {
-    padding: 6px 10px; /* 6px 12px → 6px 10px */
-    font-size: 13px; /* 14px → 13px */
-    gap: 5px; /* 6px → 5px */
-    border-radius: 18px; /* 20px → 18px */
-  }
-
-  .status-icon {
-    font-size: 14px;
-  }
-
-  .status-text {
+    padding: 6px 10px;
     font-size: 13px;
   }
 
-  .status-id {
-    font-size: 12px;
-  }
-
-  .card-body {
-    margin-bottom: 10px; /* Kompaktabb */
-  }
-
-  /* ─────────────────────────────────────────────────────────────────────
-     10. EMPTY STATES
-     ───────────────────────────────────────────────────────────────────── */
   .empty-state {
-    padding: 48px 20px; /* 60px → 48px */
+    padding: 48px 20px;
   }
-
   .empty-icon {
-    font-size: 56px; /* 64px → 56px */
+    font-size: 56px;
   }
-
   .empty-text {
-    font-size: 16px; /* 18px → 16px */
-    margin-top: 12px;
-  }
-
-  /* ─────────────────────────────────────────────────────────────────────
-     11. LOADING OVERLAY
-     ───────────────────────────────────────────────────────────────────── */
-  .loading-overlay {
-    padding: 20px;
-  }
-
-  .loading-overlay p {
-    font-size: 15px; /* 18px → 15px */
-    margin-top: 12px;
-  }
-
-  .loading-spinner {
-    width: 44px; /* Láthatóbb méret */
-    height: 44px;
-    border-width: 4px;
+    font-size: 16px;
   }
 }
 
-/* ============================================================================
-   📱 EXTRA KICSI MOBILOK (max-width: 375px)
-   iPhone SE, iPhone 12 mini, kis Android készülékek
-   ============================================================================ */
 @media (max-width: 375px) {
-  /* Typography még kisebb */
   .section-title {
-    font-size: 17px; /* 19px → 17px */
+    font-size: 17px;
   }
-
   .section-subtitle {
-    font-size: 13px; /* 14px → 13px */
+    font-size: 13px;
   }
-
   .notification-title {
-    font-size: 16px; /* 17px → 16px */
+    font-size: 16px;
   }
 
-  /* Padding csökkentés */
   .notifications-section,
   .active-section {
-    padding: 14px 12px; /* 16px 14px → 14px 12px */
+    padding: 14px 12px;
   }
 
   .notification-card,
   .foglalas-card {
-    padding: 14px 12px; /* 16px/14px → 14px 12px */
+    padding: 14px 12px;
   }
 
-  /* Info rows kompaktabb */
   .info-row {
-    padding: 8px 0; /* 9px → 8px */
-    font-size: 14px; /* 15px → 14px */
+    padding: 8px 0;
+    font-size: 14px;
   }
-
   .info-row .label,
   .info-row .value {
     font-size: 14px;
-    min-width: 80px; /* 90px → 80px */
+    min-width: 80px;
   }
-
   .info-row .price-value {
-    font-size: 18px; /* 19px → 18px */
+    font-size: 18px;
   }
 
-  /* Gombok - MÉG MINDIG touch-friendly! */
   .btn-action {
-    min-height: 56px; /* 60px → 56px */
-    padding: 12px 10px; /* Kisebb padding */
-    font-size: 14px; /* 15px → 14px */
+    min-height: 56px;
+    padding: 12px 10px;
+    font-size: 14px;
   }
-
   .btn-action.small {
-    min-height: 48px; /* 50px → 48px (még 44px felett!) */
-    padding: 11px 12px;
+    min-height: 48px;
   }
-
   .btn-text {
-    font-size: 15px; /* 16px → 15px */
+    font-size: 15px;
   }
-
   .btn-subtext {
-    font-size: 10px; /* 11px → 10px */
+    font-size: 10px;
   }
-
   .btn-icon {
-    font-size: 20px; /* 22px → 20px */
+    font-size: 20px;
   }
 
-  /* Status badge kisebb */
   .status-badge {
-    padding: 5px 8px; /* 6px 10px → 5px 8px */
-    font-size: 12px; /* 13px → 12px */
-  }
-
-  .status-text {
+    padding: 5px 8px;
     font-size: 12px;
   }
 
-  .status-id {
-    font-size: 11px;
+  /* Install banner kompaktabb */
+  .pwa-install-banner {
+    padding: 14px 16px;
+    gap: 12px;
+  }
+  .install-icon {
+    font-size: 30px;
+  }
+  .install-text strong {
+    font-size: 15px;
+  }
+  .install-text p {
+    font-size: 13px;
   }
 }
 
-/* ============================================================================
-   📱 LANDSCAPE MODE - Fekvő mobil nézet
-   ============================================================================ */
 @media (max-width: 768px) and (orientation: landscape) {
-  /* Kevesebb vertical padding landscape-ben */
   .notifications-section,
   .active-section {
-    padding: 12px 16px; /* Csökkentett top/bottom */
+    padding: 12px 16px;
   }
 
-  /* Gombok alacsonyabbak landscape-ben */
   .btn-action {
-    min-height: 52px; /* 60px → 52px landscape-ben */
+    min-height: 52px;
   }
-
   .btn-action.small {
     min-height: 46px;
   }
-
-  /* Foglalás kártyák kompaktabbak */
   .foglalasok-list {
     gap: 10px;
   }
-
   .foglalas-card {
     padding: 12px 14px;
   }
-
-  /* Empty states kisebb */
   .empty-state {
     padding: 32px 20px;
   }
-
   .empty-icon {
     font-size: 48px;
   }
 }
 
-/* ============================================================================
-   📱 TABLET (769px - 1024px)
-   iPad, Android tabletek
-   ============================================================================ */
 @media (min-width: 769px) and (max-width: 1024px) {
-  /* Sections több padding */
   .notifications-section,
   .active-section {
     padding: 24px 20px;
   }
 
-  /* Notification card központosítva, max-width */
   .notification-card {
     max-width: 640px;
     margin-left: auto;
     margin-right: auto;
   }
-
-  /* Gombok nagyobbak tableten */
   .btn-action {
     min-height: 68px;
     padding: 16px 20px;
-    font-size: 17px;
   }
-
   .btn-text {
     font-size: 18px;
   }
 
-  /* Foglalások GRID layout (2 oszlop) */
   .foglalasok-list {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
   }
 
-  /* Typography */
-  .section-title {
-    font-size: 21px;
+  /* Install banner horizontal */
+  .pwa-install-banner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
   }
 
-  .section-subtitle {
-    font-size: 15px;
+  .install-actions {
+    flex-shrink: 0;
   }
 }
 
-/* ============================================================================
-   🎨 AKADÁLYMENTESÍTÉS & PREFERENCIÁK
-   ============================================================================ */
+/* ============================================================================ */
+/* ACCESSIBILITY                                                                */
+/* ============================================================================ */
 
-/* High Contrast Mode */
 @media (prefers-contrast: high) {
   .btn-action {
     border: 2px solid currentColor;
-    font-weight: 800;
   }
-
   .status-badge {
     border: 1px solid currentColor;
   }
-
   .notification-card {
     border: 2px solid #333;
   }
 }
 
-/* Reduced Motion - Animációk kikapcsolása */
 @media (prefers-reduced-motion: reduce) {
   .btn-action,
   .foglalas-card,
   .notification-card {
     transition: none !important;
   }
-
   .notification-icon {
     animation: none !important;
   }
-
   .loading-spinner {
     animation: none !important;
   }
-
-  .btn-action:hover {
-    transform: none !important;
+  .banner-enter-active,
+  .banner-leave-active {
+    transition: none !important;
   }
-}
-
-/* Dark Mode Felkészülés (később implementálható) */
-@media (prefers-color-scheme: dark) {
-  /* Később bekapcsolható dark mode támogatás
-  .pwa-dashboard {
-    background: #1a1a1a;
-    color: #f0f0f0;
-  }
-  .notification-card {
-    background: #2a2a2a;
-    border-color: #3a3a3a;
-  }
-  */
 }
 </style>

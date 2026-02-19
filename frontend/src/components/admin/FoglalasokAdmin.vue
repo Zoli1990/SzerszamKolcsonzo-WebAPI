@@ -122,7 +122,7 @@
         <!-- Akció gombok -->
         <div class="card-actions" @click.stop>
           <button
-            v-if="foglalas.status === 1"
+            v-if="foglalas.status === 'Foglalva'"
             class="btn-card btn-kiad"
             @click="kiadEszkoz(foglalas)"
           >
@@ -131,7 +131,7 @@
           </button>
 
           <button
-            v-if="foglalas.status === 2"
+            v-if="foglalas.status === 'Kiadva'"
             class="btn-card btn-visszahoz"
             @click="visszahozEszkoz(foglalas)"
           >
@@ -140,7 +140,7 @@
           </button>
 
           <button
-            v-if="foglalas.status === 1 || foglalas.status === 2"
+            v-if="foglalas.status === 'Foglalva' || foglalas.status === 'Kiadva'"
             class="btn-card btn-torol"
             @click="openDeleteConfirm(foglalas)"
           >
@@ -177,8 +177,12 @@
             :key="foglalas.foglalasID"
             :class="getRowClass(foglalas.status)"
           >
-            <td><strong>#{{ foglalas.foglalasID }}</strong></td>
-            <td><div class="eszkoz-info">{{ foglalas.eszkozNev }}</div></td>
+            <td>
+              <strong>#{{ foglalas.foglalasID }}</strong>
+            </td>
+            <td>
+              <div class="eszkoz-info">{{ foglalas.eszkozNev }}</div>
+            </td>
             <td>
               <div class="customer-cell">
                 <strong>{{ foglalas.nev }}</strong>
@@ -186,13 +190,17 @@
                 <span class="small">{{ foglalas.telefonszam }}</span>
               </div>
             </td>
-            <td><span class="date-cell">{{ formatDate(foglalas.foglalasKezdete) }}</span></td>
+            <td>
+              <span class="date-cell">{{ formatDate(foglalas.foglalasKezdete) }}</span>
+            </td>
             <td>
               <span v-if="foglalas.elszamolhatoIdo">{{ formatIdo(foglalas.elszamolhatoIdo) }}</span>
               <span v-else class="text-muted">-</span>
             </td>
             <td>
-              <strong v-if="foglalas.bevetel" class="revenue">{{ formatAr(foglalas.bevetel) }} Ft</strong>
+              <strong v-if="foglalas.bevetel" class="revenue"
+                >{{ formatAr(foglalas.bevetel) }} Ft</strong
+              >
               <span v-else class="text-muted">-</span>
             </td>
             <td>
@@ -206,7 +214,7 @@
             <td>
               <div class="table-actions">
                 <button
-                  v-if="foglalas.status === 1"
+                  v-if="foglalas.status === 'Foglalva'"
                   class="btn-table btn-kiad"
                   @click="kiadEszkoz(foglalas)"
                   title="Eszköz kiadása"
@@ -214,7 +222,7 @@
                   ✅ Kiadás
                 </button>
                 <button
-                  v-if="foglalas.status === 2"
+                  v-if="foglalas.status === 'Kiadva'"
                   class="btn-table btn-visszahoz"
                   @click="visszahozEszkoz(foglalas)"
                   title="Eszköz visszahozva"
@@ -301,7 +309,9 @@
 
                 <div v-if="selectedFoglalas.fizetendoOsszeg" class="detail-group highlight">
                   <h4 class="group-title">💰 Fizetendő</h4>
-                  <p class="group-value large">{{ formatAr(selectedFoglalas.fizetendoOsszeg) }} Ft</p>
+                  <p class="group-value large">
+                    {{ formatAr(selectedFoglalas.fizetendoOsszeg) }} Ft
+                  </p>
                 </div>
               </div>
             </div>
@@ -309,7 +319,7 @@
             <!-- Modal footer -->
             <div class="modal-footer">
               <button
-                v-if="selectedFoglalas.status === 1"
+                v-if="selectedFoglalas.status === 'Foglalva'"
                 class="btn-primary"
                 @click="handleModalAction(kiadEszkoz)"
               >
@@ -317,7 +327,7 @@
               </button>
 
               <button
-                v-if="selectedFoglalas.status === 2"
+                v-if="selectedFoglalas.status === 'Kiadva'"
                 class="btn-primary"
                 @click="handleModalAction(visszahozEszkoz)"
               >
@@ -325,7 +335,9 @@
               </button>
 
               <button
-                v-if="selectedFoglalas.status === 1 || selectedFoglalas.status === 2"
+                v-if="
+                  selectedFoglalas.status === 'Foglalva' || selectedFoglalas.status === 'Kiadva'
+                "
                 class="btn-danger"
                 @click="handleModalAction(openDeleteConfirm)"
               >
@@ -351,55 +363,62 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { foglalasService } from '@/services/foglalasService'
 import api from '@/services/api'
 
-// State
+// Az api service (src/services/api.js) automatikusan kezeli:
+// - baseURL (VITE_API_BASE_URL)
+// - JWT token (interceptor)
+// Nem kell kézi token kezelés!
+
+// ============================================================================
+// ADATOK
+// ============================================================================
 const foglalasok = ref([])
 const loading = ref(false)
 const modalOpen = ref(false)
 const selectedFoglalas = ref({})
-const activeFilter = ref('all')
-const toast = ref({ show: false, message: '', type: 'success' })
 const filterMenuOpen = ref(false)
+const activeFilter = ref('all')
 
-let autoRefreshInterval = null
-
-// Szűrő opciók
-const statusFilters = [
-  { value: 'all', label: 'Összes', icon: '📋' },
-  { value: 0, label: 'Előfoglalás', icon: '⚪' },
-  { value: 1, label: 'Várakozik', icon: '⏳' },
-  { value: 2, label: 'Kiadva', icon: '✅' },
-  { value: 3, label: 'Lezárt', icon: '🔒' },
-  { value: 4, label: 'Törölt', icon: '❌' },
-]
-
-// Computed
-const filteredFoglalasok = computed(() => {
-  if (activeFilter.value === 'all') return foglalasok.value
-  return foglalasok.value.filter(f => f.status === activeFilter.value)
+const toast = ref({
+  show: false,
+  message: '',
+  type: 'success',
 })
 
-// Methods
-function getStatusCount(status) {
-  if (status === 'all') return foglalasok.value.length
-  return foglalasok.value.filter(f => f.status === status).length
+// ============================================================================
+// SZŰRŐK
+// ============================================================================
+const statusFilters = [
+  { value: 'all', label: 'Összes', icon: '📋' },
+  { value: 'Foglalva', label: 'Foglalva', icon: '📌' },
+  { value: 'Kiadva', label: 'Kiadva', icon: '🔧' },
+  { value: 'Lezart', label: 'Lezárt', icon: '✅' },
+  { value: 'Torolt', label: 'Törölt', icon: '❌' },
+]
+
+const filteredFoglalasok = computed(() => {
+  if (activeFilter.value === 'all') return foglalasok.value
+  return foglalasok.value.filter((f) => f.status === activeFilter.value)
+})
+
+function getStatusCount(filterValue) {
+  if (filterValue === 'all') return foglalasok.value.length
+  return foglalasok.value.filter((f) => f.status === filterValue).length
 }
 
-function getFilterLabel(status) {
-  const filter = statusFilters.find(f => f.value === status)
-  return filter ? filter.label.toLowerCase() : ''
-}
-
-function getActiveFilterLabel() {
-  const filter = statusFilters.find(f => f.value === activeFilter.value)
-  return filter ? filter.label : 'Összes'
+function getFilterLabel(filterValue) {
+  const filter = statusFilters.find((f) => f.value === filterValue)
+  return filter ? filter.label : filterValue
 }
 
 function getActiveFilterIcon() {
-  const filter = statusFilters.find(f => f.value === activeFilter.value)
+  const filter = statusFilters.find((f) => f.value === activeFilter.value)
   return filter ? filter.icon : '📋'
+}
+
+function getActiveFilterLabel() {
+  return getFilterLabel(activeFilter.value)
 }
 
 function toggleFilterMenu() {
@@ -411,30 +430,145 @@ function selectFilter(value) {
   filterMenuOpen.value = false
 }
 
-function closeFilterMenu(e) {
-  if (filterMenuOpen.value && !e.target.closest('.filters-section')) {
-    filterMenuOpen.value = false
+// ============================================================================
+// LIFECYCLE
+// ============================================================================
+let autoRefreshInterval = null
+
+onMounted(() => {
+  fetchFoglalasok()
+  autoRefreshInterval = setInterval(() => {
+    fetchFoglalasok(true)
+  }, 10000)
+})
+
+onUnmounted(() => {
+  if (autoRefreshInterval) {
+    clearInterval(autoRefreshInterval)
+  }
+})
+
+// ============================================================================
+// API HÍVÁSOK
+// ============================================================================
+async function fetchFoglalasok(silent = false) {
+  if (!silent) loading.value = true
+
+  try {
+    const response = await api.get('/foglalasok')
+    foglalasok.value = response.data
+  } catch (err) {
+    console.error('Foglalások betöltése sikertelen:', err)
+    if (!silent) showToast('Foglalások betöltése sikertelen!', 'error')
+  } finally {
+    if (!silent) loading.value = false
   }
 }
 
-function getCardClass(status) {
-  const map = { 0: 'card-elofoglalas', 1: 'card-varakozik', 2: 'card-kiadva', 3: 'card-lezart', 4: 'card-torolt' }
-  return map[status] || ''
+async function kiadEszkoz(foglalas) {
+  if (
+    !confirm(
+      `Biztosan kiadod az eszközt?\n\nEszköz: ${foglalas.eszkozNev}\nÜgyfél: ${foglalas.nev}`,
+    )
+  ) {
+    return
+  }
+
+  try {
+    await api.put(`/foglalasok/${foglalas.foglalasID}/kiadas`)
+
+    showToast('Eszköz sikeresen kiadva!', 'success')
+    await fetchFoglalasok()
+  } catch (err) {
+    showToast(err.response?.data?.message || 'Nem sikerült kiadni az eszközt', 'error')
+    console.error('Kiadás hiba:', err)
+  }
 }
 
-function getRowClass(status) {
-  const map = { 0: 'row-elofoglalas', 1: 'row-varakozik', 2: 'row-kiadva', 3: 'row-lezart', 4: 'row-torolt' }
-  return map[status] || ''
+async function visszahozEszkoz(foglalas) {
+  if (!confirm(`Ügyfél visszahozta az eszközt?\n\nEszköz: ${foglalas.eszkozNev}`)) {
+    return
+  }
+
+  try {
+    const response = await api.put(`/foglalasok/${foglalas.foglalasID}/lezaras`)
+
+    const data = response.data
+    if (data.elszamolhatoIdo) {
+      const ido = formatIdo(data.elszamolhatoIdo)
+      const osszeg = formatAr(data.fizetendoOsszeg)
+      showToast(`Visszahozva! ${ido} - ${osszeg} Ft`, 'success')
+    } else {
+      showToast('Eszköz sikeresen visszahozva!', 'success')
+    }
+
+    await fetchFoglalasok()
+  } catch (err) {
+    showToast(err.response?.data?.message || 'Nem sikerült visszahozni az eszközt', 'error')
+    console.error('Visszahozás hiba:', err)
+  }
 }
 
-function getBadgeClass(status) {
-  const map = { 0: 'badge-secondary', 1: 'badge-warning', 2: 'badge-info', 3: 'badge-success', 4: 'badge-danger' }
-  return map[status] || ''
+async function openDeleteConfirm(foglalas) {
+  if (
+    !confirm(
+      `Biztosan törölni szeretnéd a foglalást?\n\nEszköz: ${foglalas.eszkozNev}\nÜgyfél: ${foglalas.nev}`,
+    )
+  ) {
+    return
+  }
+
+  try {
+    await api.put(`/foglalasok/${foglalas.foglalasID}/torles`)
+
+    showToast('Foglalás törölve!', 'success')
+    await fetchFoglalasok()
+  } catch (err) {
+    showToast(err.response?.data?.message || 'Nem sikerült törölni a foglalást', 'error')
+    console.error('Törlés hiba:', err)
+  }
 }
 
-function getStatusText(status) {
-  const map = { 0: 'ELŐFOGLALÁS', 1: 'VÁRAKOZIK', 2: 'KIADVA', 3: 'LEZÁRT', 4: 'TÖRÖLT' }
-  return map[status] || 'ISMERETLEN'
+// ============================================================================
+// MODAL
+// ============================================================================
+function openDetailModal(foglalas) {
+  selectedFoglalas.value = foglalas
+  modalOpen.value = true
+}
+
+function closeModal() {
+  modalOpen.value = false
+}
+
+async function handleModalAction(actionFn) {
+  await actionFn(selectedFoglalas.value)
+  closeModal()
+}
+
+// ============================================================================
+// TOAST
+// ============================================================================
+function showToast(message, type = 'success') {
+  toast.value = { show: true, message, type }
+  setTimeout(() => {
+    toast.value.show = false
+  }, 3000)
+}
+
+// ============================================================================
+// FORMÁZÁS
+// ============================================================================
+function formatDate(dateString) {
+  if (!dateString) return '-'
+  const date = new Date(dateString)
+  return new Intl.DateTimeFormat('hu-HU', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date)
 }
 
 function formatShortDate(dateString) {
@@ -448,140 +582,61 @@ function formatShortDate(dateString) {
   }).format(date)
 }
 
-function formatDate(dateString) {
-  if (!dateString) return '-'
-  const date = new Date(dateString)
-  return new Intl.DateTimeFormat('hu-HU', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(date)
+function formatAr(ar) {
+  if (!ar) return '0'
+  return new Intl.NumberFormat('hu-HU').format(Math.round(ar))
 }
 
 function formatIdo(percek) {
   if (!percek) return '-'
   const orak = Math.floor(percek / 60)
   const maradekPercek = percek % 60
-  return `${orak}ó ${maradekPercek}p`
+  if (orak === 0) return `${maradekPercek} perc`
+  return `${orak}h ${maradekPercek}m`
 }
 
-function formatAr(ar) {
-  if (!ar) return '0'
-  return new Intl.NumberFormat('hu-HU').format(ar)
-}
-
-function showToast(message, type = 'success') {
-  toast.value = { show: true, message, type }
-  setTimeout(() => { toast.value.show = false }, 3000)
-}
-
-function openDetailModal(foglalas) {
-  selectedFoglalas.value = foglalas
-  modalOpen.value = true
-  document.body.style.overflow = 'hidden'
-}
-
-function closeModal() {
-  modalOpen.value = false
-  document.body.style.overflow = ''
-}
-
-async function handleModalAction(actionFn) {
-  await actionFn(selectedFoglalas.value)
-  closeModal()
-}
-
-function openDeleteConfirm(foglalas) {
-  if (confirm(`Biztosan törölöd ezt a foglalást?\n\nEszköz: ${foglalas.eszkozNev}\nÜgyfél: ${foglalas.nev}`)) {
-    deleteFoglalas(foglalas)
+// ============================================================================
+// STÁTUSZ SEGÉDFÜGGVÉNYEK
+// ============================================================================
+function getStatusText(status) {
+  const map = {
+    Foglalva: '📌 Foglalva',
+    Kiadva: '🔧 Kiadva',
+    Lezart: '✅ Lezárt',
+    Torolt: '❌ Törölt',
   }
+  return map[status] || status
 }
 
-async function fetchFoglalasok(silent = false) {
-  if (!silent) loading.value = true
-
-  try {
-    const response = await foglalasService.getAll()
-
-    foglalasok.value = response.data.map(f => ({
-      foglalasID: f.id,
-      eszkozID: f.eszkoz?.id,
-      eszkozNev: f.eszkoz?.nev,
-      eszkozAr: f.eszkoz?.ar,
-      nev: f.felhasznalo?.nev || f.nev,
-      email: f.felhasznalo?.email || f.email,
-      telefonszam: f.felhasznalo?.telefonszam || f.telefonszam,
-      cim: f.felhasznalo?.cim || f.cim,
-      foglalasKezdete: f.kezdetDatum,
-      kiadasIdopontja: f.kiadasDatum,
-      visszahozasIdopontja: f.visszahozasDatum,
-      status: f.status,
-      bevetel: f.bevetel,
-      fizetendoOsszeg: f.fizetendoOsszeg,
-      elszamolhatoIdo: f.elszamolhatoIdo,
-      createdAt: f.createdAt,
-    }))
-  } catch (err) {
-    console.error('Foglalások betöltése sikertelen:', err)
-    if (!silent) showToast('Hiba a betöltés során', 'error')
-  } finally {
-    if (!silent) loading.value = false
+function getBadgeClass(status) {
+  const map = {
+    Foglalva: 'badge-warning',
+    Kiadva: 'badge-info',
+    Lezart: 'badge-success',
+    Torolt: 'badge-danger',
   }
+  return map[status] || ''
 }
 
-async function kiadEszkoz(foglalas) {
-  if (!confirm(`Kiadod az eszközt?\n\n${foglalas.eszkozNev}\nÜgyfél: ${foglalas.nev}`)) return
-
-  try {
-    await api.put(`/Foglalasok/${foglalas.foglalasID}/kiadas`)
-    showToast('Eszköz sikeresen kiadva!')
-    await fetchFoglalasok(true)
-  } catch (err) {
-    showToast(err.response?.data?.message || 'Hiba történt a kiadás során!', 'error')
+function getCardClass(status) {
+  const map = {
+    Foglalva: 'card-foglalva',
+    Kiadva: 'card-kiadva',
+    Lezart: 'card-lezart',
+    Torolt: 'card-torolt',
   }
+  return map[status] || ''
 }
 
-async function visszahozEszkoz(foglalas) {
-  if (!confirm(`Visszahozták az eszközt?\n\n${foglalas.eszkozNev}`)) return
-
-  try {
-    const response = await api.put(`/Foglalasok/${foglalas.foglalasID}/lezaras`)
-
-    if (response.data.fizetendoOsszeg) {
-      showToast(`Visszahozva! Fizetendő: ${formatAr(response.data.fizetendoOsszeg)} Ft`)
-    } else {
-      showToast('Eszköz sikeresen visszahozva!')
-    }
-
-    await fetchFoglalasok(true)
-  } catch (err) {
-    showToast(err.response?.data?.message || 'Hiba történt a visszahozás során!', 'error')
+function getRowClass(status) {
+  const map = {
+    Foglalva: 'row-foglalva',
+    Kiadva: 'row-kiadva',
+    Lezart: 'row-lezart',
+    Torolt: 'row-torolt',
   }
+  return map[status] || ''
 }
-
-async function deleteFoglalas(foglalas) {
-  try {
-    await foglalasService.torol(foglalas.foglalasID)
-    showToast('Foglalás törölve!')
-    await fetchFoglalasok(true)
-  } catch (err) {
-    showToast(err.response?.data?.message || 'Hiba történt a törlés során!', 'error')
-  }
-}
-
-// Lifecycle
-onMounted(() => {
-  fetchFoglalasok()
-  autoRefreshInterval = setInterval(() => fetchFoglalasok(true), 10000)
-  document.addEventListener('click', closeFilterMenu)
-})
-
-onUnmounted(() => {
-  if (autoRefreshInterval) clearInterval(autoRefreshInterval)
-  document.removeEventListener('click', closeFilterMenu)
-})
 </script>
 
 <style scoped>
@@ -677,7 +732,9 @@ onUnmounted(() => {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
@@ -953,7 +1010,7 @@ onUnmounted(() => {
   border-left-color: #9ca3af;
 }
 
-.foglalas-card.card-varakozik {
+.foglalas-card.card-Foglalva {
   border-left-color: var(--color-waiting, #f59e0b);
 }
 
@@ -1182,7 +1239,7 @@ onUnmounted(() => {
   border-left: 3px solid #9ca3af;
 }
 
-.data-table tbody tr.row-varakozik {
+.data-table tbody tr.row-Foglalva {
   border-left: 3px solid var(--color-waiting, #f59e0b);
 }
 
@@ -1297,13 +1354,23 @@ onUnmounted(() => {
 }
 
 @keyframes slideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 
 @keyframes scaleIn {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .modal-header {

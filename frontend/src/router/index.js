@@ -1,52 +1,59 @@
 // ============================================================================
-// src/router/index.js - HASH MODE + Wizard route
+// src/router/index.js - FRISSÍTETT (PWA route + standalone detection)
 // ============================================================================
 
-import { createRouter, createWebHashHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 import HomeView from '../views/HomeView.vue'
 
 const router = createRouter({
-  history: createWebHashHistory(), // HASH MODE (#/route)
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
       name: 'home',
-      component: HomeView
+      component: HomeView,
     },
     {
       path: '/admin',
       name: 'admin',
       component: () => import('../views/admin/AdminView.vue'),
-      meta: { requiresAuth: true, requiresAdmin: true }
+      meta: { requiresAuth: true, requiresAdmin: true },
     },
-    // ✨ ÚJ ROUTE - WIZARD
+    // ═══════════════════════════════════════════════════════════════════
+    // PWA ADMIN DASHBOARD - mobil értesítésvezérelt nézet
+    // Standalone (telepített) PWA módban automatikusan ide irányít
+    // ═══════════════════════════════════════════════════════════════════
     {
-      path: '/admin/eszkoz/uj',
-      name: 'UjEszkoz',
-      component: () => import('../components/admin/AdminEszkozWizard.vue'),
-      meta: { requiresAuth: true, requiresAdmin: true }
-    },
-    {
-      path: '/admin-pwa',
-      name: 'admin-pwa',
-      component: () => import('../views/admin/AdminPwaView.vue'),
-      meta: { requiresAuth: true, requiresAdmin: true, isPwa: true }
+      path: '/pwa',
+      name: 'pwa',
+      component: () => import('../components/admin/AdminPwaDashboard.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true, isPwa: true },
     },
     {
       path: '/profil',
       name: 'profil',
       component: () => import('../views/ProfilView.vue'),
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true },
     },
     {
       path: '/profilom',
       name: 'profilom',
       component: () => import('../views/ProfilomView.vue'),
-      meta: { requiresAuth: true }
-    }
-  ]
+      meta: { requiresAuth: true },
+    },
+  ],
 })
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STANDALONE DETECTION
+// Telepített PWA-ból indítva → ha admin → /pwa-ra irányít
+// ═══════════════════════════════════════════════════════════════════════════
+function isStandalonePwa() {
+  return (
+    window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true // iOS Safari
+  )
+}
 
 // Route guard
 router.beforeEach(async (to, from, next) => {
@@ -54,7 +61,7 @@ router.beforeEach(async (to, from, next) => {
 
   // Várjuk meg az auth inicializálást
   if (authStore.loading) {
-    await new Promise(resolve => {
+    await new Promise((resolve) => {
       const checkInterval = setInterval(() => {
         if (!authStore.loading) {
           clearInterval(checkInterval)
@@ -62,6 +69,14 @@ router.beforeEach(async (to, from, next) => {
         }
       }, 50)
     })
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // STANDALONE PWA AUTO-REDIRECT
+  // Ha standalone módban fut + admin + a főoldalra navigál → /pwa
+  // ═══════════════════════════════════════════════════════════════════
+  if (isStandalonePwa() && authStore.isAuthenticated && authStore.isAdmin && to.name === 'home') {
+    return next({ name: 'pwa' })
   }
 
   // Védett route ellenőrzés

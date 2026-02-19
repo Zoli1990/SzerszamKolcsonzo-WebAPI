@@ -3,7 +3,6 @@
     <Transition name="modal">
       <div v-if="isOpen" class="modal-overlay" @click="handleOverlayClick">
         <div class="modal-container" :class="{ 'is-submitting': submitting }" @click.stop>
-          
           <!-- ═══════════════════════════════════════════════════════════════ -->
           <!-- HEADER -->
           <!-- ═══════════════════════════════════════════════════════════════ -->
@@ -37,7 +36,6 @@
           <!-- FORM -->
           <!-- ═══════════════════════════════════════════════════════════════ -->
           <form @submit.prevent="handleSubmit" class="foglalas-form">
-            
             <!-- Kapcsolattartó adatok -->
             <div class="form-section">
               <h4 class="section-title">
@@ -124,17 +122,14 @@
                 </button>
               </div>
 
-
-
               <!-- Idő választó -->
               <div class="time-selector">
-
                 <label class="time-label">Időpont *</label>
 
                 <div class="time-row">
                   <!-- Óra -->
-                  <select 
-                    v-model="selectedHour" 
+                  <select
+                    v-model="selectedHour"
                     class="time-select"
                     :disabled="submitting"
                     @change="updateFormTime"
@@ -160,8 +155,6 @@
                 </div>
               </div>
 
-              
-
               <!-- Időpont előnézet -->
               <div class="time-preview">
                 <span class="preview-icon">✅</span>
@@ -169,7 +162,8 @@
               </div>
 
               <p class="form-hint">
-                💡 Az eszközt a megadott időpontban kell átvenni. 15 percen belül meg kell jelenni, különben a foglalás törlődik.
+                💡 Az eszközt a megadott időpontban kell átvenni. 15 percen belül meg kell jelenni,
+                különben a foglalás törlődik.
               </p>
             </div>
 
@@ -183,26 +177,20 @@
             <!-- FOOTER / GOMBOK -->
             <!-- ═══════════════════════════════════════════════════════════════ -->
             <div class="modal-footer">
-              <button 
-                type="button" 
-                class="btn-secondary" 
+              <button
+                type="button"
+                class="btn-secondary"
                 @click="handleClose"
                 :disabled="submitting"
               >
                 Mégse
               </button>
-              <button 
-                type="submit" 
-                class="btn-primary"
-                :disabled="submitting || !isFormValid"
-              >
+              <button type="submit" class="btn-primary" :disabled="submitting || !isFormValid">
                 <span v-if="submitting" class="btn-loading">
                   <span class="spinner"></span>
                   Feldolgozás...
                 </span>
-                <span v-else>
-                  📅 Foglalás véglegesítése
-                </span>
+                <span v-else> 📅 Foglalás véglegesítése </span>
               </button>
             </div>
           </form>
@@ -216,16 +204,17 @@
 import { ref, computed, watch, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
 import { foglalasService } from '@/services/foglalasService'
+import { BASE_URL } from '@/services/api'
 
 const props = defineProps({
   isOpen: {
     type: Boolean,
-    default: false
+    default: false,
   },
   eszkoz: {
     type: Object,
-    default: null
-  }
+    default: null,
+  },
 })
 
 const emit = defineEmits(['close', 'success'])
@@ -246,7 +235,7 @@ const form = ref({
   telefonszam: '',
   cim: '',
   datum: '',
-  ido: ''
+  ido: '',
 })
 
 // Computed
@@ -265,11 +254,11 @@ const maxDate = computed(() => {
 const availableDays = computed(() => {
   const days = []
   const today = new Date()
-  
+
   for (let i = 0; i < 8; i++) {
     const date = new Date(today.getTime() + i * 24 * 60 * 60 * 1000)
     const dateStr = date.toISOString().split('T')[0]
-    
+
     let label = ''
     if (i === 0) label = 'Ma'
     else if (i === 1) label = 'Holnap'
@@ -277,12 +266,12 @@ const availableDays = computed(() => {
       const dayNames = ['Vasárnap', 'Hétfő', 'Kedd', 'Szerda', 'Csütörtök', 'Péntek', 'Szombat']
       label = dayNames[date.getDay()]
     }
-    
+
     const display = `${date.getMonth() + 1}/${date.getDate()}`
-    
+
     days.push({ value: dateStr, label, display })
   }
-  
+
   return days
 })
 
@@ -298,41 +287,59 @@ const availableHours = computed(() => {
 // Időpont előnézet
 const timePreview = computed(() => {
   if (!selectedDate.value) return 'Válassz dátumot'
-  
+
   const date = new Date(selectedDate.value)
-  const dayLabel = availableDays.value.find(d => d.value === selectedDate.value)?.label || ''
-  const monthNames = ['jan', 'febr', 'márc', 'ápr', 'máj', 'jún', 'júl', 'aug', 'szept', 'okt', 'nov', 'dec']
-  
+  const dayLabel = availableDays.value.find((d) => d.value === selectedDate.value)?.label || ''
+  const monthNames = [
+    'jan',
+    'febr',
+    'márc',
+    'ápr',
+    'máj',
+    'jún',
+    'júl',
+    'aug',
+    'szept',
+    'okt',
+    'nov',
+    'dec',
+  ]
+
   return `${dayLabel}, ${monthNames[date.getMonth()]} ${date.getDate()}. - ${String(selectedHour.value).padStart(2, '0')}:${String(selectedMinute.value).padStart(2, '0')}`
 })
 
 const eszkozImageUrl = computed(() => {
   if (props.eszkoz?.kepUrl) {
-    return props.eszkoz.kepUrl
+    if (props.eszkoz.kepUrl.startsWith('http')) return props.eszkoz.kepUrl
+    return `${BASE_URL}${props.eszkoz.kepUrl}`
   }
   return 'https://images.unsplash.com/photo-1572981779307-38b8cabb2407?w=400&q=80'
 })
 
 const isFormValid = computed(() => {
-  return form.value.nev && 
-         form.value.email && 
-         form.value.telefonszam && 
-         form.value.cim &&
-         form.value.datum &&
-         form.value.ido
+  return (
+    form.value.nev &&
+    form.value.email &&
+    form.value.telefonszam &&
+    form.value.cim &&
+    form.value.datum &&
+    form.value.ido
+  )
 })
 
 // Watchers
-watch(() => props.isOpen, async (newVal) => {
-  if (newVal) {
-    resetForm()
-    await prefillFromAuth()
-    document.body.style.overflow = 'hidden'
-  } else {
-    document.body.style.overflow = ''
-  }
-})
-
+watch(
+  () => props.isOpen,
+  async (newVal) => {
+    if (newVal) {
+      resetForm()
+      await prefillFromAuth()
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+  },
+)
 
 onMounted(async () => {
   if (props.isOpen) {
@@ -345,20 +352,20 @@ function resetForm() {
   // Alapértelmezett idő (ma + 1 óra)
   const now = new Date()
   const defaultHour = Math.min(now.getHours() + 1, 20)
-  
+
   selectedDate.value = minDate.value
   selectedHour.value = defaultHour
   selectedMinute.value = 0
-  
+
   updateFormTime()
-  
+
   form.value = {
     nev: '',
     email: '',
     telefonszam: '',
     cim: '',
     datum: selectedDate.value,
-    ido: `${String(selectedHour.value).padStart(2, '0')}:${String(selectedMinute.value).padStart(2, '0')}`
+    ido: `${String(selectedHour.value).padStart(2, '0')}:${String(selectedMinute.value).padStart(2, '0')}`,
   }
   error.value = null
 }
@@ -389,7 +396,7 @@ function getDefaultTime() {
 async function prefillFromAuth() {
   if (authStore.isAuthenticated) {
     let profile = authStore.userProfile
-    
+
     // Ha a profil üres, töltsük le a szerverről
     if (profile && (!profile.nev || !profile.cim)) {
       try {
@@ -399,7 +406,7 @@ async function prefillFromAuth() {
         console.error('Failed to fetch profile:', error)
       }
     }
-    
+
     if (profile) {
       form.value.nev = profile.nev || ''
       form.value.email = authStore.userEmail || ''
@@ -408,7 +415,6 @@ async function prefillFromAuth() {
     }
   }
 }
-
 
 function handleOverlayClick() {
   if (!submitting.value) {
@@ -442,7 +448,7 @@ async function handleSubmit() {
       email: form.value.email.trim().toLowerCase(),
       telefonszam: form.value.telefonszam.trim(),
       cim: form.value.cim.trim(),
-      foglalasKezdete: foglalasKezdete.toISOString()
+      foglalasKezdete: foglalasKezdete.toISOString(),
     }
 
     const response = await foglalasService.create(payload)
@@ -451,14 +457,13 @@ async function handleSubmit() {
     emit('success', {
       foglalasID: response.data.foglalasID,
       eszkoz: props.eszkoz.nev,
-      kezdet: foglalasKezdete
+      kezdet: foglalasKezdete,
     })
 
     handleClose()
-
   } catch (err) {
     console.error('Foglalás hiba:', err)
-    
+
     if (err.response?.data?.message) {
       error.value = err.response.data.message
     } else if (err.response?.data?.errors) {
@@ -626,7 +631,7 @@ function formatAr(ar) {
     align-items: center;
     justify-content: center;
   }
-  
+
   .btn-close:hover {
     background: var(--color-background);
     color: var(--color-text);
@@ -804,7 +809,6 @@ function formatAr(ar) {
   align-items: center;
 }
 
-
 .date-selector {
   display: grid;
   grid-template-columns: repeat(4, 1fr); /* Fix 4 oszlop */
@@ -898,12 +902,12 @@ function formatAr(ar) {
 
 /* ÓRA VÁLASZTÓ - Egyesített megjelenítés */
 .time-select {
-  width: 80px;              /* ugyanaz, mint a perc gomb */
-  height: 56px;             /* egyezzen meg a perc gomb magasságával */
+  width: 80px; /* ugyanaz, mint a perc gomb */
+  height: 56px; /* egyezzen meg a perc gomb magasságával */
 
   display: flex;
   align-items: center;
-  justify-content: center;  /* szám TÉNYLEG középen */
+  justify-content: center; /* szám TÉNYLEG középen */
 
   padding: 0;
   border: 2px solid var(--color-border);
@@ -924,7 +928,6 @@ function formatAr(ar) {
   background-repeat: no-repeat;
   background-position: right 8px center;
 }
-
 
 .time-select:focus {
   outline: none;
@@ -1007,11 +1010,11 @@ function formatAr(ar) {
   .date-selector {
     gap: 8px;
   }
-  
+
   .time-selector {
     gap: 16px;
   }
-  
+
   .minute-buttons {
     gap: 8px;
   }
@@ -1121,7 +1124,9 @@ function formatAr(ar) {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════ */
@@ -1155,7 +1160,7 @@ function formatAr(ar) {
   .modal-enter-from .modal-container {
     transform: scale(0.95);
   }
-  
+
   .modal-leave-to .modal-container {
     transform: scale(0.95);
   }
