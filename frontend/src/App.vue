@@ -140,24 +140,6 @@
             🔨 Eszközök
           </a>
 
-          <a
-            href="#velemenyek"
-            class="mobile-menu-item"
-            data-testid="mobile-menu-velemenyek"
-            @click.prevent="scrollToVelemenyek"
-          >
-            💬 Vélemények
-          </a>
-
-          <a
-            href="#kapcsolat"
-            class="mobile-menu-item"
-            data-testid="mobile-menu-kapcsolat"
-            @click.prevent="scrollToKapcsolat"
-          >
-            📍 Kapcsolat
-          </a>
-
           <RouterLink
             v-if="authStore.isAdmin"
             to="/admin"
