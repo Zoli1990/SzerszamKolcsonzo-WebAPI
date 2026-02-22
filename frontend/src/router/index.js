@@ -6,7 +6,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 import HomeView from '../views/HomeView.vue'
 
-
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -14,7 +13,7 @@ const router = createRouter({
       path: '/admin/eszkoz/uj',
       name: 'eszkoz-uj',
       component: () => import('../components/admin/AdminEszkozWizard.vue'),
-      meta: { requiresAuth: true, requiresAdmin: true }
+      meta: { requiresAuth: true, requiresAdmin: true },
     },
     {
       path: '/',
@@ -48,7 +47,6 @@ const router = createRouter({
       name: 'profilom',
       component: () => import('../views/ProfilomView.vue'),
       meta: { requiresAuth: true },
-      
     },
   ],
 })

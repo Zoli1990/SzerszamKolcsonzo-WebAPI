@@ -3,7 +3,49 @@
 <!-- ============================================================================ -->
 
 <template>
-  <div class="pwa-dashboard">
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!-- PWA LOGIN SCREEN — ha nincs bejelentkezve -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <div v-if="!isLoggedIn" class="pwa-login">
+    <div class="login-card">
+      <div class="login-header">
+        <span class="login-icon">🔧</span>
+        <h1>Szerszámkölcsönző</h1>
+        <p class="login-subtitle">Admin PWA</p>
+      </div>
+      <form @submit.prevent="handleLogin" class="login-form">
+        <div class="form-group">
+          <label>Email</label>
+          <input
+            v-model="loginForm.email"
+            type="email"
+            placeholder="admin@email.com"
+            required
+            autocomplete="email"
+          />
+        </div>
+        <div class="form-group">
+          <label>Jelszó</label>
+          <input
+            v-model="loginForm.password"
+            type="password"
+            placeholder="••••••••"
+            required
+            autocomplete="current-password"
+          />
+        </div>
+        <div v-if="loginError" class="login-error">{{ loginError }}</div>
+        <button type="submit" class="btn-pwa-login" :disabled="loginLoading">
+          {{ loginLoading ? '⏳ Bejelentkezés...' : '🔐 Bejelentkezés' }}
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <!-- PWA DASHBOARD — bejelentkezve -->
+  <!-- ═══════════════════════════════════════════════════════════════════ -->
+  <div v-else class="pwa-dashboard">
     <!-- ═══════════════════════════════════════════════════════════════════ -->
     <!-- PWA TELEPÍTÉS BANNER -->
     <!-- ═══════════════════════════════════════════════════════════════════ -->
@@ -37,6 +79,7 @@
             {{ isRefreshing ? '🔄' : '●' }}
           </span>
           <button class="btn-refresh-mini" @click="fetchFoglalasok" :disabled="loading">🔄</button>
+          <button class="btn-refresh-mini btn-pwa-logout" @click="handleLogout">🚪</button>
         </div>
       </div>
 
@@ -214,6 +257,9 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import api from '@/services/api'
+import { useAuthStore } from '@/stores/authStore'
+
+const authStore = useAuthStore()
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -222,6 +268,55 @@ import api from '@/services/api'
 const foglalasok = ref([])
 const loading = ref(false)
 const isRefreshing = ref(false)
+
+// PWA Login
+const loginForm = ref({ email: '', password: '' })
+const loginLoading = ref(false)
+const loginError = ref(null)
+
+const isLoggedIn = computed(() => {
+  return authStore.isAuthenticated && authStore.isAdmin
+})
+
+async function handleLogin() {
+  loginLoading.value = true
+  loginError.value = null
+  try {
+    await authStore.signIn(loginForm.value.email, loginForm.value.password)
+    if (!authStore.isAdmin) {
+      loginError.value = 'Csak admin felhasználók léphetnek be!'
+      authStore.signOut()
+      return
+    }
+    // Sikeres → dashboard betöltés indítása
+    startDashboard()
+  } catch (err) {
+    loginError.value = err.response?.data?.message || 'Hibás email vagy jelszó!'
+  } finally {
+    loginLoading.value = false
+  }
+}
+
+function handleLogout() {
+  if (confirm('Biztosan kijelentkezel a PWA-ból?')) {
+    authStore.signOut()
+    stopDashboard()
+  }
+}
+
+function startDashboard() {
+  fetchFoglalasok()
+  autoRefreshInterval = setInterval(() => fetchFoglalasok(true), 10000)
+  elapsedTimeInterval = setInterval(() => {
+    foglalasok.value = [...foglalasok.value]
+  }, 60000)
+}
+
+function stopDashboard() {
+  clearInterval(autoRefreshInterval)
+  clearInterval(elapsedTimeInterval)
+  clearInterval(titleFlashInterval)
+}
 
 // PWA Install
 const showInstallBanner = ref(false)
@@ -509,15 +604,10 @@ async function handleVisszahozva(foglalas) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 onMounted(() => {
-  fetchFoglalasok()
-
-  // Auto-refresh: 10 másodpercenként
-  autoRefreshInterval = setInterval(() => fetchFoglalasok(true), 10000)
-
-  // Eltelt idő frissítése: 1 percenként
-  elapsedTimeInterval = setInterval(() => {
-    foglalasok.value = [...foglalasok.value]
-  }, 60000)
+  // Csak ha be van jelentkezve
+  if (isLoggedIn.value) {
+    startDashboard()
+  }
 
   // PWA install prompt
   window.addEventListener('beforeinstallprompt', onBeforeInstallPrompt)
@@ -528,9 +618,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  clearInterval(autoRefreshInterval)
-  clearInterval(elapsedTimeInterval)
-  clearInterval(titleFlashInterval)
+  stopDashboard()
   window.removeEventListener('beforeinstallprompt', onBeforeInstallPrompt)
 })
 </script>
@@ -1305,5 +1393,116 @@ onUnmounted(() => {
   .banner-leave-active {
     transition: none !important;
   }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════ */
+/* PWA LOGIN SCREEN                                                          */
+/* ═══════════════════════════════════════════════════════════════════════════ */
+
+.pwa-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #3d2f1f 0%, #6b5d4f 100%);
+}
+
+.login-card {
+  background: white;
+  border-radius: 20px;
+  padding: 40px 32px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.login-icon {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.login-header h1 {
+  font-size: 22px;
+  color: #3d2f1f;
+  margin: 0 0 4px 0;
+}
+
+.login-subtitle {
+  color: #6b5d4f;
+  font-size: 14px;
+  margin: 0;
+}
+
+.login-form .form-group {
+  margin-bottom: 20px;
+}
+
+.login-form label {
+  display: block;
+  font-weight: 600;
+  font-size: 14px;
+  color: #3d2f1f;
+  margin-bottom: 6px;
+}
+
+.login-form input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid #e8dcc8;
+  border-radius: 10px;
+  font-size: 16px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.login-form input:focus {
+  outline: none;
+  border-color: #6b8e23;
+}
+
+.login-error {
+  padding: 12px;
+  background: #fef2f2;
+  border: 2px solid #fecaca;
+  border-radius: 10px;
+  color: #dc2626;
+  font-size: 14px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.btn-pwa-login {
+  width: 100%;
+  padding: 16px;
+  background: #6b8e23;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  min-height: 52px;
+  transition: background 0.2s;
+}
+
+.btn-pwa-login:hover:not(:disabled) {
+  background: #556b1a;
+}
+
+.btn-pwa-login:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-pwa-logout {
+  background: #fef2f2 !important;
 }
 </style>
