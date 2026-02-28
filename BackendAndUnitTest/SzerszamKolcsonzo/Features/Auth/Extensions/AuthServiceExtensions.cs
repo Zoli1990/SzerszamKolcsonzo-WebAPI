@@ -4,11 +4,9 @@
 
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using SzerszamKolcsonzo.Features.Auth.Data;
 using SzerszamKolcsonzo.Features.Auth.Services;
 
 namespace SzerszamKolcsonzo.Features.Auth.Extensions
@@ -17,12 +15,6 @@ namespace SzerszamKolcsonzo.Features.Auth.Extensions
     {
         public static IServiceCollection AddAuthModule(this IServiceCollection services, IConfiguration configuration)
         {
-            // AuthDbContext
-            services.AddDbContext<AuthDbContext>(options =>
-            {
-                var connectionString = configuration.GetConnectionString("AuthConnection");
-                options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
-            });
 
             // Auth service
             services.AddScoped<IAuthService, AuthService>();
@@ -51,22 +43,6 @@ namespace SzerszamKolcsonzo.Features.Auth.Extensions
             });
 
             return services;
-        }
-
-        public static async Task MigrateAuthDatabaseAsync(this WebApplication app)
-        {
-            using var scope = app.Services.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
-
-            try
-            {
-                await context.Database.MigrateAsync();
-                Console.WriteLine("✅ Auth adatbázis migrációja sikeres!");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"❌ Auth migrációs hiba: {ex.Message}");
-            }
         }
     }
 }
