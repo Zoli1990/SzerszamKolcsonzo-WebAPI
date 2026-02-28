@@ -1,9 +1,40 @@
 // ============================================================================
-// src/services/authService.js - JAVÍTOTT (Összes profil mezővel)
+// src/services/authService.js - PWA KÜLÖN AUTH TÁMOGATÁS
+// ============================================================================
+//
+// A PWA (standalone mód) és a böngésző KÜLÖN localStorage kulcsokat használ:
+//   - Böngésző: auth_token, auth_user
+//   - PWA:      pwa_auth_token, pwa_auth_user
+//
+// Így a böngészős kijelentkezés NEM törli a PWA tokent és fordítva.
 // ============================================================================
 
 import api from './api'
 
+// ═══════════════════════════════════════════════════════════════════════════
+// STANDALONE DETECTION — egyszer futtatva, cache-elve
+// ═══════════════════════════════════════════════════════════════════════════
+const _isStandalone =
+  window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true // iOS Safari
+
+function isStandalonePwa() {
+  return _isStandalone
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STORAGE KULCSOK — PWA vs böngésző
+// ═══════════════════════════════════════════════════════════════════════════
+function getTokenKey() {
+  return isStandalonePwa() ? 'pwa_auth_token' : 'auth_token'
+}
+
+function getUserKey() {
+  return isStandalonePwa() ? 'pwa_auth_user' : 'auth_user'
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// AUTH SERVICE
+// ═══════════════════════════════════════════════════════════════════════════
 export const authService = {
   /**
    * Bejelentkezés
@@ -17,18 +48,17 @@ export const authService = {
    * Regisztráció kibővített cím mezőkkel
    */
   async register(email, password, iranyitoszam, telepules, utca, hazszam, telefonszam) {
-    // Teljes cím összeállítása
     const cim = `${iranyitoszam} ${telepules}, ${utca} ${hazszam}`.trim()
-    
-    const response = await api.post('/auth/register', { 
-      email, 
+
+    const response = await api.post('/auth/register', {
+      email,
       password,
       iranyitoszam,
       telepules,
       utca,
       hazszam,
       telefonszam,
-      cim
+      cim,
     })
     return response.data
   },
@@ -50,38 +80,38 @@ export const authService = {
   },
 
   /**
-   * Token tárolás
+   * Token tárolás — PWA vs böngésző külön kulcs
    */
   saveToken(token) {
-    localStorage.setItem('auth_token', token)
+    localStorage.setItem(getTokenKey(), token)
   },
 
   /**
    * Token lekérés
    */
   getToken() {
-    return localStorage.getItem('auth_token')
+    return localStorage.getItem(getTokenKey())
   },
 
   /**
-   * Token törlés
+   * Token törlés — CSAK a saját kontextusét törli
    */
   removeToken() {
-    localStorage.removeItem('auth_token')
+    localStorage.removeItem(getTokenKey())
   },
 
   /**
    * User adatok tárolás
    */
   saveUser(user) {
-    localStorage.setItem('auth_user', JSON.stringify(user))
+    localStorage.setItem(getUserKey(), JSON.stringify(user))
   },
 
   /**
    * User adatok lekérés
    */
   getUser() {
-    const userData = localStorage.getItem('auth_user')
+    const userData = localStorage.getItem(getUserKey())
     return userData ? JSON.parse(userData) : null
   },
 
@@ -89,6 +119,13 @@ export const authService = {
    * User adatok törlés
    */
   removeUser() {
-    localStorage.removeItem('auth_user')
-  }
+    localStorage.removeItem(getUserKey())
+  },
+
+  /**
+   * Standalone PWA mód lekérdezés (más komponensekből is használható)
+   */
+  isStandalonePwa() {
+    return isStandalonePwa()
+  },
 }

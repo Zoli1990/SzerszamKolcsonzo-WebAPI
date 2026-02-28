@@ -185,11 +185,19 @@
               >
                 Mégse
               </button>
-              <button type="submit" class="btn-primary" :disabled="submitting || !isFormValid">
+              <!-- Foglalás véglegesítése gomb-->
+              <button
+                id="foglalas-veglegesitese"
+                type="submit"
+                class="btn-primary"
+                :disabled="submitting || !isFormValid || foglalasSuccess"
+                :class="{ 'btn-success': foglalasSuccess }"
+              >
                 <span v-if="submitting" class="btn-loading">
                   <span class="spinner"></span>
                   Feldolgozás...
                 </span>
+                <span v-else-if="foglalasSuccess"> ✅ Foglalva </span>
                 <span v-else> 📅 Foglalás véglegesítése </span>
               </button>
             </div>
@@ -222,6 +230,7 @@ const emit = defineEmits(['close', 'success'])
 const authStore = useAuthStore()
 const submitting = ref(false)
 const error = ref(null)
+const foglalasSuccess = ref(false)
 
 // Új state változók az időpont választóhoz
 const selectedDate = ref('')
@@ -423,6 +432,7 @@ function handleOverlayClick() {
 }
 
 function handleClose() {
+  foglalasSuccess.value = false
   if (!submitting.value) {
     emit('close')
   }
@@ -439,7 +449,6 @@ async function handleSubmit() {
   error.value = null
 
   try {
-    // Dátum és idő összeállítása
     const foglalasKezdete = new Date(`${form.value.datum}T${form.value.ido}:00`)
 
     const payload = {
@@ -460,7 +469,11 @@ async function handleSubmit() {
       kezdet: foglalasKezdete,
     })
 
-    handleClose()
+    // Gomb átváltása + auto-close
+    foglalasSuccess.value = true
+    setTimeout(() => {
+      handleClose()
+    }, 5000)
   } catch (err) {
     console.error('Foglalás hiba:', err)
 

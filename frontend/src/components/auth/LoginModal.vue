@@ -112,7 +112,7 @@
             </template>
 
             <!-- Hibaüzenet -->
-            <div v-if="error" class="error-message">
+            <div id="login-error" v-if="error" class="error-message">
               {{ error }}
             </div>
 

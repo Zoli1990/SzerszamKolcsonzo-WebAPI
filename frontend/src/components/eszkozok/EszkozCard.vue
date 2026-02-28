@@ -45,10 +45,10 @@ const isElerheto = computed(() => props.eszkoz.status === 'Elerheto')
 
 const statusText = computed(() => {
   const map = {
-    'Elerheto': 'Elérhető',
-    'Foglalva': 'Foglalva',
-    'Kiadva': 'Kiadva',
-    'Kivonva': 'Nem elérhető'
+    Elerheto: 'Elérhető',
+    Foglalva: 'Foglalva',
+    Kiadva: 'Kiadva',
+    Kivonva: 'Nem elérhető',
   }
   return map[props.eszkoz.status] || props.eszkoz.status
 })
@@ -66,9 +66,13 @@ const truncatedLeiras = computed(() => {
 
 const imageUrl = computed(() => {
   if (props.eszkoz.kepUrl) {
+    if (props.eszkoz.kepUrl.startsWith('/')) {
+      const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5265/api'
+      return apiBase.replace(/\/api\/?$/, '') + props.eszkoz.kepUrl
+    }
     return props.eszkoz.kepUrl
   }
-  return `https://images.unsplash.com/photo-1572981779307-38b8cabb2407?w=400&q=80`
+  return 'https://images.unsplash.com/photo-1572981779307-38b8cabb2407?w=400&q=80'
 })
 
 function handleImageError(e) {
@@ -86,7 +90,9 @@ function formatAr(ar) {
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(61, 47, 31, 0.1);
   overflow: hidden;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
   cursor: pointer;
   /* Teljes kártya kattintható mobilon */
 }
