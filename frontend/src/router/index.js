@@ -10,6 +10,18 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
+      path: '/profil',
+      name: 'profil',
+      component: () => import('../views/ProfilView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/profilom',
+      name: 'profilom',
+      component: () => import('../views/ProfilomView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/admin/eszkoz/uj',
       name: 'eszkoz-uj',
       component: () => import('../components/admin/AdminEszkozWizard.vue'),
@@ -26,27 +38,41 @@ const router = createRouter({
       component: () => import('../views/admin/AdminView.vue'),
       meta: { requiresAuth: true, requiresAdmin: true },
     },
+
     // ═══════════════════════════════════════════════════════════════════
-    // PWA ADMIN DASHBOARD - mobil értesítésvezérelt nézet
-    // Standalone (telepített) PWA módban automatikusan ide irányít
+    // PWA ADMIN — önálló mobil alkalmazás saját navigációval
     // ═══════════════════════════════════════════════════════════════════
     {
       path: '/pwa',
-      name: 'pwa',
-      component: () => import('../components/admin/AdminPwaDashboard.vue'),
-      meta: { requiresAuth: true, requiresAdmin: true, isPwa: true },
-    },
-    {
-      path: '/profil',
-      name: 'profil',
-      component: () => import('../views/ProfilView.vue'),
-      meta: { requiresAuth: true },
-    },
-    {
-      path: '/profilom',
-      name: 'profilom',
-      component: () => import('../views/ProfilomView.vue'),
-      meta: { requiresAuth: true },
+      component: () => import('../components/pwa/PwaShell.vue'),
+      meta: { isPwa: true },
+      children: [
+        {
+          path: '',
+          name: 'pwa-dashboard',
+          component: () => import('../components/pwa/PwaDashboard.vue'),
+        },
+        {
+          path: 'foglalasok',
+          name: 'pwa-foglalasok',
+          component: () => import('../components/pwa/PwaFoglalasok.vue'),
+        },
+        {
+          path: 'eszkozok',
+          name: 'pwa-eszkozok',
+          component: () => import('../components/pwa/PwaEszkozok.vue'),
+        },
+        {
+          path: 'eszkozok/uj',
+          name: 'pwa-eszkoz-uj',
+          component: () => import('../components/admin/AdminEszkozWizard.vue'),
+        },
+        {
+          path: 'kategoriak',
+          name: 'pwa-kategoriak',
+          component: () => import('../components/pwa/PwaKategoriak.vue'),
+        },
+      ],
     },
   ],
 })
@@ -82,7 +108,7 @@ router.beforeEach(async (to, from, next) => {
   // Ha standalone módban fut + admin + a főoldalra navigál → /pwa
   // ═══════════════════════════════════════════════════════════════════
   if (isStandalonePwa() && authStore.isAuthenticated && authStore.isAdmin && to.name === 'home') {
-    return next({ name: 'pwa' })
+    return next({ name: 'pwa-dashboard' })
   }
 
   // Védett route ellenőrzés

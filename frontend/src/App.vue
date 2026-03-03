@@ -1,7 +1,7 @@
 <template>
   <div id="app" :class="{ 'has-bottom-nav': showBottomNav }">
     <!-- HEADER: PWA route-on NEM jelenik meg -->
-    <header v-if="!isPwaRoute" class="app-header" data-testid="app-header">
+    <header v-if="!isPwa" class="app-header">
       <div class="header-container">
         <!-- Logo -->
         <RouterLink to="/" class="logo" id="logo-link" data-testid="logo-link">
@@ -199,14 +199,14 @@
     </main>
 
     <!-- FOOTER: PWA route-on NEM jelenik meg -->
-    <footer v-if="!isPwaRoute" class="app-footer" data-testid="app-footer">
+    <footer v-if="!isPwa" class="app-footer">
       <div class="footer-container">
         <p>&copy; 2025 Szerszámkölcsönző - Vizsgamunka</p>
       </div>
     </footer>
 
-    <!-- LOGIN MODAL -->
     <LoginModal
+      v-if="!isPwa"
       id="login-modal"
       :is-open="loginModalOpen"
       data-testid="login-modal"
@@ -235,6 +235,8 @@ const mobileMenuOpen = ref(false)
 const windowWidth = ref(window.innerWidth)
 
 // Computed
+const isPwa = computed(() => route.meta?.isPwa === true)
+
 const isMobile = computed(() => windowWidth.value < 768)
 
 const showBottomNav = computed(() => {
