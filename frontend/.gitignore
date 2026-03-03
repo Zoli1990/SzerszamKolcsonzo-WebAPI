@@ -26,6 +26,10 @@ coverage
 *.njsproj
 *.sln
 *.sw?
+.vs/
+*.testlog
+*.futdcache*
+**/CopilotIndices/**
 
 *.tsbuildinfo
 
