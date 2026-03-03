@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SzerszamKolcsonzo.Features.Auth.Models;
 using SzerszamKolcsonzo.Features.Push.Models;
 using SzerszamKolcsonzo.Models;
 
@@ -14,10 +15,22 @@ namespace SzerszamKolcsonzo.Data
         public DbSet<Eszkoz> Eszkozok { get; set; }
         public DbSet<Foglalas> Foglalasok { get; set; }
         public DbSet<PushSubscription> PushSubscriptions { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // User konfiguráció (átkerült az AuthDbContext-ből)
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasIndex(e => e.Email).IsUnique();
+                entity.Property(u => u.Iranyitoszam).HasMaxLength(4);
+                entity.Property(u => u.Telepules).HasMaxLength(100);
+                entity.Property(u => u.Utca).HasMaxLength(150);
+                entity.Property(u => u.Hazszam).HasMaxLength(20);
+                entity.Property(u => u.Cim).HasMaxLength(300);
+            });
 
             // Kategoria konfiguráció
             modelBuilder.Entity<Kategoria>(entity =>

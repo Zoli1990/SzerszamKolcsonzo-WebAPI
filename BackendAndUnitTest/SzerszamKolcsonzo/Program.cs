@@ -161,12 +161,8 @@ using (var scope = app.Services.CreateScope())
             {
                 setupLogger.LogWarning("╔══════════════════════════════════════════════════╗");
                 setupLogger.LogWarning("║  ⚠️  RECREATE_DB=true AKTÍV                      ║");
-                setupLogger.LogWarning("║  Mindkét adatbázis TÖRLÉSE és ÚJRALÉTREHOZÁSA!   ║");
+                setupLogger.LogWarning("║  Adatbázis TÖRLÉSE és ÚJRALÉTREHOZÁSA!   ║");
                 setupLogger.LogWarning("╚══════════════════════════════════════════════════╝");
-
-                var authCtxDev = services.GetRequiredService<SzerszamKolcsonzo.Features.Auth.Data.AuthDbContext>();
-                await authCtxDev.Database.EnsureDeletedAsync();
-                setupLogger.LogWarning("  🗑️  Auth adatbázis törölve");
 
                 var appCtxDev = services.GetRequiredService<AppDbContext>();
                 await appCtxDev.Database.EnsureDeletedAsync();
@@ -184,13 +180,6 @@ using (var scope = app.Services.CreateScope())
         // Ha már létezik → nem nyúl hozzá
         // ─────────────────────────────────────────────────────────────────
 
-        // AUTH ADATBÁZIS
-        setupLogger.LogInformation("🗄️  Auth adatbázis...");
-        var authContext = services.GetRequiredService<SzerszamKolcsonzo.Features.Auth.Data.AuthDbContext>();
-        var authCreated = await authContext.Database.EnsureCreatedAsync();
-        setupLogger.LogInformation(authCreated
-            ? "  ✅ Auth adatbázis LÉTREHOZVA (seed adatokkal)"
-            : "  ✅ Auth adatbázis már létezik");
 
         // APP ADATBÁZIS
         setupLogger.LogInformation("🗄️  Szerszámkölcsönző adatbázis...");
@@ -200,11 +189,58 @@ using (var scope = app.Services.CreateScope())
             ? "  ✅ App adatbázis LÉTREHOZVA (seed adatokkal)"
             : "  ✅ App adatbázis már létezik");
 
-        // KAPCSOLAT TESZT
-        var canConnectAuth = await authContext.Database.CanConnectAsync();
+        // Hiányzó táblák létrehozása ha szükséges
+        await appContext.Database.ExecuteSqlRawAsync(@"
+    CREATE TABLE IF NOT EXISTS Users (
+        UserId INT AUTO_INCREMENT PRIMARY KEY,
+        Email VARCHAR(255) NOT NULL UNIQUE,
+        PasswordHash LONGTEXT NOT NULL,
+        Role VARCHAR(50) NOT NULL DEFAULT 'User',
+        Iranyitoszam VARCHAR(4),
+        Telepules VARCHAR(100),
+        Utca VARCHAR(150),
+        Hazszam VARCHAR(20),
+        Telefonszam VARCHAR(20),
+        Cim VARCHAR(300),
+        Nev VARCHAR(100),
+        CreatedAt DATETIME NOT NULL,
+        LastLoginAt DATETIME
+    );
+");
+        setupLogger.LogInformation("  ✅ Users tábla ellenőrizve");
+
+
+        // ADMIN SEED LOGIKA
+        setupLogger.LogInformation("👤 Admin user ellenőrzése...");
+        var adminEmail = "admin@szerszam.hu";
+        var adminExists = await appContext.Users.AnyAsync(u => u.Email == adminEmail);
+        if (!adminExists)
+        {
+            appContext.Users.Add(new SzerszamKolcsonzo.Features.Auth.Models.User
+            {
+                Email = adminEmail,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123"),
+                Role = "Admin",
+                Iranyitoszam = "1011",
+                Telepules = "Budapest",
+                Utca = "Fő utca",
+                Hazszam = "1",
+                Telefonszam = null,
+                Cim = "1011 Budapest, Fő utca 1",
+                Nev = "Admin",
+                CreatedAt = DateTime.UtcNow
+            });
+            await appContext.SaveChangesAsync();
+            setupLogger.LogInformation("  ✅ Admin user létrehozva");
+        }
+        else
+        {
+            setupLogger.LogInformation("  ✅ Admin user már létezik");
+        }
+
+        // Induláskor adatbázis kapcsolat ellenörzés.
         var canConnectApp = await appContext.Database.CanConnectAsync();
-        setupLogger.LogInformation("🔌 DB kapcsolat: Auth={Auth}, App={App}",
-            canConnectAuth ? "OK" : "FAIL",
+        setupLogger.LogInformation("🔌 DB kapcsolat: App={App}",
             canConnectApp ? "OK" : "FAIL");
 
         // STATISZTIKÁK

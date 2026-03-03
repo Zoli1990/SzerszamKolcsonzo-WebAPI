@@ -32,4 +32,8 @@
 		<!-- ❌ TÖRÖLVE: xunit -->
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Features\Auth\Data\" />
+	</ItemGroup>
+
 </Project>
