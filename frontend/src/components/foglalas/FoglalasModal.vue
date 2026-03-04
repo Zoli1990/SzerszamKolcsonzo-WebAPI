@@ -285,9 +285,18 @@ const availableDays = computed(() => {
 })
 
 // Elérhető órák (8-20)
+const isToday = computed(() => {
+  if (!selectedDate.value) return false
+  const today = new Date().toISOString().split('T')[0]
+  return selectedDate.value === today
+})
+
 const availableHours = computed(() => {
   const hours = []
+  const now = new Date()
+
   for (let h = 8; h <= 20; h++) {
+    if (isToday.value && h <= now.getHours()) continue
     hours.push(h)
   }
   return hours
@@ -350,6 +359,14 @@ watch(
   },
 )
 
+watch(selectedDate, () => {
+  if (!availableHours.value.includes(selectedHour.value)) {
+    selectedHour.value = availableHours.value[0] || 8
+    selectedMinute.value = 0
+  }
+  updateFormTime()
+})
+
 onMounted(async () => {
   if (props.isOpen) {
     await prefillFromAuth()
@@ -386,6 +403,10 @@ function selectDate(dateValue) {
 }
 
 function selectMinute(minute) {
+  const now = new Date()
+  if (isToday.value && selectedHour.value === now.getHours() + 1 && minute <= now.getMinutes()) {
+    return
+  }
   selectedMinute.value = minute
   updateFormTime()
 }

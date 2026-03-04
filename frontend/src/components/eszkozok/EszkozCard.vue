@@ -21,8 +21,13 @@
           <span class="ar-ertek">{{ formatAr(eszkoz.kiadasiAr) }} Ft/óra</span>
         </div>
 
-        <button class="btn-foglalas" :disabled="!isElerheto" @click="$emit('foglalas', eszkoz)">
-          {{ isElerheto ? 'Foglalás' : 'Kiadva' }}
+        <button
+          id="foglalas-button"
+          class="btn-foglalas"
+          :disabled="!isElerheto"
+          @click="$emit('foglalas', eszkoz)"
+        >
+          {{ isElerheto ? 'Foglalás' : eszkoz.status === 'Kiadva' ? 'Kiadva' : 'Foglalva' }}
         </button>
       </div>
     </div>
