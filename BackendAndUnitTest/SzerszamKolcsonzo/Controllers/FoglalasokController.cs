@@ -112,6 +112,29 @@ namespace SzerszamKolcsonzo.Controllers
                     return BadRequest(new { message = "Eszköz jelenleg nem elérhető! Valaki épp most foglalta le." });
                 }
 
+                // ═══════════════════════════════════════════════════════════
+                // DUPLA FOGLALÁS ELLENŐRZÉS — ugyanaz az eszköz, ugyanaz a nap
+                // ═══════════════════════════════════════════════════════════
+                var foglalasNapja = dto.FoglalasKezdete.Date;
+                var vanMarFoglalas = await _context.Foglalasok.AnyAsync(f =>
+                    f.EszkozID == dto.EszkozID &&
+                    f.FoglalasKezdete.Date == foglalasNapja &&
+                    f.Status != FoglalasStatus.Torolt &&
+                    f.Status != FoglalasStatus.Lezart);
+
+                if (vanMarFoglalas)
+                {
+                    await transaction.RollbackAsync();
+                    return BadRequest(new { message = "Erre az eszközre ezen a napon már van aktív foglalás!" });
+                }
+
+                // MÚLTBELI FOGLALÁS TILTÁSA (5 perc tolerancia)
+                if (dto.FoglalasKezdete < DateTime.UtcNow.AddMinutes(-5))
+                {
+                    await transaction.RollbackAsync();
+                    return BadRequest(new { message = "Múltbeli időpontra nem lehet foglalni!" });
+                }
+
                 // User adatok
                 var userEmail = User.FindFirstValue(ClaimTypes.Email);
                 var userName = User.FindFirstValue(ClaimTypes.Name);
@@ -131,8 +154,23 @@ namespace SzerszamKolcsonzo.Controllers
 
                 _context.Foglalasok.Add(foglalas);
 
-                // Eszköz státusz: FOGLALVA
-                eszkoz.Status = EszkozStatus.Foglalva;
+                // ═══════════════════════════════════════════════════════════
+                // AZONNALI vs JÖVŐBELI foglalás
+                // Azonnali (±5 perc): eszköz AZONNAL Foglalva
+                // Jövőbeli: eszköz ELÉRHETŐ marad, CleanupService aktiválja
+                // ═══════════════════════════════════════════════════════════
+                var isAzonnali = Math.Abs((dto.FoglalasKezdete - DateTime.UtcNow).TotalMinutes) <= 5;
+
+                if (isAzonnali)
+                {
+                    eszkoz.Status = EszkozStatus.Foglalva;
+                    _logger.LogInformation($"[Foglalas] Azonnali foglalás — eszköz blokkolva: {eszkoz.Nev}");
+                }
+                else
+                {
+                    // Jövőbeli: eszköz ELÉRHETŐ marad
+                    _logger.LogInformation($"[Foglalas] Előfoglalás ({dto.FoglalasKezdete:g}) — eszköz elérhető marad: {eszkoz.Nev}");
+                }
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync(); // ✅ COMMIT — lock feloldódik
