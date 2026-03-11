@@ -1,7 +1,8 @@
 ﻿// ============================================================================
 // Controllers/FoglalasokController.cs - EGYSZERŰSÍTETT (4 státusz)
 // ============================================================================
-
+using Microsoft.AspNetCore.SignalR;
+using SzerszamKolcsonzo.Hubs;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,15 +21,18 @@ namespace SzerszamKolcsonzo.Controllers
         private readonly AppDbContext _context;
         private readonly ILogger<FoglalasokController> _logger;
         private readonly PushNotificationService _pushService;
+        private readonly IHubContext<EszkozHub> _hubContext;
 
         public FoglalasokController(
             AppDbContext context,
             ILogger<FoglalasokController> logger,
-            PushNotificationService pushService)
+            PushNotificationService pushService,
+            IHubContext<EszkozHub> hubContext)
         {
             _context = context;
             _logger = logger;
             _pushService = pushService;
+            _hubContext = hubContext;
         }
 
         // ====================================================================
@@ -191,11 +195,14 @@ namespace SzerszamKolcsonzo.Controllers
                     _logger.LogError(ex, $"[Foglalas] Push notification hiba: #{foglalas.FoglalasID}");
                 }
 
+                await BroadcastStatuszValtozas(eszkoz.EszkozID, eszkoz.Nev, eszkoz.Status.ToString(), "UjFoglalas");
                 return CreatedAtAction(nameof(GetFoglalasok), new { id = foglalas.FoglalasID }, new
                 {
                     id = foglalas.FoglalasID,
                     message = "Foglalás sikeresen létrehozva!"
                 });
+
+                
             }
             catch (Exception ex)
             {
@@ -242,6 +249,7 @@ namespace SzerszamKolcsonzo.Controllers
             }
 
             await _context.SaveChangesAsync();
+            await BroadcastStatuszValtozas(foglalas.EszkozID, foglalas.Eszkoz?.Nev ?? "", "Kiadva", "Kiadas");
 
             _logger.LogInformation($"[Foglalas] Eszköz kiadva: Foglalás #{id}");
 
@@ -304,6 +312,7 @@ namespace SzerszamKolcsonzo.Controllers
             }
 
             await _context.SaveChangesAsync();
+            await BroadcastStatuszValtozas(foglalas.EszkozID, foglalas.Eszkoz?.Nev ?? "", "Elerheto", "Lezaras");
 
             _logger.LogInformation($"[Foglalas] Foglalás lezárva: #{id}, Végső ár: {foglalas.FizetendoOsszeg} Ft");
 
@@ -351,6 +360,7 @@ namespace SzerszamKolcsonzo.Controllers
             }
 
             await _context.SaveChangesAsync();
+            await BroadcastStatuszValtozas(foglalas.EszkozID, foglalas.Eszkoz?.Nev ?? "", "Elerheto", "Torles");
 
             _logger.LogInformation($"[Foglalas] Foglalás törölve: #{id}");
 
@@ -382,11 +392,39 @@ namespace SzerszamKolcsonzo.Controllers
 
             _context.Foglalasok.Remove(foglalas);
             await _context.SaveChangesAsync();
+            await BroadcastStatuszValtozas(foglalas.EszkozID, foglalas.Eszkoz?.Nev ?? "", "Elerheto", "Torles");
 
             _logger.LogInformation($"[Foglalas] Foglalás véglegesen törölve: #{id}");
 
             return Ok(new { message = "Foglalás véglegesen törölve!" });
         }
+
+
+        // ════════════════════════════════════════════════════════════════
+        // SIGNALR BROADCAST — minden klienst értesít
+        // ════════════════════════════════════════════════════════════════
+        private async Task BroadcastStatuszValtozas(int eszkozId, string eszkozNev, string ujStatusz, string esemeny)
+        {
+            try
+            {
+                await _hubContext.Clients.All.SendAsync("EszkozStatuszValtozas", new
+                {
+                    eszkozId,
+                    eszkozNev,
+                    ujStatusz,
+                    esemeny,
+                    idopont = DateTime.UtcNow
+                });
+                _logger.LogInformation($"[SignalR] Broadcast: {eszkozNev} → {ujStatusz} ({esemeny})");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[SignalR] Broadcast hiba");
+            }
+        }
+
+
+
     }
 
     // ====================================================================
