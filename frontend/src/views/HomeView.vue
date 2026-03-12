@@ -10,7 +10,7 @@
           <span>Szerszámkölcsönző</span>
         </h1>
         <p class="hero-subtitle">Béreljen minőségi szerszámokat óradíjas rendszerben!</p>
-        
+
         <!-- Gyors statisztikák mobilon -->
         <div class="hero-stats">
           <div class="hero-stat">
@@ -38,7 +38,7 @@
           <span class="filter-icon">📦</span>
           <span class="filter-text">Összes</span>
         </button>
-        
+
         <button
           v-for="kategoria in kategoriak"
           :key="kategoria.kategoriaID"
@@ -66,9 +66,7 @@
       <div v-else-if="eszkozStore.error" class="state-container error">
         <span class="state-icon">⚠️</span>
         <p>Hiba történt: {{ eszkozStore.error }}</p>
-        <button class="btn-retry" @click="eszkozStore.fetchEszkozok()">
-          🔄 Újrapróbálás
-        </button>
+        <button class="btn-retry" @click="eszkozStore.fetchEszkozok()">🔄 Újrapróbálás</button>
       </div>
 
       <!-- Üres állapot -->
@@ -79,8 +77,6 @@
           Összes eszköz mutatása
         </button>
       </div>
-
-      
 
       <!-- Eszközök grid -->
       <div v-else class="eszkoz-grid">
@@ -93,19 +89,20 @@
       </div>
 
       <!-- Eredmények száma -->
-      <div v-if="!eszkozStore.loading && eszkozStore.filteredEszkozok.length > 0" class="results-count">
+      <div
+        v-if="!eszkozStore.loading && eszkozStore.filteredEszkozok.length > 0"
+        class="results-count"
+      >
         {{ eszkozStore.filteredEszkozok.length }} eszköz találva
-        <span v-if="eszkozStore.selectedKategoriaId">
-          ({{ getSelectedKategoriaNev }})
-        </span>
+        <span v-if="eszkozStore.selectedKategoriaId"> ({{ getSelectedKategoriaNev }}) </span>
       </div>
     </div>
 
     <!-- ✅ ÚJ: Vélemények szekció -->
-          <VelemenySzekcio id="velemenyek" />
+    <VelemenySzekcio id="velemenyek" />
 
     <!-- ✅ ÚJ: Kapcsolat szekció -->
-          <KapcsolatSection id="kapcsolat" />
+    <KapcsolatSection id="kapcsolat" />
 
     <!-- ═══════════════════════════════════════════════════════════════════ -->
     <!-- FOGLALÁS MODAL -->
@@ -149,13 +146,14 @@ const filterSection = ref(null)
 
 // Computed
 const getSelectedKategoriaNev = computed(() => {
-  const kat = kategoriak.value.find(k => k.kategoriaID === eszkozStore.selectedKategoriaId)
+  const kat = kategoriak.value.find((k) => k.kategoriaID === eszkozStore.selectedKategoriaId)
   return kat ? kat.nev : ''
 })
 
 // Lifecycle
 onMounted(async () => {
   await eszkozStore.fetchEszkozok()
+  eszkozStore.initSignalR() // ← IDE tedd
 
   try {
     const response = await kategoriaService.getAll()
@@ -169,14 +167,14 @@ onMounted(async () => {
 function getCategoryIcon(categoryName) {
   const iconMap = {
     'kézi szerszámok': '🔨',
-    'mérőműszerek': '📏',
+    mérőműszerek: '📏',
     'kerti eszközök': '🌿',
-    'elektromos': '⚡',
+    elektromos: '⚡',
     'víz-gáz': '🔧',
-    'festő': '🎨',
-    'barkács': '🪚',
+    festő: '🎨',
+    barkács: '🪚',
   }
-  
+
   const lowerName = categoryName.toLowerCase()
   for (const [key, icon] of Object.entries(iconMap)) {
     if (lowerName.includes(key)) return icon
@@ -347,7 +345,7 @@ function formatAr(ar) {
     border-bottom: none;
     padding: var(--spacing-lg) var(--spacing-md);
   }
-  
+
   .filter-section {
     max-width: 1200px;
     margin: 0 auto;
@@ -455,7 +453,9 @@ function formatAr(ar) {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Buttons */

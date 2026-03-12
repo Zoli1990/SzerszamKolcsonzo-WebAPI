@@ -215,6 +215,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import api from '@/services/api'
+import { startSignalR, stopSignalR } from '@/services/signalRService'
 
 // ═══════════════════════════════════════════════════════════════════════════
 // STATE
@@ -520,6 +521,30 @@ onMounted(() => {
     foglalasok.value = [...foglalasok.value]
   }, 60000)
 
+  // ═══════════════════════════════════════════════════════════════════
+  // SIGNALR — valós idejű foglalás értesítés
+  // ═══════════════════════════════════════════════════════════════════
+  startSignalR((data) => {
+    console.log('[PWA Dashboard] SignalR esemény:', data)
+    // Bármilyen státuszváltásnál frissítjük a foglalás listát
+    fetchFoglalasok(true)
+  })
+
+  // Auto-refresh: 10 másodpercenként (fallback ha SignalR megszakad)
+  autoRefreshInterval = setInterval(() => fetchFoglalasok(true), 10000)
+
+  // Eltelt idő frissítése: 1 percenként
+  elapsedTimeInterval = setInterval(() => {
+    foglalasok.value = [...foglalasok.value]
+  }, 60000)
+
+  // PWA install prompt
+  window.addEventListener('beforeinstallprompt', onBeforeInstallPrompt)
+
+  if (window.matchMedia('(display-mode: standalone)').matches) {
+    showInstallBanner.value = false
+  }
+
   // PWA install prompt
   window.addEventListener('beforeinstallprompt', onBeforeInstallPrompt)
 
@@ -532,6 +557,7 @@ onUnmounted(() => {
   clearInterval(autoRefreshInterval)
   clearInterval(elapsedTimeInterval)
   clearInterval(titleFlashInterval)
+  stopSignalR()
   window.removeEventListener('beforeinstallprompt', onBeforeInstallPrompt)
 })
 </script>

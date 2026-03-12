@@ -7,6 +7,7 @@ using SzerszamKolcsonzo.Features.Push.Extensions;
 using SzerszamKolcsonzo.Features.Push.Services;
 using SzerszamKolcsonzo.Features.ToolRental.Extensions;
 using SzerszamKolcsonzo.Services;
+using SzerszamKolcsonzo.Hubs;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PROGRAM.CS
@@ -65,6 +66,14 @@ catch (Exception ex)
 builder.Services.AddHostedService<FoglalasCleanupService>();
 logger.LogInformation("⏰ FoglalasCleanupService regisztrálva (15 perc auto-törlés)");
 
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SIGNALR
+// ═══════════════════════════════════════════════════════════════════════════
+builder.Services.AddSignalR();
+logger.LogInformation("📡 SignalR regisztrálva");
+
+
 // ═══════════════════════════════════════════════════════════════════════════
 // CORS
 // ═══════════════════════════════════════════════════════════════════════════
@@ -72,11 +81,16 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins(
+                "http://localhost:5173",
+                "https://szerszamkolcsonzo.tryasp.net"
+              )
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials(); // SignalR-hez KELL
     });
 });
+
 
 // ═══════════════════════════════════════════════════════════════════════════
 // SWAGGER
@@ -291,6 +305,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+logger.LogInformation("  ✅ Controllers mapped");
+
+app.MapHub<EszkozHub>("/hubs/eszkoz");
+logger.LogInformation("  ✅ SignalR Hub mapped: /hubs/eszkoz");
 
 // ═══════════════════════════════════════════════════════════════════════════
 // START

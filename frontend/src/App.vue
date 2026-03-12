@@ -142,9 +142,8 @@
 
           <RouterLink
             v-if="authStore.isAdmin"
-            to="/admin"
+            :to="isMobile ? '/pwa' : '/admin'"
             class="mobile-menu-item"
-            data-testid="mobile-menu-admin"
             @click="mobileMenuOpen = false"
           >
             ⚙️ Admin
@@ -369,6 +368,9 @@ function closeUserMenu() {
 
 function handleLoginSuccess() {
   console.log('Sikeres bejelentkezés!')
+  if (authStore.isAdmin && isMobile.value) {
+    router.push('/pwa')
+  }
 }
 
 function handleLogout() {
