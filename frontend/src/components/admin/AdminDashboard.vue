@@ -1,13 +1,13 @@
 <template>
   <div class="dashboard">
-    <h2>Áttekintés</h2>
+    <h2>{{ t('dashboard.title') }}</h2>
 
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-icon">📁</div>
         <div class="stat-info">
           <div class="stat-value">{{ stats.kategoriak }}</div>
-          <div class="stat-label">Kategória</div>
+          <div class="stat-label">{{ t('dashboard.categories') }}</div>
         </div>
       </div>
 
@@ -15,7 +15,7 @@
         <div class="stat-icon">🔨</div>
         <div class="stat-info">
           <div class="stat-value">{{ stats.eszkozok }}</div>
-          <div class="stat-label">Eszköz</div>
+          <div class="stat-label">{{ t('dashboard.tools') }}</div>
         </div>
       </div>
 
@@ -23,7 +23,7 @@
         <div class="stat-icon">✅</div>
         <div class="stat-info">
           <div class="stat-value">{{ stats.elerheto }}</div>
-          <div class="stat-label">Elérhető</div>
+          <div class="stat-label">{{ t('dashboard.available') }}</div>
         </div>
       </div>
 
@@ -31,7 +31,7 @@
         <div class="stat-icon">🚫</div>
         <div class="stat-info">
           <div class="stat-value">{{ stats.kiadva }}</div>
-          <div class="stat-label">Kiadva</div>
+          <div class="stat-label">{{ t('dashboard.issued') }}</div>
         </div>
       </div>
 
@@ -39,7 +39,7 @@
         <div class="stat-icon">📋</div>
         <div class="stat-info">
           <div class="stat-value">{{ stats.foglalasok }}</div>
-          <div class="stat-label">Összes foglalás</div>
+          <div class="stat-label">{{ t('dashboard.totalReservations') }}</div>
         </div>
       </div>
 
@@ -47,20 +47,23 @@
         <div class="stat-icon">💰</div>
         <div class="stat-info">
           <div class="stat-value">{{ formatAr(stats.osszesBevetel) }} Ft</div>
-          <div class="stat-label">Összes bevétel</div>
+          <div class="stat-label">{{ t('dashboard.totalRevenue') }}</div>
         </div>
       </div>
     </div>
 
-    <div v-if="loading" class="loading">Betöltés...</div>
+    <div v-if="loading" class="loading">{{ t('dashboard.loading') }}</div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { kategoriaService } from '@/services/kategoriaService'
 import { eszkozService } from '@/services/eszkozService'
 import { foglalasService } from '@/services/foglalasService'
+
+const { t } = useI18n()
 
 const loading = ref(false)
 const stats = ref({
@@ -128,102 +131,28 @@ function formatAr(ar) {
   grid-column: span 2;
 }
 
-.stat-icon {
-  font-size: 48px;
-}
-
-.stat-info {
-  flex: 1;
-}
-
-.stat-value {
-  font-size: 32px;
-  font-weight: 700;
-  margin-bottom: 4px;
-}
-
-.stat-label {
-  font-size: 14px;
-  opacity: 0.9;
-}
-
-.loading {
-  text-align: center;
-  padding: 40px;
-  color: #6b5d4f;
-}
+.stat-icon { font-size: 48px; }
+.stat-info { flex: 1; }
+.stat-value { font-size: 32px; font-weight: 700; margin-bottom: 4px; }
+.stat-label { font-size: 14px; opacity: 0.9; }
+.loading { text-align: center; padding: 40px; color: #6b5d4f; }
 
 @media (max-width: 768px) {
-  /* Dashboard header */
-  .dashboard h2 {
-    font-size: 20px; /* 24px → 20px */
-    margin-bottom: 16px;
-  }
-
-  /* ──────────────────────────────────────────
-     STATS GRID - 1 OSZLOP
-     ────────────────────────────────────────── */
-  .stats-grid {
-    grid-template-columns: 1fr; /* auto-fit → 1fr */
-    gap: 12px;
-  }
-
-  /* ──────────────────────────────────────────
-     STAT CARD KOMPAKT
-     ────────────────────────────────────────── */
-  .stat-card {
-    padding: 16px; /* 24px → 16px */
-    gap: 12px; /* 16px → 12px */
-  }
-
-  /* Highlight kártya NE legyen span 2 mobilon */
-  .stat-card.highlight {
-    grid-column: span 1; /* span 2 → span 1 */
-  }
-
-  /* ──────────────────────────────────────────
-     TYPOGRAPHY SCALING
-     ────────────────────────────────────────── */
-  .stat-icon {
-    font-size: 36px; /* 48px → 36px */
-  }
-
-  .stat-value {
-    font-size: 24px; /* 32px → 24px */
-  }
-
-  .stat-label {
-    font-size: 13px; /* 14px → 13px */
-  }
+  .dashboard h2 { font-size: 20px; margin-bottom: 16px; }
+  .stats-grid { grid-template-columns: 1fr; gap: 12px; }
+  .stat-card { padding: 16px; gap: 12px; }
+  .stat-card.highlight { grid-column: span 1; }
+  .stat-icon { font-size: 36px; }
+  .stat-value { font-size: 24px; }
+  .stat-label { font-size: 13px; }
 }
 
-/* ============================================================================
-   EXTRA SMALL (max-width: 480px)
-   ============================================================================ */
 @media (max-width: 480px) {
-  .dashboard h2 {
-    font-size: 18px;
-  }
-
-  .stats-grid {
-    gap: 10px;
-  }
-
-  .stat-card {
-    padding: 14px;
-    gap: 10px;
-  }
-
-  .stat-icon {
-    font-size: 32px;
-  }
-
-  .stat-value {
-    font-size: 20px;
-  }
-
-  .stat-label {
-    font-size: 12px;
-  }
+  .dashboard h2 { font-size: 18px; }
+  .stats-grid { gap: 10px; }
+  .stat-card { padding: 14px; gap: 10px; }
+  .stat-icon { font-size: 32px; }
+  .stat-value { font-size: 20px; }
+  .stat-label { font-size: 12px; }
 }
 </style>

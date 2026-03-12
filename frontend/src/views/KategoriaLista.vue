@@ -1,14 +1,11 @@
 <template>
   <div class="kategoriak">
-    <h1>Kategóriák</h1>
+    <h1>{{ t('kategoriak.title') }}</h1>
 
-    <!-- Ha még tölt az adat -->
-    <p v-if="loading">Betöltés...</p>
+    <p v-if="loading">{{ t('kategoriak.loading') }}</p>
 
-    <!-- Ha hiba történt -->
-    <p v-if="error" style="color: red;">Hiba: {{ error }}</p>
+    <p v-if="error" style="color: red;">{{ t('kategoriak.error', { msg: error }) }}</p>
 
-    <!-- Ha van adat -->
     <ul v-if="kategoriak.length > 0">
       <li v-for="kategoria in kategoriak" :key="kategoria.id">
         {{ kategoria.nev }}
@@ -19,7 +16,11 @@
 
 <script>
 // Axios importálása
+import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import axios from 'axios'
+
+const { t } = useI18n()
 
 export default {
   name: 'KategoriaLista',
