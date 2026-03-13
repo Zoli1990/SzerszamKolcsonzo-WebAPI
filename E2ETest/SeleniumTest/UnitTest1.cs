@@ -21,7 +21,8 @@ namespace SeleniumTests
         public LoginAction()
         {
             driver = new ChromeDriver();
-            url = "http://localhost:5173/";
+            //url = "http://localhost:5173/";
+            url = "https://szerszamkolcsonzo.tryasp.net";
         }
 
 
@@ -74,7 +75,8 @@ namespace SeleniumTests
         {
 
             driver = new ChromeDriver();
-            url = "http://localhost:5173/";
+            //url = "http://localhost:5173/";
+            url = "https://szerszamkolcsonzo.tryasp.net";
         }
 
 

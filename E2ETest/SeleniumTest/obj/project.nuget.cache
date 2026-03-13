@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "8NNRknMVqeM=",
+  "dgSpecHash": "6RH0fdY2Z20=",
   "success": true,
-  "projectFilePath": "D:\\Mi\\Desktop\\git\\SzerszamKolcsonzo-WebAPI\\E2ETest\\SeleniumTest\\SeleniumTest.csproj",
+  "projectFilePath": "D:\\Mi\\Desktop\\Új mappa (2)\\git\\SzerszamKolcsonzo-WebAPI\\E2ETest\\SeleniumTest\\SeleniumTest.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Mi\\.nuget\\packages\\coverlet.collector\\6.0.0\\coverlet.collector.6.0.0.nupkg.sha512",
     "C:\\Users\\Mi\\.nuget\\packages\\dotnetseleniumextras.waithelpers\\3.11.0\\dotnetseleniumextras.waithelpers.3.11.0.nupkg.sha512",

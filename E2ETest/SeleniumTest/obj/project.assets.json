@@ -5628,11 +5628,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Mi\\Desktop\\git\\SzerszamKolcsonzo-WebAPI\\E2ETest\\SeleniumTest\\SeleniumTest.csproj",
+      "projectUniqueName": "D:\\Mi\\Desktop\\Új mappa (2)\\git\\SzerszamKolcsonzo-WebAPI\\E2ETest\\SeleniumTest\\SeleniumTest.csproj",
       "projectName": "SeleniumTest",
-      "projectPath": "D:\\Mi\\Desktop\\git\\SzerszamKolcsonzo-WebAPI\\E2ETest\\SeleniumTest\\SeleniumTest.csproj",
+      "projectPath": "D:\\Mi\\Desktop\\Új mappa (2)\\git\\SzerszamKolcsonzo-WebAPI\\E2ETest\\SeleniumTest\\SeleniumTest.csproj",
       "packagesPath": "C:\\Users\\Mi\\.nuget\\packages\\",
-      "outputPath": "D:\\Mi\\Desktop\\git\\SzerszamKolcsonzo-WebAPI\\E2ETest\\SeleniumTest\\obj\\",
+      "outputPath": "D:\\Mi\\Desktop\\Új mappa (2)\\git\\SzerszamKolcsonzo-WebAPI\\E2ETest\\SeleniumTest\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -5717,7 +5717,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.308/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.311/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
