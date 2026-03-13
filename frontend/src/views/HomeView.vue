@@ -1,100 +1,110 @@
 <template>
   <div class="home">
-    <!-- ═══════════════════════════════════════════════════════════════════ -->
-    <!-- HERO SZEKCIÓ - Reszponzív -->
-    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- HERO SZEKCIÓ -->
     <header class="hero">
       <div class="hero-content">
         <h1 class="hero-title">
           <span class="hero-icon">🔧</span>
           <span>Szerszámkölcsönző</span>
         </h1>
-        <p class="hero-subtitle">Béreljen minőségi szerszámokat óradíjas rendszerben!</p>
+        <p class="hero-subtitle">{{ t('home.heroSubtitle') }}</p>
 
-        <!-- Gyors statisztikák mobilon -->
         <div class="hero-stats">
           <div class="hero-stat">
             <span class="stat-number">{{ eszkozStore.elerhetoEszkozok.length }}</span>
-            <span class="stat-label">Elérhető</span>
+            <span class="stat-label">{{ t('home.statAvailable') }}</span>
           </div>
           <div class="hero-stat">
             <span class="stat-number">{{ kategoriak.length }}</span>
-            <span class="stat-label">Kategória</span>
+            <span class="stat-label">{{ t('home.statCategory') }}</span>
           </div>
         </div>
       </div>
     </header>
+  </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════════ -->
-    <!-- KATEGÓRIA SZŰRŐ - Horizontálisan görgethető mobilon -->
-    <!-- ═══════════════════════════════════════════════════════════════════ -->
-    <div class="filter-wrapper">
-      <div class="filter-section" ref="filterSection">
-        <button
-          class="filter-btn"
-          :class="{ active: !eszkozStore.selectedKategoriaId }"
-          @click="eszkozStore.clearFilter()"
-        >
-          <span class="filter-icon">📦</span>
-          <span class="filter-text">Összes</span>
-        </button>
+  <!-- KATEGÓRIA SZŰRŐ -->
+  <div class="filter-wrapper">
+    <div class="filter-section" ref="filterSection">
+      <button
+        class="filter-btn"
+        :class="{ active: !eszkozStore.selectedKategoriaId }"
+        @click="eszkozStore.clearFilter()"
+      >
+        <span class="filter-icon">📦</span>
+        <span class="filter-text">{{ t('home.filterAll') }}</span>
+      </button>
 
-        <button
-          v-for="kategoria in kategoriak"
-          :key="kategoria.kategoriaID"
-          class="filter-btn"
-          :class="{ active: eszkozStore.selectedKategoriaId === kategoria.kategoriaID }"
-          @click="eszkozStore.setKategoriaFilter(kategoria.kategoriaID)"
-        >
-          <span class="filter-icon">{{ getCategoryIcon(kategoria.nev) }}</span>
-          <span class="filter-text">{{ kategoria.nev }}</span>
-        </button>
-      </div>
+      <button
+        v-for="kategoria in kategoriak"
+        :key="kategoria.kategoriaID"
+        class="filter-btn"
+        :class="{ active: eszkozStore.selectedKategoriaId === kategoria.kategoriaID }"
+        @click="eszkozStore.setKategoriaFilter(kategoria.kategoriaID)"
+      >
+        <span class="filter-icon">{{ getCategoryIcon(kategoria.nev) }}</span>
+        <span class="filter-text">{{ kategoria.nev }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- TARTALOM -->
+  <div class="content-section">
+    <!-- Loading state -->
+    <div v-if="eszkozStore.loading" class="state-container">
+      <div class="loading-spinner"></div>
+      <p>{{ t('home.loading') }}</p>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════════ -->
-    <!-- TARTALOM -->
-    <!-- ═══════════════════════════════════════════════════════════════════ -->
-    <div class="content-section">
-      <!-- Loading state -->
-      <div v-if="eszkozStore.loading" class="state-container">
-        <div class="loading-spinner"></div>
-        <p>Eszközök betöltése...</p>
-      </div>
+    <!-- Error state -->
+    <div v-else-if="eszkozStore.error" class="state-container error">
+      <span class="state-icon">⚠️</span>
+      <<<<<<< HEAD
+      <p>Hiba történt: {{ eszkozStore.error }}</p>
+      <button class="btn-retry" @click="eszkozStore.fetchEszkozok()">🔄 Újrapróbálás</button>
+      =======
+      <p>{{ t('home.error', { msg: eszkozStore.error }) }}</p>
+      <button class="btn-retry" @click="eszkozStore.fetchEszkozok()">
+        {{ t('home.retry') }}
+      </button>
+      >>>>>>> 13304d0b3fb4bbb561e5a0dd61e49d8431d006b4
+    </div>
 
-      <!-- Error state -->
-      <div v-else-if="eszkozStore.error" class="state-container error">
-        <span class="state-icon">⚠️</span>
-        <p>Hiba történt: {{ eszkozStore.error }}</p>
-        <button class="btn-retry" @click="eszkozStore.fetchEszkozok()">🔄 Újrapróbálás</button>
-      </div>
+    <!-- Üres állapot -->
+    <div v-else-if="eszkozStore.filteredEszkozok.length === 0" class="state-container empty">
+      <span class="state-icon">🔍</span>
+      <p>{{ t('home.empty') }}</p>
+      <button class="btn-clear-filter" @click="eszkozStore.clearFilter()">
+        {{ t('home.showAll') }}
+      </button>
+    </div>
 
-      <!-- Üres állapot -->
-      <div v-else-if="eszkozStore.filteredEszkozok.length === 0" class="state-container empty">
-        <span class="state-icon">🔍</span>
-        <p>Nincs megjeleníthető eszköz ebben a kategóriában.</p>
-        <button class="btn-clear-filter" @click="eszkozStore.clearFilter()">
-          Összes eszköz mutatása
-        </button>
-      </div>
+    <!-- Eszközök grid -->
+    <div v-else class="eszkoz-grid">
+      <EszkozCard
+        v-for="eszkoz in eszkozStore.filteredEszkozok"
+        :key="eszkoz.eszkozID"
+        :eszkoz="eszkoz"
+        @foglalas="openFoglalasModal"
+      />
+    </div>
 
-      <!-- Eszközök grid -->
-      <div v-else class="eszkoz-grid">
-        <EszkozCard
-          v-for="eszkoz in eszkozStore.filteredEszkozok"
-          :key="eszkoz.eszkozID"
-          :eszkoz="eszkoz"
-          @foglalas="openFoglalasModal"
-        />
-      </div>
-
-      <!-- Eredmények száma -->
+    <!-- Eredmények száma -->
+    <<<<<<< HEAD
+    <div
+      v-if="!eszkozStore.loading && eszkozStore.filteredEszkozok.length > 0"
+      class="results-count"
+    >
+      {{ eszkozStore.filteredEszkozok.length }} eszköz találva
+      <span v-if="eszkozStore.selectedKategoriaId"> ({{ getSelectedKategoriaNev }}) </span>
+      =======
       <div
         v-if="!eszkozStore.loading && eszkozStore.filteredEszkozok.length > 0"
         class="results-count"
       >
-        {{ eszkozStore.filteredEszkozok.length }} eszköz találva
+        {{ t('home.results', { n: eszkozStore.filteredEszkozok.length }) }}
         <span v-if="eszkozStore.selectedKategoriaId"> ({{ getSelectedKategoriaNev }}) </span>
+        >>>>>>> 13304d0b3fb4bbb561e5a0dd61e49d8431d006b4
       </div>
     </div>
 
@@ -104,9 +114,7 @@
     <!-- ✅ ÚJ: Kapcsolat szekció -->
     <KapcsolatSection id="kapcsolat" />
 
-    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <!-- FOGLALÁS MODAL -->
-    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <FoglalasModal
       v-if="selectedEszkoz"
       :is-open="modalOpen"
@@ -115,9 +123,7 @@
       @success="handleFoglalasSuccess"
     />
 
-    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <!-- SUCCESS TOAST -->
-    <!-- ═══════════════════════════════════════════════════════════════════ -->
     <Transition name="toast">
       <div v-if="successMessage" class="success-toast">
         <span class="toast-icon">✅</span>
@@ -130,6 +136,7 @@
 
 <script setup>
 import { onMounted, ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useEszkozStore } from '@/stores/eszkozStore'
 import { kategoriaService } from '@/services/kategoriaService'
 import EszkozCard from '@/components/eszkozok/EszkozCard.vue'
@@ -137,6 +144,7 @@ import FoglalasModal from '@/components/foglalas/FoglalasModal.vue'
 import VelemenySzekcio from '@/components/VelemenySzekcio.vue'
 import KapcsolatSection from '@/components/KapcsolatSection.vue'
 
+const { t } = useI18n()
 const eszkozStore = useEszkozStore()
 const kategoriak = ref([])
 const modalOpen = ref(false)

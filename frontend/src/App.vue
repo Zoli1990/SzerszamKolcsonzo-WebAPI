@@ -1,7 +1,7 @@
 <template>
   <div id="app" :class="{ 'has-bottom-nav': showBottomNav }">
-    <!-- HEADER: PWA route-on NEM jelenik meg -->
-    <header v-if="!isPwa" class="app-header">
+    <!-- HEADER -->
+    <header v-if="!isPwaRoute" class="app-header" data-testid="app-header">
       <div class="header-container">
         <!-- Logo -->
         <RouterLink to="/" class="logo" id="logo-link" data-testid="logo-link">
@@ -11,37 +11,60 @@
 
         <!-- Desktop navigáció -->
         <nav class="desktop-nav" data-testid="desktop-nav">
-          <a href="#" class="nav-link" data-testid="nav-home" @click.prevent="handleHomeClick"
-            >Főoldal</a
-          >
+          <a href="#" class="nav-link" data-testid="nav-home" @click.prevent="handleHomeClick">
+            {{ t('nav.home') }}
+          </a>
           <a
             href="#eszkozok"
             class="nav-link"
             data-testid="nav-eszkozok"
             @click.prevent="scrollToEszkozok"
-            >Eszközök</a
           >
+            {{ t('nav.tools') }}
+          </a>
           <a
             href="#velemenyek"
             class="nav-link"
             data-testid="nav-velemenyek"
             @click.prevent="scrollToVelemenyek"
-            >Vélemények</a
           >
+            {{ t('nav.reviews') }}
+          </a>
           <a
             href="#kapcsolat"
             class="nav-link"
             data-testid="nav-kapcsolat"
             @click.prevent="scrollToKapcsolat"
-            >Kapcsolat</a
           >
+            {{ t('nav.contact') }}
+          </a>
 
           <RouterLink v-if="authStore.isAdmin" to="/admin" class="nav-link" data-testid="nav-admin">
             Admin
           </RouterLink>
 
-          <!-- Értesítések -->
           <NotificationBell v-if="authStore.isAdmin" data-testid="notification-bell" />
+
+          <!-- Nyelvváltó desktop -->
+          <div class="lang-switcher" ref="langDropdownRef">
+            <button class="lang-selected" @click="langDropdownOpen = !langDropdownOpen">
+              {{ currentLang.flag }} {{ currentLang.label }}
+              <span class="lang-arrow" :class="{ open: langDropdownOpen }">▾</span>
+            </button>
+            <Transition name="dropdown">
+              <div v-if="langDropdownOpen" class="lang-dropdown">
+                <button
+                  v-for="lang in languages"
+                  :key="lang.code"
+                  class="lang-option"
+                  :class="{ active: locale === lang.code }"
+                  @click="switchLanguage(lang.code)"
+                >
+                  {{ lang.flag }} {{ lang.label }}
+                </button>
+              </div>
+            </Transition>
+          </div>
 
           <!-- Auth gombok -->
           <div v-if="!authStore.isAuthenticated" class="auth-buttons" data-testid="auth-buttons">
@@ -51,7 +74,7 @@
               data-testid="btn-login-desktop"
               @click="openLoginModal"
             >
-              👤 Belépés
+              👤 {{ t('auth.login') }}
             </button>
           </div>
 
@@ -65,7 +88,6 @@
             >
               👤 {{ truncatedEmail }}
             </button>
-
             <Transition name="dropdown">
               <div v-if="userMenuOpen" class="dropdown" data-testid="user-dropdown">
                 <template v-if="!authStore.isAdmin">
@@ -75,7 +97,7 @@
                     data-testid="dropdown-profilom"
                     @click="userMenuOpen = false"
                   >
-                    👤 Profilom
+                    👤 {{ t('auth.profile') }}
                   </RouterLink>
                   <RouterLink
                     to="/profil"
@@ -83,7 +105,7 @@
                     data-testid="dropdown-foglalasaim"
                     @click="userMenuOpen = false"
                   >
-                    📋 Foglalásaim
+                    📋 {{ t('auth.reservations') }}
                   </RouterLink>
                 </template>
                 <button
@@ -92,7 +114,7 @@
                   data-testid="btn-logout-desktop"
                   @click="handleLogout"
                 >
-                  🚪 Kilépés
+                  🚪 {{ t('auth.logout') }}
                 </button>
               </div>
             </Transition>
@@ -101,10 +123,7 @@
 
         <!-- Mobil jobb oldali ikonok -->
         <div class="mobile-actions" data-testid="mobile-actions">
-          <!-- Értesítések -->
           <NotificationBell v-if="authStore.isAdmin" data-testid="notification-bell-mobile" />
-
-          <!-- Hamburger menü -->
           <button
             id="hamburger-menu"
             class="hamburger"
@@ -119,7 +138,7 @@
         </div>
       </div>
 
-      <!-- Mobil menü (slide down) -->
+      <!-- Mobil menü -->
       <Transition name="slide-down">
         <div v-if="mobileMenuOpen" class="mobile-menu" data-testid="mobile-menu">
           <a
@@ -128,7 +147,7 @@
             data-testid="mobile-menu-home"
             @click.prevent="handleHomeClick"
           >
-            🏠 Főoldal
+            🏠 {{ t('nav.home') }}
           </a>
 
           <a
@@ -144,6 +163,7 @@
             v-if="authStore.isAdmin"
             :to="isMobile ? '/pwa' : '/admin'"
             class="mobile-menu-item"
+            data-testid="mobile-menu-admin"
             @click="mobileMenuOpen = false"
           >
             ⚙️ Admin
@@ -157,7 +177,7 @@
                 data-testid="mobile-menu-profilom"
                 @click="mobileMenuOpen = false"
               >
-                👤 Profilom
+                👤 {{ t('auth.profile') }}
               </RouterLink>
               <RouterLink
                 to="/profil"
@@ -165,7 +185,7 @@
                 data-testid="mobile-menu-foglalasaim"
                 @click="mobileMenuOpen = false"
               >
-                📋 Foglalásaim
+                📋 {{ t('auth.reservations') }}
               </RouterLink>
             </template>
             <button
@@ -174,11 +194,10 @@
               data-testid="btn-logout-mobile"
               @click="handleLogout"
             >
-              🚪 Kilépés
+              🚪 {{ t('auth.logout') }}
             </button>
           </template>
 
-          <!-- Login gomb -->
           <button
             v-else
             id="btn-login-mobile"
@@ -186,8 +205,21 @@
             data-testid="btn-login-mobile"
             @click="openLoginModal"
           >
-            👤 Belépés / Regisztráció
+            👤 {{ t('auth.loginRegister') }}
           </button>
+
+          <!-- Nyelvváltó mobil -->
+          <div class="lang-switcher-mobile">
+            <button
+              v-for="lang in languages"
+              :key="lang.code"
+              class="lang-option"
+              :class="{ active: locale === lang.code }"
+              @click="switchLanguage(lang.code)"
+            >
+              {{ lang.flag }} {{ lang.label }}
+            </button>
+          </div>
         </div>
       </Transition>
     </header>
@@ -197,15 +229,15 @@
       <RouterView />
     </main>
 
-    <!-- FOOTER: PWA route-on NEM jelenik meg -->
-    <footer v-if="!isPwa" class="app-footer">
+    <!-- FOOTER -->
+    <footer v-if="!isPwaRoute" class="app-footer" data-testid="app-footer">
       <div class="footer-container">
         <p>&copy; 2025 Szerszámkölcsönző - Vizsgamunka</p>
       </div>
     </footer>
 
+    <!-- LOGIN MODAL -->
     <LoginModal
-      v-if="!isPwa"
       id="login-modal"
       :is-open="loginModalOpen"
       data-testid="login-modal"
@@ -218,6 +250,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { RouterLink, RouterView, useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/authStore'
 import LoginModal from '@/components/auth/LoginModal.vue'
 import NotificationBell from '@/components/NotificationBell.vue'
@@ -226,144 +259,86 @@ import { pushService } from '@/services/pushService'
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
+const { t, locale } = useI18n()
 
-// State
 const loginModalOpen = ref(false)
 const userMenuOpen = ref(false)
 const mobileMenuOpen = ref(false)
+const langDropdownOpen = ref(false)
+const langDropdownRef = ref(null)
 const windowWidth = ref(window.innerWidth)
 
-// Computed
-const isPwa = computed(() => route.meta?.isPwa === true)
-
 const isMobile = computed(() => windowWidth.value < 768)
-
-const showBottomNav = computed(() => {
-  return isMobile.value && authStore.isAdmin
-})
+const showBottomNav = computed(() => isMobile.value && authStore.isAdmin)
+const isPwaRoute = computed(() => route.meta?.isPwa === true)
 
 const truncatedEmail = computed(() => {
   const email = authStore.userEmail
   if (!email) return ''
-  if (email.length > 20) {
-    return email.substring(0, 17) + '...'
-  }
-  return email
+  return email.length > 20 ? email.substring(0, 17) + '...' : email
 })
 
-// ═══════════════════════════════════════════════════════════════════════════
-// PWA ROUTE DETECTION
-// Ha /pwa route-on vagyunk → header, footer, bottom nav elrejtése
-// ═══════════════════════════════════════════════════════════════════════════
-const isPwaRoute = computed(() => {
-  return route.meta?.isPwa === true
-})
+// ═══════════════════════════════════════════════════════
+// NYELVVÁLTÓ
+// ═══════════════════════════════════════════════════════
+const languages = [
+  { code: 'hu', label: 'Magyar', flag: '🇭🇺' },
+  { code: 'en', label: 'English', flag: '🇬🇧' },
+  { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
+]
 
-// ═══════════════════════════════════════════════════════════════════════════
+const currentLang = computed(() => languages.find((l) => l.code === locale.value) || languages[0])
+
+function switchLanguage(lang) {
+  locale.value = lang
+  localStorage.setItem('locale', lang)
+  langDropdownOpen.value = false
+  mobileMenuOpen.value = false
+}
+
+// ═══════════════════════════════════════════════════════
 // SCROLL FUNKCIÓK
-// ═══════════════════════════════════════════════════════════════════════════
-
+// ═══════════════════════════════════════════════════════
 function handleHomeClick(event) {
   event.preventDefault()
   mobileMenuOpen.value = false
-
   if (router.currentRoute.value.path === '/') {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   } else {
+    router.push('/').then(() => window.scrollTo({ top: 0, behavior: 'smooth' }))
+  }
+}
+
+function scrollToSection(id) {
+  mobileMenuOpen.value = false
+  if (router.currentRoute.value.path !== '/') {
     router.push('/').then(() => {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      setTimeout(
+        () => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }),
+        100,
+      )
     })
+  } else {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 }
 
 function scrollToEszkozok() {
-  mobileMenuOpen.value = false
-
-  if (router.currentRoute.value.path !== '/') {
-    router.push('/').then(() => {
-      setTimeout(() => {
-        const element = document.getElementById('eszkozok')
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        }
-      }, 100)
-    })
-  } else {
-    const element = document.getElementById('eszkozok')
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
-  }
+  scrollToSection('eszkozok')
 }
-
 function scrollToVelemenyek() {
-  mobileMenuOpen.value = false
-
-  if (router.currentRoute.value.path !== '/') {
-    router.push('/').then(() => {
-      setTimeout(() => {
-        const element = document.getElementById('velemenyek')
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        }
-      }, 100)
-    })
-  } else {
-    const element = document.getElementById('velemenyek')
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
-  }
+  scrollToSection('velemenyek')
 }
-
 function scrollToKapcsolat() {
-  mobileMenuOpen.value = false
-
-  if (router.currentRoute.value.path !== '/') {
-    router.push('/').then(() => {
-      setTimeout(() => {
-        const element = document.getElementById('kapcsolat')
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        }
-      }, 100)
-    })
-  } else {
-    const element = document.getElementById('kapcsolat')
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
-  }
+  scrollToSection('kapcsolat')
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
 // EGYÉB FUNKCIÓK
-// ═══════════════════════════════════════════════════════════════════════════
-
-function isActiveRoute(path) {
-  if (path === '/') {
-    return route.path === '/'
-  }
-  return route.path.startsWith(path)
-}
-
-function setAdminTab(tab) {
-  console.log('Admin tab:', tab)
-}
-
+// ═══════════════════════════════════════════════════════
 function openLoginModal() {
-  console.log('🔵 openLoginModal called')
-  console.log('  mobileMenuOpen before:', mobileMenuOpen.value)
-
   loginModalOpen.value = true
   mobileMenuOpen.value = false
-
-  console.log('  mobileMenuOpen after:', mobileMenuOpen.value)
-  console.log('  loginModalOpen:', loginModalOpen.value)
-}
-
-function closeUserMenu() {
-  userMenuOpen.value = false
 }
 
 function handleLoginSuccess() {
@@ -376,8 +351,7 @@ function handleLoginSuccess() {
 function handleLogout() {
   userMenuOpen.value = false
   mobileMenuOpen.value = false
-
-  if (confirm('Biztosan kijelentkezel?')) {
+  if (confirm(t('auth.logoutConfirm'))) {
     authStore.signOut()
     router.push('/')
   }
@@ -385,52 +359,34 @@ function handleLogout() {
 
 function handleResize() {
   windowWidth.value = window.innerWidth
-  if (!isMobile.value) {
-    mobileMenuOpen.value = false
-  }
+  if (!isMobile.value) mobileMenuOpen.value = false
 }
 
 function handleDocumentClick(event) {
   const userMenu = document.querySelector('.user-menu')
-  if (userMenu && !userMenu.contains(event.target)) {
-    userMenuOpen.value = false
-  }
+  if (userMenu && !userMenu.contains(event.target)) userMenuOpen.value = false
+  if (langDropdownRef.value && !langDropdownRef.value.contains(event.target))
+    langDropdownOpen.value = false
 }
 
-// Route változáskor menük bezárása
 watch(
   () => route.path,
   () => {
     mobileMenuOpen.value = false
     userMenuOpen.value = false
+    langDropdownOpen.value = false
   },
 )
 
-watch(mobileMenuOpen, (newVal, oldVal) => {
-  console.log('🟡 mobileMenuOpen changed:', { from: oldVal, to: newVal })
-})
-
 watch(loginModalOpen, (isOpen) => {
-  if (isOpen) {
-    console.log('🔴 Login modal opened - locking body scroll')
-    document.body.style.overflow = 'hidden'
-  } else {
-    console.log('🟢 Login modal closed - unlocking body scroll')
-    document.body.style.overflow = ''
-  }
+  document.body.style.overflow = isOpen ? 'hidden' : ''
 })
 
-// Lifecycle
 onMounted(async () => {
   await authStore.initialize()
-
   if (authStore.isAdmin) {
-    console.log('🔧 Admin user detected, initializing PWA...')
     await pushService.registerServiceWorker()
-  } else {
-    console.log('👤 Regular user, PWA disabled')
   }
-
   window.addEventListener('resize', handleResize)
   document.addEventListener('click', handleDocumentClick)
 })
@@ -443,9 +399,7 @@ onUnmounted(() => {
 const vClickOutside = {
   mounted(el, binding) {
     el._clickOutside = (event) => {
-      if (!(el === event.target || el.contains(event.target))) {
-        binding.value()
-      }
+      if (!(el === event.target || el.contains(event.target))) binding.value()
     }
     document.addEventListener('click', el._clickOutside)
   },
@@ -551,7 +505,6 @@ body {
 .logo-icon {
   font-size: 24px;
 }
-
 .logo-text {
   display: none;
 }
@@ -587,7 +540,6 @@ body {
   color: white;
   background: rgba(255, 255, 255, 0.1);
 }
-
 .nav-link.router-link-active {
   color: white;
   background: rgba(255, 255, 255, 0.15);
@@ -662,11 +614,9 @@ body {
 .dropdown-item:last-child {
   border-bottom: none;
 }
-
 .dropdown-item:hover {
   background: var(--color-background);
 }
-
 .dropdown-item.logout {
   color: var(--color-danger);
 }
@@ -708,11 +658,9 @@ body {
 .hamburger-line.open:nth-child(1) {
   transform: rotate(45deg) translate(5px, 5px);
 }
-
 .hamburger-line.open:nth-child(2) {
   opacity: 0;
 }
-
 .hamburger-line.open:nth-child(3) {
   transform: rotate(-45deg) translate(5px, -5px);
 }
@@ -748,7 +696,6 @@ body {
 .mobile-menu-item:hover {
   background: var(--color-background);
 }
-
 .mobile-menu-item.logout {
   color: var(--color-danger);
 }
@@ -763,20 +710,11 @@ body {
   background: var(--color-primary-dark);
 }
 
-.mobile-overlay {
-  position: fixed;
-  inset: 0;
-  top: var(--header-height);
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 140;
-}
-
 .app-main {
   flex: 1;
   width: 100%;
 }
 
-/* PWA fullscreen mód - header/footer nélkül */
 .app-main-pwa {
   flex: 1;
   width: 100%;
@@ -847,15 +785,119 @@ body {
 .bottom-nav-item.active {
   color: var(--color-primary);
 }
-
 .bottom-nav-icon {
   font-size: 22px;
   line-height: 1;
 }
-
 .bottom-nav-label {
   white-space: nowrap;
 }
+
+/* ═══════════════════════════════════════════════════════
+   NYELVVÁLTÓ
+   ═══════════════════════════════════════════════════════ */
+
+.lang-switcher {
+  position: relative;
+  display: inline-block;
+}
+
+.lang-selected {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-sm);
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.lang-selected:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.lang-arrow {
+  font-size: 11px;
+  transition: transform var(--transition-fast);
+  display: inline-block;
+}
+
+.lang-arrow.open {
+  transform: rotate(180deg);
+}
+
+.lang-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  z-index: 300;
+  min-width: 140px;
+}
+
+.lang-option {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  cursor: pointer;
+  color: var(--color-text);
+  font-size: 14px;
+  font-weight: 500;
+  transition: background var(--transition-fast);
+}
+
+.lang-option:last-child {
+  border-bottom: none;
+}
+.lang-option:hover {
+  background: var(--color-background);
+}
+.lang-option.active {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+/* Mobil nyelvváltó */
+.lang-switcher-mobile {
+  display: flex;
+  flex-direction: row;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.lang-switcher-mobile .lang-option {
+  width: auto;
+  padding: 4px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+
+.lang-switcher-mobile .lang-option.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+/* ═══════════════════════════════════════════════════════
+   TRANSITIONS
+   ═══════════════════════════════════════════════════════ */
 
 .slide-down-enter-active,
 .slide-down-leave-active {

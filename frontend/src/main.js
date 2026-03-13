@@ -6,16 +6,37 @@ import './assets/main.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import { createI18n } from 'vue-i18n'
 
 import App from './App.vue'
 import router from './router'
 import { useAuthStore } from './stores/authStore'
+
+// ============================================================================
+// I18N SETUP
+// ============================================================================
+
+import hu from './locales/hu.json'
+import en from './locales/en.json'
+import de from './locales/de.json'
+
+const i18n = createI18n({
+  legacy: false,        // Composition API támogatáshoz
+  locale: localStorage.getItem('locale') || 'hu',  // Mentett nyelv vagy alapértelmezett
+  fallbackLocale: 'en',
+  messages: {
+    hu,
+    en,
+    de
+  }
+})
 
 const app = createApp(App)
 const pinia = createPinia()
 
 app.use(pinia)
 app.use(router)
+app.use(i18n)
 
 // Auth inicializálás (token visszaállítása)
 const authStore = useAuthStore()
