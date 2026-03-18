@@ -10,19 +10,20 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 using System.Media;
-
-// **FONTOS**: Settings eléréshez szükséges
-using WpfSzerszamKolcsonzo.Properties;
+using Microsoft.AspNetCore.SignalR.Client;
 
 namespace WpfSzerszamKolcsonzo.ViewModels
 {
     public class MainViewModel : INotifyPropertyChanged
     {
         private const string API_BASE = "https://szerszamkolcsonzo.runasp.net/api";
+        private const string SIGNALR_HUB_URL = "https://szerszamkolcsonzo.runasp.net/hubs/eszkoz";
         private const int REFRESH_INTERVAL_SECONDS = 5;
 
         private readonly HttpClient _httpClient;
         private readonly DispatcherTimer _refreshTimer;
+        private HubConnection? _hubConnection;
+        private readonly string _token;
         private int _lastFoglalasCount = 0;
         private int? _lastPendingFoglalasId = null;
 
@@ -87,33 +88,14 @@ namespace WpfSzerszamKolcsonzo.ViewModels
         public ICommand RefreshCommand { get; }
         public ICommand TestNotificationCommand { get; }
 
-        public MainViewModel()
+        public MainViewModel(string token)
         {
+            _token = token;
             _httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
-
-            // JWT token betöltése a Settings-ből
-            var token = Settings.Default.JwtToken;
-            if (!string.IsNullOrWhiteSpace(token))
-            {
-                _httpClient.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", token);
-                ConnectionStatus = $"Token beállítva ✓ (hossz: {token.Length})";
-                LogDebug($"JWT Token configured, length: {token.Length}");
-            }
-            else
-            {
-                ConnectionStatus = "❌ Token NINCS beállítva!";
-                LogDebug("ERROR: No JWT token configured!");
-                MessageBox.Show(
-                    "⚠️ JWT Token nincs beállítva!\n\n" +
-                    "Az App.config fájlban add meg a tokent:\n" +
-                    "<setting name=\"JwtToken\" serializeAs=\"String\">\n" +
-                    "  <value>IDE_A_TOKEN</value>\n" +
-                    "</setting>",
-                    "Token hiányzik",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
-            }
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", token);
+            ConnectionStatus = "Token beállítva ✓";
+            LogDebug($"JWT Token configured, length: {token.Length}");
 
             KiadvaCommand = new RelayCommand<FoglalasDto>(HandleKiadva, CanExecuteKiadva);
             NemJottCommand = new RelayCommand<FoglalasDto>(HandleNemJott, CanExecuteNemJott);
@@ -149,12 +131,65 @@ namespace WpfSzerszamKolcsonzo.ViewModels
             await Task.Delay(500);
             LogDebug("Initial load starting...");
             await FetchFoglalasok();
+            await ConnectSignalR();
+            // Timer csak akkor indul, ha a SignalR nem tudott csatlakozni (fallback)
+        }
 
-            if (IsConnected)
+        // ------------------------ SignalR ------------------------
+        private async Task ConnectSignalR()
+        {
+            try
             {
-                _refreshTimer.Start();
-                LogDebug($"Auto-refresh timer started ({REFRESH_INTERVAL_SECONDS}s interval)");
+                _hubConnection = new HubConnectionBuilder()
+                    .WithUrl(SIGNALR_HUB_URL, options =>
+                    {
+                        options.AccessTokenProvider = () => Task.FromResult<string?>(_token);
+                    })
+                    .WithAutomaticReconnect()
+                    .Build();
+
+                _hubConnection.On<object>("EszkozStatuszValtozas", async (_) =>
+                {
+                    LogDebug("[SignalR] Eszköz státusz változás – frissítés...");
+                    await Application.Current.Dispatcher.InvokeAsync(async () => await FetchFoglalasok());
+                });
+
+                _hubConnection.Reconnecting += _ =>
+                {
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        LogDebug("[SignalR] Újracsatlakozás... (fallback timer indul)");
+                        if (!_refreshTimer.IsEnabled) _refreshTimer.Start();
+                    });
+                    return Task.CompletedTask;
+                };
+
+                _hubConnection.Reconnected += _ =>
+                {
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        LogDebug("[SignalR] Újracsatlakozva ✓ – fallback timer leállítva");
+                        _refreshTimer.Stop();
+                    });
+                    return Task.CompletedTask;
+                };
+
+                await _hubConnection.StartAsync();
+                LogDebug("[SignalR] Csatlakozva ✓ – polling timer NEM indul");
+                // SignalR sikeres → timer nem kell
             }
+            catch (Exception ex)
+            {
+                LogDebug($"[SignalR] Hiba: {ex.Message} – fallback polling timer indul ({REFRESH_INTERVAL_SECONDS}s)");
+                // SignalR nem elérhető → fallback polling
+                _refreshTimer.Start();
+            }
+        }
+
+        public async Task DisconnectSignalR()
+        {
+            if (_hubConnection != null)
+                await _hubConnection.DisposeAsync();
         }
 
         // ------------------------ API fetch ------------------------
@@ -270,9 +305,7 @@ namespace WpfSzerszamKolcsonzo.ViewModels
         private async void HandleKiadva(FoglalasDto? f)
         {
             if (f == null) return;
-            var result = MessageBox.Show($"Kiadod az eszközt: {f.Eszkoz?.Nev}?", "Kiadás", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (result == MessageBoxResult.Yes)
-                await ExecuteAction($"{API_BASE}/Foglalasok/{f.Id}/kiadas", "✅ Eszköz kiadva!");
+            await ExecuteAction($"{API_BASE}/Foglalasok/{f.Id}/kiadas", "✅ Eszköz kiadva!");
         }
 
         private async void HandleNemJott(FoglalasDto? f)

@@ -99,10 +99,10 @@ public class StringToIntConverter : JsonConverter<int>
             // Backend státuszok
             return stringValue?.ToLower() switch
             {
-                "aktiv" or "aktív" or "active" or "várakozik" or "varakozik" or "függőben" or "pending" => 1,
+                "foglalva" or "aktiv" or "aktív" or "active" or "várakozik" or "varakozik" or "függőben" or "pending" => 1,
                 "kiadva" or "issued" => 2,
-                "lezarva" or "lezárva" or "closed" or "befejezett" or "completed" => 3,
-                "torolt" or "törölt" or "deleted" => 0,  // Törölve = kihagyva
+                "lezart" or "lezárta" or "lezarva" or "lezárva" or "closed" or "befejezett" or "completed" => 3,
+                "torolt" or "törölt" or "deleted" => 0,
                 _ => 0
             };
         }

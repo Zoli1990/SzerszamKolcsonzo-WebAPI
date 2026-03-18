@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj": {}
+    "D:\\Mi\\Desktop\\git\\SzerszamKolcsonzo-WebAPI\\desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj": {}
   },
   "projects": {
-    "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj": {
+    "D:\\Mi\\Desktop\\git\\SzerszamKolcsonzo-WebAPI\\desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj",
+        "projectUniqueName": "D:\\Mi\\Desktop\\git\\SzerszamKolcsonzo-WebAPI\\desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj",
         "projectName": "WpfSzerszamKolcsonzo",
-        "projectPath": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj",
+        "projectPath": "D:\\Mi\\Desktop\\git\\SzerszamKolcsonzo-WebAPI\\desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo.csproj",
         "packagesPath": "C:\\Users\\Mi\\.nuget\\packages\\",
-        "outputPath": "D:\\Mi\\Desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\obj\\",
+        "outputPath": "D:\\Mi\\Desktop\\git\\SzerszamKolcsonzo-WebAPI\\desktop\\WpfSzerszamKolcsonzo\\WpfSzerszamKolcsonzo\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -50,6 +50,12 @@
       "frameworks": {
         "net8.0-windows7.0": {
           "targetAlias": "net8.0-windows",
+          "dependencies": {
+            "Microsoft.AspNetCore.SignalR.Client": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
@@ -69,7 +75,7 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.308/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.311/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using WpfSzerszamKolcsonzo.ViewModels;
 
 namespace WpfSzerszamKolcsonzo
 {
@@ -7,6 +8,13 @@ namespace WpfSzerszamKolcsonzo
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        protected override async void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+            if (DataContext is MainViewModel vm)
+                await vm.DisconnectSignalR();
         }
     }
 }
