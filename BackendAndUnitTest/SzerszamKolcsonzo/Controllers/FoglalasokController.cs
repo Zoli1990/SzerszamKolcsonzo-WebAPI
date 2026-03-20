@@ -63,11 +63,13 @@ namespace SzerszamKolcsonzo.Controllers
                     eszkozID = f.EszkozID,
                     eszkozNev = f.Eszkoz.Nev,
                     eszkozAr = f.Eszkoz.KiadasiAr,
+                    eszkozStatusz = f.Eszkoz.Status.ToString(),
                     nev = f.Nev,
                     email = f.Email,
                     telefonszam = f.Telefonszam,
                     cim = f.Cim,
                     foglalasKezdete = f.FoglalasKezdete,
+                    foglalasVege = f.FoglalasVege,
                     kiadasIdopontja = f.KiadasIdopontja,
                     visszahozasIdopontja = f.VisszahozasIdopontja,
                     status = f.Status.ToString(),
@@ -108,27 +110,11 @@ namespace SzerszamKolcsonzo.Controllers
                     return NotFound(new { message = "Eszköz nem található!" });
                 }
 
-                // Státusz ellenőrzés — a zárolás garantálja, hogy ez MINDIG friss
-                if (eszkoz.Status != EszkozStatus.Elerheto)
+                // Kivont eszközre nem lehet foglalni
+                if (eszkoz.Status == EszkozStatus.Kivonva)
                 {
                     await transaction.RollbackAsync();
-                    return BadRequest(new { message = "Eszköz jelenleg nem elérhető! Valaki épp most foglalta le." });
-                }
-
-                // ═══════════════════════════════════════════════════════════
-                // DUPLA FOGLALÁS ELLENŐRZÉS — ugyanaz az eszköz, ugyanaz a nap
-                // ═══════════════════════════════════════════════════════════
-                var foglalasNapja = dto.FoglalasKezdete.Date;
-                var vanMarFoglalas = await _context.Foglalasok.AnyAsync(f =>
-                    f.EszkozID == dto.EszkozID &&
-                    f.FoglalasKezdete.Date == foglalasNapja &&
-                    f.Status != FoglalasStatus.Torolt &&
-                    f.Status != FoglalasStatus.Lezart);
-
-                if (vanMarFoglalas)
-                {
-                    await transaction.RollbackAsync();
-                    return BadRequest(new { message = "Erre az eszközre ezen a napon már van aktív foglalás!" });
+                    return BadRequest(new { message = "Ez az eszköz jelenleg nem elérhető kölcsönzésre." });
                 }
 
                 // MÚLTBELI FOGLALÁS TILTÁSA (5 perc tolerancia)
@@ -138,11 +124,76 @@ namespace SzerszamKolcsonzo.Controllers
                     return BadRequest(new { message = "Múltbeli időpontra nem lehet foglalni!" });
                 }
 
+                // FoglalasVege validáció
+                if (dto.FoglalasVege.HasValue)
+                {
+                    if (dto.FoglalasVege <= dto.FoglalasKezdete)
+                    {
+                        await transaction.RollbackAsync();
+                        return BadRequest(new { message = "A befejezés időpontja a kezdés után kell legyen!" });
+                    }
+                    var foglalasHossz = (dto.FoglalasVege.Value - dto.FoglalasKezdete).TotalHours;
+                    if (foglalasHossz > 12)
+                    {
+                        await transaction.RollbackAsync();
+                        return BadRequest(new { message = "Maximum 12 órára foglalható egy eszköz!" });
+                    }
+                }
+
+                // ═══════════════════════════════════════════════════════════
+                // ÜTKÖZÉS ELLENŐRZÉS — intervallum átfedés + 30 perces buffer
+                // A foglalások között kötelező 30 perces átadási szünet van,
+                // hogy a személyzet átvehesse, ellenőrizhesse az eszközt.
+                // Effektív blokk: [Kezdete, Vege + 30 perc)
+                // ═══════════════════════════════════════════════════════════
+                const int bufferPercek = 30;
+                bool vanUtkozes;
+                if (dto.FoglalasVege.HasValue)
+                {
+                    var ujKezdet = dto.FoglalasKezdete;
+                    var ujVegBuffer = dto.FoglalasVege.Value.AddMinutes(bufferPercek);
+
+                    vanUtkozes = await _context.Foglalasok.AnyAsync(f =>
+                        f.EszkozID == dto.EszkozID &&
+                        f.Status != FoglalasStatus.Torolt &&
+                        f.Status != FoglalasStatus.Lezart &&
+                        f.FoglalasVege.HasValue &&
+                        f.FoglalasKezdete < ujVegBuffer &&
+                        f.FoglalasVege.Value.AddMinutes(bufferPercek) > ujKezdet);
+                }
+                else
+                {
+                    var foglalasNapja = dto.FoglalasKezdete.Date;
+                    vanUtkozes = await _context.Foglalasok.AnyAsync(f =>
+                        f.EszkozID == dto.EszkozID &&
+                        f.FoglalasKezdete.Date == foglalasNapja &&
+                        f.Status != FoglalasStatus.Torolt &&
+                        f.Status != FoglalasStatus.Lezart);
+                }
+
+                if (vanUtkozes)
+                {
+                    await transaction.RollbackAsync();
+                    return BadRequest(new
+                    {
+                        message = "Az eszköz ebben az időszakban már foglalt! (Foglalások között 30 perc átadási idő szükséges.)",
+                        tipus = "utkozes"
+                    });
+                }
+
                 // User adatok
                 var userEmail = User.FindFirstValue(ClaimTypes.Email);
                 var userName = User.FindFirstValue(ClaimTypes.Name);
 
-                // Új foglalás
+                // Becsült díj (ha van vége megadva)
+                decimal? becsultDij = null;
+                if (dto.FoglalasVege.HasValue)
+                {
+                    var orak = (decimal)(dto.FoglalasVege.Value - dto.FoglalasKezdete).TotalHours;
+                    becsultDij = Math.Ceiling(orak * eszkoz.KiadasiAr);
+                }
+
+                // Új foglalás — eszköz státusza NEM változik, admin kezeli
                 var foglalas = new Foglalas
                 {
                     EszkozID = dto.EszkozID,
@@ -151,29 +202,16 @@ namespace SzerszamKolcsonzo.Controllers
                     Telefonszam = dto.Telefonszam ?? "",
                     Cim = dto.Cim ?? "",
                     FoglalasKezdete = dto.FoglalasKezdete,
+                    FoglalasVege = dto.FoglalasVege,
+                    Bevetel = becsultDij,
                     Status = FoglalasStatus.Foglalva,
                     LetrehozasDatum = DateTime.UtcNow
                 };
 
                 _context.Foglalasok.Add(foglalas);
 
-                // ═══════════════════════════════════════════════════════════
-                // AZONNALI vs JÖVŐBELI foglalás
-                // Azonnali (±5 perc): eszköz AZONNAL Foglalva
-                // Jövőbeli: eszköz ELÉRHETŐ marad, CleanupService aktiválja
-                // ═══════════════════════════════════════════════════════════
-                var isAzonnali = Math.Abs((dto.FoglalasKezdete - DateTime.UtcNow).TotalMinutes) <= 5;
-
-                if (isAzonnali)
-                {
-                    eszkoz.Status = EszkozStatus.Foglalva;
-                    _logger.LogInformation($"[Foglalas] Azonnali foglalás — eszköz blokkolva: {eszkoz.Nev}");
-                }
-                else
-                {
-                    // Jövőbeli: eszköz ELÉRHETŐ marad
-                    _logger.LogInformation($"[Foglalas] Előfoglalás ({dto.FoglalasKezdete:g}) — eszköz elérhető marad: {eszkoz.Nev}");
-                }
+                _logger.LogInformation($"[Foglalas] Új foglalás: {eszkoz.Nev}, {dto.FoglalasKezdete:g}" +
+                    (dto.FoglalasVege.HasValue ? $" – {dto.FoglalasVege:g}" : ""));
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync(); // ✅ COMMIT — lock feloldódik
@@ -315,6 +353,9 @@ namespace SzerszamKolcsonzo.Controllers
 
             _logger.LogInformation($"[Foglalas] Foglalás lezárva: #{id}, Végső ár: {foglalas.FizetendoOsszeg} Ft");
 
+            // Értesítés a következő foglalónak — az eszköz most elérhető
+            await ErtesitKovetkezoFoglalot(foglalas.EszkozID, foglalas.Eszkoz?.Nev ?? "");
+
             return Ok(new
             {
                 message = "Foglalás sikeresen lezárva!",
@@ -399,6 +440,60 @@ namespace SzerszamKolcsonzo.Controllers
         }
 
 
+        // ====================================================================
+        // GET: api/Foglalasok/eszkoz/{eszkozId}/naptar?datum=2026-03-20
+        // ====================================================================
+        [HttpGet("eszkoz/{eszkozId}/naptar")]
+        [AllowAnonymous]
+        public async Task<ActionResult> GetEszkozNaptar(int eszkozId, [FromQuery] string datum)
+        {
+            if (!DateTime.TryParse(datum, out var nap))
+                return BadRequest(new { message = "Érvénytelen dátum formátum!" });
+
+            nap = nap.Date;
+
+            var foglalasok = await _context.Foglalasok
+                .Where(f => f.EszkozID == eszkozId &&
+                            f.FoglalasVege.HasValue &&
+                            f.FoglalasKezdete.Date == nap &&
+                            f.Status != FoglalasStatus.Torolt &&
+                            f.Status != FoglalasStatus.Lezart)
+                .Select(f => new
+                {
+                    kezdet = f.FoglalasKezdete,
+                    veg = f.FoglalasVege,
+                    status = f.Status.ToString()
+                })
+                .ToListAsync();
+
+            return Ok(foglalasok);
+        }
+
+        // ════════════════════════════════════════════════════════════════
+        // ÉRTESÍTÉS — következő foglaló értesítése ha az eszköz elérhető
+        // ════════════════════════════════════════════════════════════════
+        private async Task ErtesitKovetkezoFoglalot(int eszkozId, string eszkozNev)
+        {
+            var kovetkezo = await _context.Foglalasok
+                .Where(f => f.EszkozID == eszkozId &&
+                            f.Status == FoglalasStatus.Foglalva &&
+                            f.KiadasIdopontja == null &&
+                            !f.ErtesitesKuldve &&
+                            f.FoglalasKezdete > DateTime.UtcNow)
+                .OrderBy(f => f.FoglalasKezdete)
+                .FirstOrDefaultAsync();
+
+            if (kovetkezo == null) return;
+
+            kovetkezo.ErtesitesKuldve = true;
+            await _context.SaveChangesAsync();
+
+            // TODO: email/push küldés a foglalónak
+            _logger.LogInformation(
+                "[Értesítés] {EszkozNev} elérhető → {Email} ({Nev}), foglalás: {Kezdet:g}",
+                eszkozNev, kovetkezo.Email, kovetkezo.Nev, kovetkezo.FoglalasKezdete);
+        }
+
         // ════════════════════════════════════════════════════════════════
         // SIGNALR BROADCAST — minden klienst értesít
         // ════════════════════════════════════════════════════════════════
@@ -437,5 +532,6 @@ namespace SzerszamKolcsonzo.Controllers
         public string? Telefonszam { get; set; }
         public string? Cim { get; set; }
         public DateTime FoglalasKezdete { get; set; }
+        public DateTime? FoglalasVege { get; set; }
     }
 }

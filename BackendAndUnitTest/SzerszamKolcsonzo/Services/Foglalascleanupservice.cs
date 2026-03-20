@@ -53,47 +53,35 @@ namespace SzerszamKolcsonzo.Services
             using var scope = _serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            var hatarido = DateTime.UtcNow.Subtract(_foglalasTimeout);
+            var now = DateTime.UtcNow;
 
-            // Foglalások keresése, ahol:
-            // - Status = Foglalva (admin még nem hagyta jóvá)
-            // - KiadasIdopontja = null (nem lett kiadva)
-            // - LetrehozasDatum + 15 perc < Most
+            // ────────────────────────────────────────────────────────────
+            // 1. Lejárt foglalások törlése
+            // Feltétel: FoglalasKezdete + 15 perc < Most (nem jelent meg)
+            // ────────────────────────────────────────────────────────────
             var lejartFoglalasok = await context.Foglalasok
                 .Include(f => f.Eszkoz)
                 .Where(f =>
                     f.Status == FoglalasStatus.Foglalva &&
                     f.KiadasIdopontja == null &&
-                    f.LetrehozasDatum < hatarido)
+                    f.FoglalasKezdete.AddMinutes(15) < now)
                 .ToListAsync();
 
             if (lejartFoglalasok.Any())
             {
                 _logger.LogWarning(
-                    "[FoglalasCleanup] {Count} lejárt foglalás (15+ perc, nem kiadva)",
+                    "[FoglalasCleanup] {Count} lejárt foglalás (15+ perc a kezdet után, nem kiadva)",
                     lejartFoglalasok.Count);
 
                 foreach (var foglalas in lejartFoglalasok)
                 {
                     _logger.LogInformation(
-                        "[FoglalasCleanup] Törlés: #{FoglalasID} - {EszkozNev} (létrehozva: {Datum})",
+                        "[FoglalasCleanup] Törlés: #{FoglalasID} - {EszkozNev} (kezdet: {Datum})",
                         foglalas.FoglalasID,
                         foglalas.Eszkoz?.Nev ?? "?",
-                        foglalas.LetrehozasDatum);
+                        foglalas.FoglalasKezdete);
 
-                    // Foglalás → Törölt
                     foglalas.Status = FoglalasStatus.Torolt;
-
-                    // Eszköz felszabadítása (ha még Foglalva státuszban van)
-                    if (foglalas.Eszkoz != null && foglalas.Eszkoz.Status == EszkozStatus.Foglalva)
-                    {
-                        foglalas.Eszkoz.Status = EszkozStatus.Elerheto;
-
-                        _logger.LogInformation(
-                            "[FoglalasCleanup] Eszköz felszabadítva: #{EszkozID} - {EszkozNev}",
-                            foglalas.Eszkoz.EszkozID,
-                            foglalas.Eszkoz.Nev);
-                    }
                 }
 
                 await context.SaveChangesAsync();
@@ -102,6 +90,35 @@ namespace SzerszamKolcsonzo.Services
                     "[FoglalasCleanup] {Count} foglalás törölve",
                     lejartFoglalasok.Count);
             }
+
+            // ────────────────────────────────────────────────────────────
+            // 2. Közelgő foglalások értesítése
+            // Ha az eszköz Elerheto ÉS a foglalás 15 percen belül esedékes
+            // ÉS még nem küldtünk értesítést → értesítés küldése
+            // ────────────────────────────────────────────────────────────
+            var kozelgoFoglalasok = await context.Foglalasok
+                .Include(f => f.Eszkoz)
+                .Where(f =>
+                    f.Status == FoglalasStatus.Foglalva &&
+                    f.KiadasIdopontja == null &&
+                    !f.ErtesitesKuldve &&
+                    f.FoglalasKezdete <= now.AddMinutes(15) &&
+                    f.FoglalasKezdete > now &&
+                    f.Eszkoz.Status == EszkozStatus.Elerheto)
+                .ToListAsync();
+
+            foreach (var foglalas in kozelgoFoglalasok)
+            {
+                foglalas.ErtesitesKuldve = true;
+
+                // TODO: email/push küldés a foglalónak
+                _logger.LogInformation(
+                    "[FoglalasCleanup] Értesítés: {EszkozNev} elérhető → {Email} ({Nev}), kezdet: {Kezdet:g}",
+                    foglalas.Eszkoz?.Nev, foglalas.Email, foglalas.Nev, foglalas.FoglalasKezdete);
+            }
+
+            if (kozelgoFoglalasok.Any())
+                await context.SaveChangesAsync();
         }
 
         public override async Task StopAsync(CancellationToken cancellationToken)

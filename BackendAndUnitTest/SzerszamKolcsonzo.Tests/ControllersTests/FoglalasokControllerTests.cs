@@ -23,7 +23,7 @@ namespace SzerszamKolcsonzo.Tests.Controllers
         {
             // PushNotificationService helyett null-t adunk át
             // a tesztelt metódusok (Kiadas, Lezaras, Torles) nem használják
-            return new FoglalasokController(context, _loggerMock.Object, null!);
+            return new FoglalasokController(context, _loggerMock.Object, null!, null!);
         }
 
         //MOCKOLT (nem fut jóra) 7bd sikertelen teszt

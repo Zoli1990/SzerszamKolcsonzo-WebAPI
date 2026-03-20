@@ -109,7 +109,7 @@ namespace SzerszamKolcsonzo.Data
                     KiadasiAr = 1500,
                     BeszerzesiDatum = new DateTime(2024, 2, 20),
                     Status = EszkozStatus.Elerheto,
-                    KepUrl = "https://www.aktiv.hu/img/70227/112531_altpic_1/500x500/112531.webp?time=1720778937"
+                    KepUrl = "https://bilder.obi.hu/847891ad-3473-4141-a982-ffb17e9d219d/prZZH/image.jpg"
                 },
                 new Eszkoz
                 {

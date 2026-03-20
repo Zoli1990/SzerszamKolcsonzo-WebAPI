@@ -223,6 +223,14 @@ using (var scope = app.Services.CreateScope())
 ");
         setupLogger.LogInformation("  ✅ Users tábla ellenőrizve");
 
+        // Hiányzó oszlopok hozzáadása a Foglalasok táblához (ha még nem léteznek)
+        await appContext.Database.ExecuteSqlRawAsync(@"
+    ALTER TABLE Foglalasok
+        ADD COLUMN IF NOT EXISTS FoglalasVege DATETIME NULL,
+        ADD COLUMN IF NOT EXISTS ErtesitesKuldve TINYINT(1) NOT NULL DEFAULT 0;
+");
+        setupLogger.LogInformation("  ✅ Foglalasok tábla oszlopok ellenőrizve");
+
 
         // ADMIN SEED LOGIKA
         setupLogger.LogInformation("👤 Admin user ellenőrzése...");

@@ -32,6 +32,11 @@ namespace SzerszamKolcsonzo.Models
         [Required]
         public DateTime FoglalasKezdete { get; set; }
 
+        /// <summary>
+        /// Foglalás tervezett vége (meddig kell az eszköz)
+        /// </summary>
+        public DateTime? FoglalasVege { get; set; }
+
         // ✅ Bevetel nullable, visszahozáskor számolódik
         public decimal? Bevetel { get; set; }
 
@@ -60,6 +65,11 @@ namespace SzerszamKolcsonzo.Models
         /// Fizetendő összeg (ElszamolhatoIdo * óradíj alapján számolva)
         /// </summary>
         public decimal? FizetendoOsszeg { get; set; }
+
+        /// <summary>
+        /// True ha az eszköz elérhetővé válásakor kiküldtük az értesítést a foglalónak
+        /// </summary>
+        public bool ErtesitesKuldve { get; set; } = false;
 
         // Navigation property
         [ForeignKey(nameof(EszkozID))]
