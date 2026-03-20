@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SzerszamkolcsonzoMaui</name>
+    </assembly>
+    <members>
+        <member name="T:SzerszamkolcsonzoMaui.DTOs.FlexibleIntConverter">
+            <summary>
+            Kezeli a null / string / int / float → int? konverziót (pl. bevetel mező).
+            </summary>
+        </member>
+        <member name="T:SzerszamkolcsonzoMaui.DTOs.StatusStringToIntConverter">
+            <summary>
+            Kezeli a backend string státuszait (pl. "Foglalva") és számokat is.
+            </summary>
+        </member>
+    </members>
+</doc>

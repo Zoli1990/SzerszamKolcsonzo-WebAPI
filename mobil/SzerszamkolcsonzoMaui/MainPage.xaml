@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:dto="clr-namespace:SzerszamkolcsonzoMaui.DTOs"
+             x:Class="SzerszamkolcsonzoMaui.MainPage"
+             x:Name="ThisPage"
+             Title="Admin Panel"
+             BackgroundColor="#F0EDE8">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="🔄"
+                     Command="{Binding RefreshCommand}"
+                     Order="Primary"/>
+        <ToolbarItem Text="Kilépés"
+                     Command="{Binding KijelentkezesCommand}"
+                     Order="Secondary"/>
+    </ContentPage.ToolbarItems>
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Státusz sáv -->
+        <Border Grid.Row="0"
+                BackgroundColor="#2C3E50"
+                Padding="16,8">
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Grid.Column="0"
+                       Text="{Binding ConnectionStatus}"
+                       TextColor="White"
+                       FontSize="12"
+                       VerticalOptions="Center"/>
+                <ActivityIndicator Grid.Column="1"
+                                   IsRunning="{Binding Loading}"
+                                   IsVisible="{Binding Loading}"
+                                   Color="White"
+                                   WidthRequest="20"
+                                   HeightRequest="20"/>
+            </Grid>
+        </Border>
+
+        <!-- Tartalom -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="12" Padding="16">
+
+                <!-- ══════════════════════════════════════════════════════ -->
+                <!-- ÚJ FOGLALÁS kártya                                    -->
+                <!-- ══════════════════════════════════════════════════════ -->
+                <Border IsVisible="{Binding HasPendingFoglalas}"
+                        BackgroundColor="#FFF9F0"
+                        Stroke="#FF9800"
+                        StrokeThickness="2"
+                        StrokeShape="RoundRectangle 10"
+                        Padding="16">
+                    <VerticalStackLayout Spacing="8" BindingContext="{Binding LatestPendingFoglalas}">
+
+                        <Label Text="🔔 ÚJ FOGLALÁS ÉRKEZETT"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="#E65100"/>
+
+                        <BoxView HeightRequest="1" BackgroundColor="#FFE0B2" Margin="0,4"/>
+
+                        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="6" ColumnSpacing="8">
+
+                            <Label Grid.Row="0" Grid.Column="0" Text="Eszköz:" FontAttributes="Bold" TextColor="#5D4037"/>
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding EszkozNev}" TextColor="#3D2F1F"/>
+
+                            <Label Grid.Row="1" Grid.Column="0" Text="Ügyfél:" FontAttributes="Bold" TextColor="#5D4037"/>
+                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding FelhasznaloNev}" TextColor="#3D2F1F"/>
+
+                            <Label Grid.Row="2" Grid.Column="0" Text="Időpont:" FontAttributes="Bold" TextColor="#5D4037"/>
+                            <Label Grid.Row="2" Grid.Column="1" Text="{Binding IdopontString}" TextColor="#3D2F1F"/>
+
+                            <Label Grid.Row="3" Grid.Column="0" Text="Díj:" FontAttributes="Bold" TextColor="#5D4037"/>
+                            <Label Grid.Row="3" Grid.Column="1" Text="{Binding ArString}" TextColor="#2E7D32" FontAttributes="Bold"/>
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="8" Margin="0,8,0,0">
+                            <Button Grid.Column="0"
+                                    Text="✓ KIADVA"
+                                    BackgroundColor="#4CAF50"
+                                    TextColor="White"
+                                    FontAttributes="Bold"
+                                    CornerRadius="8"
+                                    Command="{Binding Source={x:Reference ThisPage}, Path=BindingContext.KiadvaCommand}"
+                                    CommandParameter="{Binding .}"/>
+                            <Button Grid.Column="1"
+                                    Text="✗ NEM JÖTT"
+                                    BackgroundColor="#F44336"
+                                    TextColor="White"
+                                    FontAttributes="Bold"
+                                    CornerRadius="8"
+                                    Command="{Binding Source={x:Reference ThisPage}, Path=BindingContext.NemJottCommand}"
+                                    CommandParameter="{Binding .}"/>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Nincs új foglalás -->
+                <Border IsVisible="{Binding HasNoPendingFoglalas}"
+                        BackgroundColor="White"
+                        Stroke="#E0E0E0"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 10"
+                        Padding="20">
+                    <VerticalStackLayout Spacing="4" HorizontalOptions="Center">
+                        <Label Text="✅"
+                               FontSize="32"
+                               HorizontalOptions="Center"/>
+                        <Label Text="Nincs új foglalás"
+                               FontSize="14"
+                               TextColor="#9E9E9E"
+                               HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- ══════════════════════════════════════════════════════ -->
+                <!-- AKTÍV FOGLALÁSOK                                      -->
+                <!-- ══════════════════════════════════════════════════════ -->
+                <Label Text="AKTÍV FOGLALÁSOK"
+                       FontSize="13"
+                       FontAttributes="Bold"
+                       TextColor="#757575"
+                       Margin="4,8,0,0"/>
+
+                <!-- Nincs aktív foglalás -->
+                <Label Text="Nincs aktív foglalás."
+                       TextColor="#BDBDBD"
+                       HorizontalOptions="Center"
+                       Margin="0,8"
+                       IsVisible="{Binding AktivFoglalasokUres}"/>
+
+                <!-- BindableLayout — CollectionView helyett (ScrollView kompatibilis) -->
+                <VerticalStackLayout Spacing="8"
+                                     BindableLayout.ItemsSource="{Binding AktivFoglalasok}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="dto:FoglalasDto">
+                            <Border Margin="0,0,0,0"
+                                    BackgroundColor="White"
+                                    Stroke="#E0E0E0"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 10"
+                                    Padding="14">
+                                <Grid RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="6">
+
+                                    <!-- Státusz badge + eszköz neve -->
+                                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                                        <Label Grid.Column="0"
+                                               Text="{Binding EszkozNev}"
+                                               FontSize="15"
+                                               FontAttributes="Bold"
+                                               TextColor="#3D2F1F"/>
+                                        <Border Grid.Column="1"
+                                                BackgroundColor="{Binding StatusColor}"
+                                                StrokeShape="RoundRectangle 12"
+                                                Padding="8,3">
+                                            <Label Text="{Binding StatusString}"
+                                                   TextColor="White"
+                                                   FontSize="11"
+                                                   FontAttributes="Bold"/>
+                                        </Border>
+                                    </Grid>
+
+                                    <!-- Ügyfél -->
+                                    <Label Grid.Row="1"
+                                           Text="{Binding FelhasznaloNev}"
+                                           TextColor="#6B5D4F"
+                                           FontSize="13"/>
+
+                                    <!-- Időpont + Díj -->
+                                    <Grid Grid.Row="2" ColumnDefinitions="*,Auto">
+                                        <Label Grid.Column="0"
+                                               Text="{Binding IdopontString}"
+                                               TextColor="#9E9E9E"
+                                               FontSize="12"/>
+                                        <Label Grid.Column="1"
+                                               Text="{Binding ArString}"
+                                               TextColor="#2E7D32"
+                                               FontSize="12"
+                                               FontAttributes="Bold"/>
+                                    </Grid>
+
+                                    <!-- Visszahozta gomb (csak Kiadva státusznál) -->
+                                    <Button Grid.Row="3"
+                                            Text="↩ Visszahozta az ügyfél"
+                                            IsVisible="{Binding IsKiadva}"
+                                            BackgroundColor="#4CAF50"
+                                            TextColor="White"
+                                            FontSize="13"
+                                            CornerRadius="6"
+                                            HeightRequest="40"
+                                            Margin="0,4,0,0"
+                                            Command="{Binding Source={x:Reference ThisPage}, Path=BindingContext.VisszahozvaCommand}"
+                                            CommandParameter="{Binding .}"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <!-- Alap padding -->
+                <BoxView HeightRequest="24" Color="Transparent"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+    </Grid>
+</ContentPage>
