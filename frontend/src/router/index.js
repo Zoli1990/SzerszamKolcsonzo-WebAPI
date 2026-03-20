@@ -33,6 +33,11 @@ const router = createRouter({
       component: HomeView,
     },
     {
+      path: '/aszf',
+      name: 'aszf',
+      component: () => import('../views/AszfView.vue'),
+    },
+    {
       path: '/admin',
       name: 'admin',
       component: () => import('../views/admin/AdminView.vue'),

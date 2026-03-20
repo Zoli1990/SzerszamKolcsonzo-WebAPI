@@ -210,6 +210,9 @@ async function signIn(email, password) {
       return response
     } catch (error) {
       console.error('Profil lekérési hiba:', error)
+      if (error.response?.status === 401 || error.response?.status === 400) {
+        signOut()
+      }
       throw error
     }
   }

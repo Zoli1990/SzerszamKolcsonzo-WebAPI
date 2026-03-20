@@ -35,4 +35,9 @@ export const foglalasService = {
   torles(id) {
     return api.put(`/Foglalasok/${id}/torles`)
   },
+
+  // Eszköz naptár — adott napra foglalt intervallumok
+  getEszkozNaptar(eszkozId, datum) {
+    return api.get(`/Foglalasok/eszkoz/${eszkozId}/naptar`, { params: { datum } })
+  },
 }

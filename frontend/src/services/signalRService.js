@@ -95,3 +95,17 @@ export function stopSignalR() {
 export function isConnected() {
   return connection?.state === signalR.HubConnectionState.Connected
 }
+
+/**
+ * Eseményfigyelő regisztrálása (komponens szintű)
+ */
+export function on(event, handler) {
+  connection?.on(event, handler)
+}
+
+/**
+ * Eseményfigyelő eltávolítása
+ */
+export function off(event, handler) {
+  connection?.off(event, handler)
+}

@@ -21,14 +21,14 @@ import en from './locales/en.json'
 import de from './locales/de.json'
 
 const i18n = createI18n({
-  legacy: false,        // Composition API támogatáshoz
-  locale: localStorage.getItem('locale') || 'hu',  // Mentett nyelv vagy alapértelmezett
+  legacy: false, // Composition API támogatáshoz
+  locale: localStorage.getItem('locale') || 'hu', // Mentett nyelv vagy alapértelmezett
   fallbackLocale: 'en',
   messages: {
     hu,
     en,
-    de
-  }
+    de,
+  },
 })
 
 const app = createApp(App)
@@ -51,7 +51,7 @@ app.mount('#app')
 // Ellenőrizzük hogy admin-pwa route-on vagyunk-e
 router.isReady().then(() => {
   const currentRoute = router.currentRoute.value
-  
+
   // Service Worker CSAK admin-pwa route-on
   if (currentRoute.name === 'admin-pwa' && 'serviceWorker' in navigator) {
     registerAdminServiceWorker()
@@ -71,7 +71,7 @@ async function registerAdminServiceWorker() {
   try {
     // Ellenőrizzük hogy már van-e regisztrált SW
     const existingRegistration = await navigator.serviceWorker.getRegistration()
-    
+
     if (existingRegistration) {
       console.log('[Main] Service Worker already registered')
       return
@@ -79,7 +79,7 @@ async function registerAdminServiceWorker() {
 
     // Regisztráljuk az admin SW-t
     const registration = await navigator.serviceWorker.register('/sw-admin.js', {
-      scope: '/'
+      scope: '/',
     })
 
     console.log('[Main] Admin Service Worker registered successfully:', registration.scope)

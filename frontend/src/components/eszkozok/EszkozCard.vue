@@ -16,10 +16,10 @@
         <button
           id="foglalas-button"
           class="btn-foglalas"
-          :disabled="!isElerheto"
+          :disabled="!canBook"
           @click="$emit('foglalas', eszkoz)"
         >
-          {{ isElerheto ? t('eszkozCard.reserve') : eszkoz.status === 'Kiadva' ? t('eszkozCard.statusIssued') : t('eszkozCard.statusReserved') }}
+          {{ canBook ? t('eszkozCard.reserve') : t('eszkozCard.statusWithdrawn') }}
         </button>
       </div>
     </div>
@@ -41,7 +41,9 @@ const props = defineProps({
 
 defineEmits(['foglalas'])
 
-const isElerheto = computed(() => props.eszkoz.status === 'Elerheto')
+// Csak Kivonva tiltja teljesen a foglalást — Foglalva/Kiadva esetén
+// jövőbeli időpontra még lehet foglalni, az admin kezeli a státuszt
+const canBook = computed(() => props.eszkoz.status !== 'Kivonva')
 
 const statusText = computed(() => {
   const map = {
@@ -54,7 +56,13 @@ const statusText = computed(() => {
 })
 
 const statusClass = computed(() => {
-  return props.eszkoz.status === 'Elerheto' ? 'status-elerheto' : 'status-kiadva'
+  const map = {
+    Elerheto: 'status-elerheto',
+    Foglalva: 'status-foglalva',
+    Kiadva: 'status-kiadva',
+    Kivonva: 'status-kivonva',
+  }
+  return map[props.eszkoz.status] || 'status-kiadva'
 })
 
 const truncatedLeiras = computed(() => {
@@ -96,7 +104,9 @@ function formatAr(ar) {
 .status-badge { position: absolute; top: 12px; right: 12px; padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; text-transform: uppercase; backdrop-filter: blur(8px); box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
 @media (max-width: 767px) { .status-badge { font-size: 14px; padding: 10px 16px; } }
 .status-elerheto { background: rgba(122,155,87,0.95); color: white; }
+.status-foglalva { background: rgba(217,119,6,0.95); color: white; }
 .status-kiadva { background: rgba(184,92,92,0.95); color: white; }
+.status-kivonva { background: rgba(100,100,100,0.95); color: white; }
 .card-content { padding: 18px; }
 @media (max-width: 767px) { .card-content { padding: 20px; } }
 .eszkoz-nev { font-size: 19px; font-weight: 700; margin: 0 0 8px 0; color: #3d2f1f; line-height: 1.3; }

@@ -17,7 +17,12 @@
 
         <div class="form-group">
           <label>{{ t('profilom.name') }} *</label>
-          <input type="text" v-model="form.nev" :placeholder="t('profilom.namePlaceholder')" required />
+          <input
+            type="text"
+            v-model="form.nev"
+            :placeholder="t('profilom.namePlaceholder')"
+            required
+          />
         </div>
 
         <div class="section-title">{{ t('profilom.addressSection') }}</div>
@@ -50,7 +55,12 @@
         <div class="form-row">
           <div class="form-group flex-grow">
             <label>{{ t('profilom.street') }} *</label>
-            <input type="text" v-model="form.utca" :placeholder="t('profilom.streetPlaceholder')" required />
+            <input
+              type="text"
+              v-model="form.utca"
+              :placeholder="t('profilom.streetPlaceholder')"
+              required
+            />
           </div>
           <div class="form-group small">
             <label>{{ t('profilom.houseNumber') }} *</label>
@@ -103,7 +113,7 @@ const form = ref({
   telepules: '',
   utca: '',
   hazszam: '',
-  telefonszam: ''
+  telefonszam: '',
 })
 
 const teljesCim = computed(() => {
@@ -134,7 +144,7 @@ function loadFormFromProfile() {
       telepules: profile.telepules || '',
       utca: profile.utca || '',
       hazszam: profile.hazszam || '',
-      telefonszam: profile.telefonszam || ''
+      telefonszam: profile.telefonszam || '',
     }
     if (form.value.telepules) telepulesAutoFilled.value = true
   }
@@ -169,10 +179,12 @@ async function handleSubmit() {
       telepules: form.value.telepules,
       utca: form.value.utca,
       hazszam: form.value.hazszam,
-      cim: teljesCim.value
+      cim: teljesCim.value,
     })
     successMessage.value = t('profilom.saveSuccess')
-    setTimeout(() => { successMessage.value = '' }, 3000)
+    setTimeout(() => {
+      successMessage.value = ''
+    }, 3000)
   } catch (err) {
     console.error('Profil mentési hiba:', err)
     if (err.response?.data?.errors) {
@@ -188,64 +200,199 @@ async function handleSubmit() {
 </script>
 
 <style scoped>
-.profilom-container { max-width: 600px; margin: 0 auto; padding: 20px; }
-.profilom-header { margin-bottom: 32px; }
-.profilom-header h1 { margin: 0 0 8px 0; font-size: 32px; color: #1f2937; }
-.user-email { color: #6b7280; font-size: 16px; }
-.loading { text-align: center; padding: 60px; color: #6b7280; }
+.profilom-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+.profilom-header {
+  margin-bottom: 32px;
+}
+.profilom-header h1 {
+  margin: 0 0 8px 0;
+  font-size: 32px;
+  color: #1f2937;
+}
+.user-email {
+  color: #6b7280;
+  font-size: 16px;
+}
+.loading {
+  text-align: center;
+  padding: 60px;
+  color: #6b7280;
+}
 
-.profil-card { background: white; border-radius: 12px; padding: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-.profil-form { display: flex; flex-direction: column; gap: 20px; }
+.profil-card {
+  background: white;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+.profil-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
 
 .section-title {
-  font-size: 16px; font-weight: 600; color: #1f2937;
-  margin: 8px 0 0 0; padding-bottom: 8px; border-bottom: 2px solid #e5e7eb;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 8px 0 0 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e5e7eb;
 }
 
-.form-group { display: flex; flex-direction: column; }
-.form-group label { margin-bottom: 8px; font-weight: 600; color: #374151; font-size: 14px; }
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+.form-group label {
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+}
 .form-group input {
-  padding: 12px; border: 1px solid #d1d5db; border-radius: 6px;
-  font-size: 14px; transition: border-color 0.2s; font-family: inherit;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+  font-family: inherit;
 }
-.form-group input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
-.form-group input.disabled-input { background: #f3f4f6; color: #6b7280; cursor: not-allowed; }
-.form-group input.auto-filled { background: #f0fdf4; border-color: #86efac; }
-.form-group input[readonly] { background: #f9fafb; cursor: not-allowed; }
+.form-group input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+.form-group input.disabled-input {
+  background: #f3f4f6;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+.form-group input.auto-filled {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+.form-group input[readonly] {
+  background: #f9fafb;
+  cursor: not-allowed;
+}
 
-.form-row { display: flex; gap: 12px; }
-.form-row .form-group.small { width: 120px; flex-shrink: 0; }
-.form-row .form-group.flex-grow { flex: 1; }
+.form-row {
+  display: flex;
+  gap: 12px;
+}
+.form-row .form-group.small {
+  width: 120px;
+  flex-shrink: 0;
+}
+.form-row .form-group.flex-grow {
+  flex: 1;
+}
 
-.hint { margin-top: 6px; font-size: 12px; color: #9ca3af; }
+.hint {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #9ca3af;
+}
 
 .cim-preview {
-  padding: 12px 16px; background: #f0f9ff; border: 1px solid #bae6fd;
-  border-radius: 6px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  padding: 12px 16px;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 6px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
 }
-.preview-label { font-size: 14px; color: #0369a1; }
-.preview-value { font-size: 14px; font-weight: 600; color: #0c4a6e; }
-
-.error-message { padding: 12px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; color: #dc2626; font-size: 14px; }
-.success-message { padding: 12px; background: #d1fae5; border: 1px solid #a7f3d0; border-radius: 6px; color: #065f46; font-size: 14px; }
-
-.form-actions { display: flex; gap: 12px; justify-content: flex-end; padding-top: 20px; border-top: 1px solid #e5e7eb; }
-
-.btn-secondary, .btn-primary {
-  padding: 12px 24px; border-radius: 6px; font-weight: 600; cursor: pointer;
-  transition: all 0.2s; border: none; font-size: 14px; font-family: inherit; text-decoration: none;
+.preview-label {
+  font-size: 14px;
+  color: #0369a1;
 }
-.btn-secondary { background: white; border: 1px solid #d1d5db; color: #374151; }
-.btn-secondary:hover { background: #f9fafb; }
-.btn-primary { background: #3b82f6; color: white; }
-.btn-primary:hover:not(:disabled) { background: #2563eb; }
-.btn-primary:disabled { background: #9ca3af; cursor: not-allowed; }
+.preview-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0c4a6e;
+}
+
+.error-message {
+  padding: 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  color: #dc2626;
+  font-size: 14px;
+}
+.success-message {
+  padding: 12px;
+  background: #d1fae5;
+  border: 1px solid #a7f3d0;
+  border-radius: 6px;
+  color: #065f46;
+  font-size: 14px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.btn-secondary,
+.btn-primary {
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  font-size: 14px;
+  font-family: inherit;
+  text-decoration: none;
+}
+.btn-secondary {
+  background: white;
+  border: 1px solid #d1d5db;
+  color: #374151;
+}
+.btn-secondary:hover {
+  background: #f9fafb;
+}
+.btn-primary {
+  background: #3b82f6;
+  color: white;
+}
+.btn-primary:hover:not(:disabled) {
+  background: #2563eb;
+}
+.btn-primary:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
 
 @media (max-width: 640px) {
-  .profil-card { padding: 20px; }
-  .form-row { flex-direction: column; }
-  .form-row .form-group.small { width: 100%; }
-  .form-actions { flex-direction: column; }
-  .btn-secondary, .btn-primary { width: 100%; text-align: center; }
+  .profil-card {
+    padding: 20px;
+  }
+  .form-row {
+    flex-direction: column;
+  }
+  .form-row .form-group.small {
+    width: 100%;
+  }
+  .form-actions {
+    flex-direction: column;
+  }
+  .btn-secondary,
+  .btn-primary {
+    width: 100%;
+    text-align: center;
+  }
 }
 </style>

@@ -233,6 +233,9 @@
     <footer v-if="!isPwaRoute" class="app-footer" data-testid="app-footer">
       <div class="footer-container">
         <p>&copy; 2025 Szerszámkölcsönző - Vizsgamunka</p>
+        <p class="footer-links">
+          <RouterLink to="/aszf" class="footer-link">Általános Szerződési Feltételek</RouterLink>
+        </p>
       </div>
     </footer>
 
@@ -740,6 +743,27 @@ body {
 .footer-container {
   max-width: 1400px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+}
+
+.footer-links {
+  display: flex;
+  gap: var(--spacing-lg);
+}
+
+.footer-link {
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  font-size: 13px;
+  transition: color var(--transition-fast);
+}
+
+.footer-link:hover {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: underline;
 }
 
 .bottom-nav {

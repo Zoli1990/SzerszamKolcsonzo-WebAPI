@@ -59,7 +59,6 @@
     <!-- Error state -->
     <div v-else-if="eszkozStore.error" class="state-container error">
       <span class="state-icon">⚠️</span>
-      <<<<<<< HEAD
       <p>Hiba történt: {{ eszkozStore.error }}</p>
       <button class="btn-retry" @click="eszkozStore.fetchEszkozok()">🔄 Újrapróbálás</button>
       =======
@@ -67,7 +66,6 @@
       <button class="btn-retry" @click="eszkozStore.fetchEszkozok()">
         {{ t('home.retry') }}
       </button>
-      >>>>>>> 13304d0b3fb4bbb561e5a0dd61e49d8431d006b4
     </div>
 
     <!-- Üres állapot -->
@@ -89,24 +87,22 @@
       />
     </div>
 
-    <!-- Eredmények száma -->
-    <<<<<<< HEAD
+    <!-- Eredmények száma
     <div
+      id="eredmenyekszama"
       v-if="!eszkozStore.loading && eszkozStore.filteredEszkozok.length > 0"
       class="results-count"
     >
       {{ eszkozStore.filteredEszkozok.length }} eszköz találva
       <span v-if="eszkozStore.selectedKategoriaId"> ({{ getSelectedKategoriaNev }}) </span>
-      =======
       <div
         v-if="!eszkozStore.loading && eszkozStore.filteredEszkozok.length > 0"
         class="results-count"
       >
         {{ t('home.results', { n: eszkozStore.filteredEszkozok.length }) }}
         <span v-if="eszkozStore.selectedKategoriaId"> ({{ getSelectedKategoriaNev }}) </span>
-        >>>>>>> 13304d0b3fb4bbb561e5a0dd61e49d8431d006b4
       </div>
-    </div>
+    </div>-->
 
     <!-- ✅ ÚJ: Vélemények szekció -->
     <VelemenySzekcio id="velemenyek" />

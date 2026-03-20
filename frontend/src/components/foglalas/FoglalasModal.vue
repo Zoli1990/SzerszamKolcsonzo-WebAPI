@@ -12,7 +12,9 @@
               <span class="back-text">{{ t('foglalasModal.back') }}</span>
             </button>
             <h2 class="modal-title">{{ t('foglalasModal.title') }}</h2>
-            <button class="btn-close" @click="handleClose" :aria-label="t('foglalasModal.close')">✕</button>
+            <button class="btn-close" @click="handleClose" :aria-label="t('foglalasModal.close')">
+              ✕
+            </button>
           </div>
 
           <!-- ═══════════════════════════════════════════════════════════════ -->
@@ -139,19 +141,45 @@
                     </option>
                   </select>
 
-                  <!-- Perc gombok -->
-                  <div class="minute-buttons">
-                    <button
-                      v-for="m in [0, 15, 30, 45]"
-                      :key="m"
-                      type="button"
-                      :class="['minute-btn', { active: selectedMinute === m }]"
-                      @click="selectMinute(m)"
-                      :disabled="submitting"
-                    >
-                      {{ String(m).padStart(2, '0') }}
-                    </button>
-                  </div>
+                  <!-- Perc dropdown (10 perces felbontás — osztója a 30 perces buffernek) -->
+                  <select
+                    v-model="selectedMinute"
+                    class="time-select"
+                    :disabled="submitting"
+                    @change="updateFormTime"
+                  >
+                    <option v-for="m in [0, 10, 20, 30, 40, 50]" :key="m" :value="m">
+                      :{{ String(m).padStart(2, '0') }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Befejezés idő választó -->
+              <div class="time-selector" style="margin-top: 12px">
+                <label class="time-label">{{ t('foglalasModal.timeTo') }} *</label>
+                <div class="time-row">
+                  <select
+                    v-model="selectedEndHour"
+                    class="time-select"
+                    :disabled="submitting"
+                    @change="updateFormTime"
+                  >
+                    <option v-for="h in availableEndHours" :key="h" :value="h">
+                      {{ String(h).padStart(2, '0') }}
+                    </option>
+                  </select>
+                  <!-- Perc dropdown (10 perces felbontás) -->
+                  <select
+                    v-model="selectedEndMinute"
+                    class="time-select"
+                    :disabled="submitting"
+                    @change="updateFormTime"
+                  >
+                    <option v-for="m in [0, 10, 20, 30, 40, 50]" :key="m" :value="m">
+                      :{{ String(m).padStart(2, '0') }}
+                    </option>
+                  </select>
                 </div>
               </div>
 
@@ -161,7 +189,50 @@
                 <span class="preview-text">{{ timePreview }}</span>
               </div>
 
-              <p class="form-hint">💡 {{ t('foglalasModal.hint') }}</p>
+              <!-- Becsült díj -->
+              <div v-if="becsultDij > 0" class="price-preview">
+                <span class="price-icon">💰</span>
+                <span class="price-text">
+                  {{ t('foglalasModal.estimatedPrice') }}:
+                  <strong>{{ formatAr(becsultDij) }} Ft</strong>
+                  <span class="price-detail"
+                    >({{ foglalasOrak }} {{ t('foglalasModal.hours') }} ×
+                    {{ formatAr(eszkoz?.kiadasiAr || 0) }} Ft/{{ t('foglalasModal.hour') }})</span
+                  >
+                </span>
+              </div>
+
+              <!-- Naptár toggle -->
+              <button type="button" class="naptar-toggle" @click="naptarLatszik = !naptarLatszik">
+                📅 {{ naptarLatszik ? 'Naptár elrejtése' : 'Foglaltság megtekintése' }}
+              </button>
+
+              <!-- Beágyazott naptár -->
+              <div v-if="naptarLatszik" class="naptar-wrapper">
+                <EszkozNaptar :eszkoz-id="eszkoz?.eszkozID" :eszkoz-nev="eszkoz?.nev || ''" />
+              </div>
+
+              <!-- Buffer tájékoztató -->
+              <div class="buffer-hint">
+                🔧 Foglalások között <strong>30 perc átadási idő</strong> van fenntartva az eszköz átvételéhez és ellenőrzéséhez.
+              </div>
+
+            </div><!-- /form-section időpont -->
+
+            <!-- ÁSZF elfogadása -->
+            <div class="form-section aszf-section">
+              <label class="aszf-check-label">
+                <input
+                  type="checkbox"
+                  v-model="aszfElfogadva"
+                  class="aszf-checkbox"
+                  :disabled="submitting"
+                />
+                <span>
+                  Elolvastam és elfogadom az
+                  <RouterLink to="/aszf" target="_blank" class="aszf-link">Általános Szerződési Feltételeket</RouterLink>
+                </span>
+              </label>
             </div>
 
             <!-- Hibaüzenet -->
@@ -207,10 +278,12 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
+import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/authStore'
 import { foglalasService } from '@/services/foglalasService'
 import { BASE_URL } from '@/services/api'
+import EszkozNaptar from './EszkozNaptar.vue'
 
 const { t, locale } = useI18n()
 
@@ -231,11 +304,15 @@ const authStore = useAuthStore()
 const submitting = ref(false)
 const error = ref(null)
 const foglalasSuccess = ref(false)
+const naptarLatszik = ref(false)
+const aszfElfogadva = ref(false)
 
 // Időpont választó state
 const selectedDate = ref('')
 const selectedHour = ref(9)
 const selectedMinute = ref(0)
+const selectedEndHour = ref(10)
+const selectedEndMinute = ref(0)
 
 // Form adatok
 const form = ref({
@@ -307,6 +384,29 @@ const availableHours = computed(() => {
   return hours
 })
 
+// Befejezési órák: legalább 1 órával a kezdés után, max 20:00
+const availableEndHours = computed(() => {
+  const hours = []
+  for (let h = selectedHour.value + 1; h <= 20; h++) {
+    hours.push(h)
+  }
+  return hours
+})
+
+// Becsült díj és foglalási hossz
+const foglalasOrak = computed(() => {
+  const percek =
+    selectedEndHour.value * 60 +
+    selectedEndMinute.value -
+    (selectedHour.value * 60 + selectedMinute.value)
+  return Math.round((percek / 60) * 10) / 10
+})
+
+const becsultDij = computed(() => {
+  if (foglalasOrak.value <= 0) return 0
+  return Math.ceil(foglalasOrak.value * (props.eszkoz?.kiadasiAr || 0))
+})
+
 // Időpont előnézet – lokalizált hónapnevekkel
 const timePreview = computed(() => {
   if (!selectedDate.value) return t('foglalasModal.selectDate')
@@ -314,8 +414,18 @@ const timePreview = computed(() => {
   const date = new Date(selectedDate.value)
   const dayLabel = availableDays.value.find((d) => d.value === selectedDate.value)?.label || ''
   const monthNames = [
-    'jan', 'febr', 'márc', 'ápr', 'máj', 'jún',
-    'júl', 'aug', 'szept', 'okt', 'nov', 'dec',
+    'jan',
+    'febr',
+    'márc',
+    'ápr',
+    'máj',
+    'jún',
+    'júl',
+    'aug',
+    'szept',
+    'okt',
+    'nov',
+    'dec',
   ]
 
   return `${dayLabel}, ${monthNames[date.getMonth()]} ${date.getDate()}. - ${String(selectedHour.value).padStart(2, '0')}:${String(selectedMinute.value).padStart(2, '0')}`
@@ -336,7 +446,8 @@ const isFormValid = computed(() => {
     form.value.telefonszam &&
     form.value.cim &&
     form.value.datum &&
-    form.value.ido
+    form.value.ido &&
+    aszfElfogadva.value
   )
 })
 
@@ -354,13 +465,19 @@ watch(
   },
 )
 
-// Ha megváltozik a dátum, frissíti az órát ha szükséges
+// Ha megváltozik a dátum vagy a kezdés idő, frissíti az értékeket
 watch(selectedDate, () => {
   if (!availableHours.value.includes(selectedHour.value)) {
     selectedHour.value = availableHours.value[0] || 8
     selectedMinute.value = 0
   }
   updateFormTime()
+})
+
+watch(selectedHour, () => {
+  if (!availableEndHours.value.includes(selectedEndHour.value)) {
+    selectedEndHour.value = availableEndHours.value[0] || selectedHour.value + 1
+  }
 })
 
 onMounted(async () => {
@@ -377,6 +494,8 @@ function resetForm() {
   selectedDate.value = minDate.value
   selectedHour.value = defaultHour
   selectedMinute.value = 0
+  selectedEndHour.value = Math.min(defaultHour + 1, 20)
+  selectedEndMinute.value = 0
 
   updateFormTime()
 
@@ -389,6 +508,8 @@ function resetForm() {
     ido: `${String(selectedHour.value).padStart(2, '0')}:${String(selectedMinute.value).padStart(2, '0')}`,
   }
   error.value = null
+  naptarLatszik.value = false
+  aszfElfogadva.value = false
 }
 
 function selectDate(dateValue) {
@@ -404,6 +525,11 @@ function selectMinute(minute) {
     return
   }
   selectedMinute.value = minute
+  updateFormTime()
+}
+
+function selectEndMinute(minute) {
+  selectedEndMinute.value = minute
   updateFormTime()
 }
 
@@ -466,6 +592,8 @@ async function handleSubmit() {
 
   try {
     const foglalasKezdete = new Date(`${form.value.datum}T${form.value.ido}:00`)
+    const endTimeStr = `${String(selectedEndHour.value).padStart(2, '0')}:${String(selectedEndMinute.value).padStart(2, '0')}`
+    const foglalasVege = new Date(`${form.value.datum}T${endTimeStr}:00`)
 
     const payload = {
       eszkozID: props.eszkoz.eszkozID,
@@ -474,6 +602,7 @@ async function handleSubmit() {
       telefonszam: form.value.telefonszam.trim(),
       cim: form.value.cim.trim(),
       foglalasKezdete: foglalasKezdete.toISOString(),
+      foglalasVege: foglalasVege.toISOString(),
     }
 
     const response = await foglalasService.create(payload)
@@ -512,89 +641,610 @@ function formatAr(ar) {
 </script>
 
 <style scoped>
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; justify-content: center; align-items: flex-end; padding: 0; }
-@media (min-width: 768px) { .modal-overlay { align-items: center; padding: var(--spacing-lg); background: rgba(61,47,31,0.7); backdrop-filter: blur(4px); } }
-.modal-container { background: var(--color-surface); width: 100%; max-height: 95vh; overflow-y: auto; border-radius: var(--radius-lg) var(--radius-lg) 0 0; display: flex; flex-direction: column; animation: slideUp 0.3s ease-out; }
-@media (min-width: 768px) { .modal-container { max-width: 600px; max-height: 90vh; border-radius: var(--radius-lg); animation: scaleIn 0.2s ease-out; } }
-.modal-container.is-submitting { pointer-events: none; opacity: 0.8; }
-@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-@keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-.modal-header { display: flex; align-items: center; justify-content: space-between; padding: var(--spacing-md); border-bottom: 1px solid var(--color-border); position: sticky; top: 0; background: var(--color-surface); z-index: 10; }
-.btn-back { display: flex; align-items: center; gap: var(--spacing-xs); background: none; border: none; color: var(--color-primary); font-weight: 600; cursor: pointer; padding: var(--spacing-sm); margin: calc(var(--spacing-sm) * -1); }
-.back-icon { font-size: 20px; }
-.back-text { display: none; }
-@media (min-width: 768px) { .btn-back { display: none; } }
-.modal-title { font-size: 18px; font-weight: 600; color: var(--color-text); margin: 0; }
-@media (min-width: 768px) { .modal-title { font-size: 22px; } }
-.btn-close { display: none; width: 36px; height: 36px; background: none; border: none; font-size: 24px; color: var(--color-text-muted); cursor: pointer; border-radius: var(--radius-md); transition: all var(--transition-fast); }
-@media (min-width: 768px) { .btn-close { display: flex; align-items: center; justify-content: center; } .btn-close:hover { background: var(--color-background); color: var(--color-text); } }
-.eszkoz-info { display: flex; gap: var(--spacing-md); padding: var(--spacing-md); background: var(--color-background); border-bottom: 1px solid var(--color-border); }
-.eszkoz-image { width: 80px; height: 80px; border-radius: var(--radius-md); overflow: hidden; flex-shrink: 0; }
-.eszkoz-image img { width: 100%; height: 100%; object-fit: cover; }
-.eszkoz-details { flex: 1; min-width: 0; }
-.eszkoz-nev { font-size: 16px; font-weight: 600; color: var(--color-text); margin: 0 0 4px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.eszkoz-kategoria { font-size: 13px; color: var(--color-text-muted); margin: 0 0 var(--spacing-sm) 0; text-transform: capitalize; }
-.eszkoz-ar { display: flex; align-items: baseline; gap: 4px; }
-.ar-value { font-size: 20px; font-weight: 700; color: var(--color-primary); }
-.ar-unit { font-size: 13px; color: var(--color-text-muted); }
-.foglalas-form { padding: var(--spacing-md); flex: 1; overflow-y: auto; }
-@media (min-width: 768px) { .foglalas-form { padding: var(--spacing-lg); } }
-.form-section { margin-bottom: var(--spacing-lg); }
-.section-title { display: flex; align-items: center; gap: var(--spacing-sm); font-size: 14px; font-weight: 600; color: var(--color-text); margin: 0 0 var(--spacing-md) 0; text-transform: uppercase; letter-spacing: 0.5px; }
-.section-icon { font-size: 16px; }
-.form-group { margin-bottom: var(--spacing-md); }
-.form-group label { display: block; font-size: 14px; font-weight: 500; color: var(--color-text); margin-bottom: var(--spacing-xs); }
-.form-group input { width: 100%; padding: 12px var(--spacing-md); border: 2px solid var(--color-border); border-radius: var(--radius-md); font-size: 16px; font-family: inherit; background: var(--color-surface); color: var(--color-text); transition: border-color var(--transition-fast); }
-.form-group input:focus { outline: none; border-color: var(--color-primary); }
-.form-group input:disabled { background: var(--color-background); color: var(--color-text-muted); }
-.form-group input::placeholder { color: #9ca3af; }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-md); }
-.form-hint { font-size: 13px; color: var(--color-text-muted); margin: var(--spacing-sm) 0 0 0; padding: var(--spacing-sm) var(--spacing-md); background: #fef3c7; border-radius: var(--radius-sm); line-height: 1.4; }
-.time-row { display: flex; gap: 12px; align-items: center; }
-.date-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: var(--spacing-md); }
-@media (max-width: 400px) { .date-selector { grid-template-columns: repeat(3, 1fr); } }
-.date-btn { padding: 12px 8px; background: var(--color-surface); border: 2px solid var(--color-border); border-radius: var(--radius-md); cursor: pointer; transition: all var(--transition-fast); text-align: center; min-height: 72px; display: flex; flex-direction: column; justify-content: center; gap: 6px; }
-.date-btn:hover:not(:disabled) { border-color: var(--color-primary); background: #f0f4f0; }
-.date-btn.active { background: var(--color-primary); border-color: var(--color-primary); color: white; font-weight: 700; box-shadow: 0 4px 12px rgba(107,142,35,0.3); }
-.date-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.date-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; line-height: 1.2; word-wrap: break-word; overflow-wrap: break-word; }
-.date-value { font-size: 15px; font-weight: 700; white-space: nowrap; }
-.time-selector { display: flex; flex-direction: column; gap: var(--spacing-md); margin-bottom: var(--spacing-md); }
-@media (min-width: 480px) { .time-selector { flex-direction: row; } }
-.time-group { flex: 1; }
-.time-label { display: block; font-size: 14px; font-weight: 600; color: var(--color-text); margin-bottom: var(--spacing-xs); }
-.time-select { width: 80px; height: 56px; display: flex; align-items: center; justify-content: center; padding: 0; border: 2px solid var(--color-border); border-radius: var(--radius-md); font-size: 24px; font-weight: 600; font-family: inherit; background-color: var(--color-surface); color: var(--color-text); cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; }
-.time-select:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(107,142,35,0.1); }
-.time-select:disabled { opacity: 0.6; cursor: not-allowed; }
-.time-select option { text-align: center; }
-.minute-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.minute-btn { padding: 16px 12px; background: var(--color-surface); border: 2px solid var(--color-border); border-radius: var(--radius-md); font-size: 20px; font-weight: 700; cursor: pointer; transition: all var(--transition-fast); font-family: inherit; min-height: 52px; }
-.minute-btn:hover:not(:disabled) { border-color: var(--color-primary); background: #f0f4f0; }
-.minute-btn.active { background: var(--color-primary); border-color: var(--color-primary); color: white; box-shadow: 0 4px 12px rgba(107,142,35,0.3); }
-.minute-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.time-preview { display: flex; align-items: center; gap: var(--spacing-sm); padding: var(--spacing-md); background: #e8f5e9; border: 2px solid #a5d6a7; border-radius: var(--radius-md); margin-bottom: var(--spacing-md); }
-.preview-icon { font-size: 20px; flex-shrink: 0; }
-.preview-text { font-size: 15px; font-weight: 600; color: #1b5e20; flex: 1; }
-@media (max-width: 480px) { .date-selector { gap: 8px; } .time-selector { gap: 16px; } .minute-buttons { gap: 8px; } }
-.error-message { display: flex; align-items: flex-start; gap: var(--spacing-sm); padding: var(--spacing-md); background: #fef2f2; border: 1px solid #fecaca; border-radius: var(--radius-md); color: #dc2626; font-size: 14px; margin-bottom: var(--spacing-md); }
-.error-icon { flex-shrink: 0; }
-.modal-footer { display: flex; gap: var(--spacing-md); padding: var(--spacing-md); border-top: 1px solid var(--color-border); background: var(--color-surface); position: sticky; bottom: 0; }
-@media (min-width: 768px) { .modal-footer { padding: var(--spacing-md) var(--spacing-lg); justify-content: flex-end; } }
-.btn-secondary, .btn-primary { flex: 1; padding: 14px var(--spacing-lg); border-radius: var(--radius-md); font-size: 15px; font-weight: 600; cursor: pointer; transition: all var(--transition-fast); border: none; }
-@media (min-width: 768px) { .btn-secondary, .btn-primary { flex: none; min-width: 140px; } }
-.btn-secondary { background: var(--color-surface); border: 2px solid var(--color-border); color: var(--color-text); }
-.btn-secondary:hover:not(:disabled) { background: var(--color-background); }
-.btn-primary { background: var(--color-primary); color: white; }
-.btn-primary:hover:not(:disabled) { background: var(--color-primary-dark); }
-.btn-primary:disabled, .btn-secondary:disabled { opacity: 0.6; cursor: not-allowed; }
-.btn-success { background: #4caf50 !important; }
-.btn-loading { display: flex; align-items: center; justify-content: center; gap: var(--spacing-sm); }
-.spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.modal-enter-active, .modal-leave-active { transition: opacity 0.3s ease; }
-.modal-enter-active .modal-container, .modal-leave-active .modal-container { transition: transform 0.3s ease; }
-.modal-enter-from, .modal-leave-to { opacity: 0; }
-.modal-enter-from .modal-container, .modal-leave-to .modal-container { transform: translateY(100%); }
-@media (min-width: 768px) { .modal-enter-from .modal-container, .modal-leave-to .modal-container { transform: scale(0.95); } }
-@supports (padding-bottom: env(safe-area-inset-bottom)) { .modal-footer { padding-bottom: calc(var(--spacing-md) + env(safe-area-inset-bottom)); } }
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding: 0;
+}
+@media (min-width: 768px) {
+  .modal-overlay {
+    align-items: center;
+    padding: var(--spacing-lg);
+    background: rgba(61, 47, 31, 0.7);
+    backdrop-filter: blur(4px);
+  }
+}
+.modal-container {
+  background: var(--color-surface);
+  width: 100%;
+  max-height: 95vh;
+  overflow-y: auto;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease-out;
+}
+@media (min-width: 768px) {
+  .modal-container {
+    max-width: 600px;
+    max-height: 90vh;
+    border-radius: var(--radius-lg);
+    animation: scaleIn 0.2s ease-out;
+  }
+}
+.modal-container.is-submitting {
+  pointer-events: none;
+  opacity: 0.8;
+}
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  background: var(--color-surface);
+  z-index: 10;
+}
+.btn-back {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-weight: 600;
+  cursor: pointer;
+  padding: var(--spacing-sm);
+  margin: calc(var(--spacing-sm) * -1);
+}
+.back-icon {
+  font-size: 20px;
+}
+.back-text {
+  display: none;
+}
+@media (min-width: 768px) {
+  .btn-back {
+    display: none;
+  }
+}
+.modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+}
+@media (min-width: 768px) {
+  .modal-title {
+    font-size: 22px;
+  }
+}
+.btn-close {
+  display: none;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+@media (min-width: 768px) {
+  .btn-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .btn-close:hover {
+    background: var(--color-background);
+    color: var(--color-text);
+  }
+}
+.eszkoz-info {
+  display: flex;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background: var(--color-background);
+  border-bottom: 1px solid var(--color-border);
+}
+.eszkoz-image {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.eszkoz-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.eszkoz-details {
+  flex: 1;
+  min-width: 0;
+}
+.eszkoz-nev {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 4px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.eszkoz-kategoria {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin: 0 0 var(--spacing-sm) 0;
+  text-transform: capitalize;
+}
+.eszkoz-ar {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.ar-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+.ar-unit {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+.foglalas-form {
+  padding: var(--spacing-md);
+  flex: 1;
+  overflow-y: auto;
+}
+@media (min-width: 768px) {
+  .foglalas-form {
+    padding: var(--spacing-lg);
+  }
+}
+.form-section {
+  margin-bottom: var(--spacing-lg);
+}
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 var(--spacing-md) 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.section-icon {
+  font-size: 16px;
+}
+.form-group {
+  margin-bottom: var(--spacing-md);
+}
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text);
+  margin-bottom: var(--spacing-xs);
+}
+.form-group input {
+  width: 100%;
+  padding: 12px var(--spacing-md);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  font-family: inherit;
+  background: var(--color-surface);
+  color: var(--color-text);
+  transition: border-color var(--transition-fast);
+}
+.form-group input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+.form-group input:disabled {
+  background: var(--color-background);
+  color: var(--color-text-muted);
+}
+.form-group input::placeholder {
+  color: #9ca3af;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+}
+.form-hint {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin: var(--spacing-sm) 0 0 0;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: #fef3c7;
+  border-radius: var(--radius-sm);
+  line-height: 1.4;
+}
+.time-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.time-row .time-select:first-child {
+  width: 80px;
+}
+.time-row .time-select:last-child {
+  width: 90px;
+}
+.date-selector {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: var(--spacing-md);
+}
+@media (max-width: 400px) {
+  .date-selector {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.date-btn {
+  padding: 12px 8px;
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: center;
+  min-height: 72px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+}
+.date-btn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  background: #f0f4f0;
+}
+.date-btn.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(107, 142, 35, 0.3);
+}
+.date-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.date-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  line-height: 1.2;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+.date-value {
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.time-selector {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+@media (min-width: 480px) {
+  .time-selector {
+    flex-direction: row;
+  }
+}
+.time-group {
+  flex: 1;
+}
+.time-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: var(--spacing-xs);
+}
+.time-select {
+  width: 80px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 24px;
+  font-weight: 600;
+  font-family: inherit;
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+.time-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(107, 142, 35, 0.1);
+}
+.time-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.time-select option {
+  text-align: center;
+}
+.time-preview {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: #e8f5e9;
+  border: 2px solid #a5d6a7;
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-md);
+}
+.preview-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.preview-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1b5e20;
+  flex: 1;
+}
+@media (max-width: 480px) {
+  .date-selector {
+    gap: 8px;
+  }
+  .time-selector {
+    gap: 16px;
+  }
+}
+.naptar-toggle {
+  width: 100%;
+  padding: 10px;
+  margin: var(--spacing-md) 0 8px 0;
+  background: none;
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-primary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.naptar-toggle:hover {
+  background: var(--color-background);
+  border-color: var(--color-primary);
+}
+.naptar-wrapper {
+  margin-bottom: var(--spacing-md);
+}
+.buffer-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #fef3c7;
+  border-left: 3px solid #f59e0b;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: #78350f;
+  margin-top: var(--spacing-sm);
+  line-height: 1.5;
+}
+.price-preview {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: #f0fdf4;
+  border: 2px solid #86efac;
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-md);
+}
+.price-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.price-text {
+  font-size: 14px;
+  color: #166534;
+}
+.price-detail {
+  font-size: 12px;
+  color: #4ade80;
+  margin-left: 6px;
+}
+/* ÁSZF checkbox */
+.aszf-section {
+  padding: var(--spacing-md) !important;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+}
+
+.aszf-check-label {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+.aszf-checkbox {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.aszf-link {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.aszf-link:hover {
+  color: var(--color-primary-dark);
+}
+
+.error-message {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-md);
+  color: #dc2626;
+  font-size: 14px;
+  margin-bottom: var(--spacing-md);
+}
+.error-icon {
+  flex-shrink: 0;
+}
+.modal-footer {
+  display: flex;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
+  position: sticky;
+  bottom: 0;
+}
+@media (min-width: 768px) {
+  .modal-footer {
+    padding: var(--spacing-md) var(--spacing-lg);
+    justify-content: flex-end;
+  }
+}
+.btn-secondary,
+.btn-primary {
+  flex: 1;
+  padding: 14px var(--spacing-lg);
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: none;
+}
+@media (min-width: 768px) {
+  .btn-secondary,
+  .btn-primary {
+    flex: none;
+    min-width: 140px;
+  }
+}
+.btn-secondary {
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  color: var(--color-text);
+}
+.btn-secondary:hover:not(:disabled) {
+  background: var(--color-background);
+}
+.btn-primary {
+  background: var(--color-primary);
+  color: white;
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--color-primary-dark);
+}
+.btn-primary:disabled,
+.btn-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.btn-success {
+  background: #4caf50 !important;
+}
+.btn-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+}
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.3s ease;
+}
+.modal-enter-active .modal-container,
+.modal-leave-active .modal-container {
+  transition: transform 0.3s ease;
+}
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+.modal-enter-from .modal-container,
+.modal-leave-to .modal-container {
+  transform: translateY(100%);
+}
+@media (min-width: 768px) {
+  .modal-enter-from .modal-container,
+  .modal-leave-to .modal-container {
+    transform: scale(0.95);
+  }
+}
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .modal-footer {
+    padding-bottom: calc(var(--spacing-md) + env(safe-area-inset-bottom));
+  }
+}
 </style>

@@ -21,6 +21,18 @@
           </span>
         </div>
 
+        <!-- Időpont + státusz blokk -->
+        <div v-if="foglalas.status === 'Foglalva' || foglalas.status === 'Kiadva'" class="idopont-blokk">
+          <div class="idopont-datum">{{ formatDateOnly(foglalas.foglalasKezdete) }}</div>
+          <div :class="['idopont-sor', foglalas.status === 'Kiadva' ? 'kiadva' : 'foglalt']">
+            <span class="idopont-ido">
+              {{ formatTimeOnly(foglalas.foglalasKezdete) }}
+              <span v-if="foglalas.foglalasVege"> – {{ formatTimeOnly(foglalas.foglalasVege) }}</span>
+            </span>
+            <span class="idopont-badge">{{ foglalas.status === 'Kiadva' ? 'KIADVA' : 'FOGLALT' }}</span>
+          </div>
+        </div>
+
         <div class="foglalas-details">
           <div class="detail-row">
             <span class="label">📅 {{ t('foglalasok.startDate') }}:</span>
@@ -78,18 +90,33 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/authStore'
+import { useEszkozStore } from '@/stores/eszkozStore'
 import { foglalasService } from '@/services/foglalasService'
+import { on as signalROn, off as signalROff } from '@/services/signalRService'
 
 const { t } = useI18n()
 const authStore = useAuthStore()
+const eszkozStore = useEszkozStore()
 const foglalasok = ref([])
 const loading = ref(false)
 
-onMounted(() => fetchFoglalasok())
+function handleStatuszValtozas() {
+  fetchFoglalasok()
+}
+
+onMounted(() => {
+  fetchFoglalasok()
+  eszkozStore.initSignalR()           // kapcsolat biztosítása ha még nem fut
+  signalROn('EszkozStatuszValtozas', handleStatuszValtozas)
+})
+
+onUnmounted(() => {
+  signalROff('EszkozStatuszValtozas', handleStatuszValtozas)
+})
 
 async function fetchFoglalasok() {
   loading.value = true
@@ -101,6 +128,16 @@ async function fetchFoglalasok() {
   } finally {
     loading.value = false
   }
+}
+
+function formatDateOnly(dateString) {
+  if (!dateString) return ''
+  return new Intl.DateTimeFormat('hu-HU', { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(dateString))
+}
+
+function formatTimeOnly(dateString) {
+  if (!dateString) return ''
+  return new Intl.DateTimeFormat('hu-HU', { hour: '2-digit', minute: '2-digit' }).format(new Date(dateString))
 }
 
 function formatDate(dateString) {
@@ -174,6 +211,16 @@ function getBadgeClass(status) {
 .badge-warning { background: #f5e6c8; color: #7a5a1a; }
 .badge-info { background: #dbeafe; color: #1e40af; }
 .badge-danger { background: #f5d7d7; color: #7a2828; }
+
+.idopont-blokk { margin-bottom: 20px; border: 1px solid #e8dcc8; border-radius: 8px; overflow: hidden; }
+.idopont-datum { padding: 8px 14px; background: #f5efe6; font-size: 14px; font-weight: 600; color: #6b5d4f; border-bottom: 1px solid #e8dcc8; }
+.idopont-sor { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; }
+.idopont-sor.foglalt { background: #fff1f0; }
+.idopont-sor.kiadva { background: #eff6ff; }
+.idopont-ido { font-size: 17px; font-weight: 700; color: #1f2937; }
+.idopont-badge { font-size: 12px; font-weight: 800; padding: 4px 14px; border-radius: 999px; letter-spacing: 0.5px; }
+.idopont-sor.foglalt .idopont-badge { background: #fca5a5; color: #7f1d1d; }
+.idopont-sor.kiadva .idopont-badge { background: #93c5fd; color: #1e3a5f; }
 
 .foglalas-details { display: grid; gap: 12px; }
 
