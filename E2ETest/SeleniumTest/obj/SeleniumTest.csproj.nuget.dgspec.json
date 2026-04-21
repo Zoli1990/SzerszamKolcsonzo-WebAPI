@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Mi\\Desktop\\Új mappa (2)\\git\\SzerszamKolcsonzo-WebAPI\\E2ETest\\SeleniumTest\\SeleniumTest.csproj": {}
+    "D:\\Szerszamkolcsonzo_E2E-3\\SzerszamKolcsonzo-WebAPI-main\\E2ETest\\SeleniumTest\\SeleniumTest.csproj": {}
   },
   "projects": {
-    "D:\\Mi\\Desktop\\Új mappa (2)\\git\\SzerszamKolcsonzo-WebAPI\\E2ETest\\SeleniumTest\\SeleniumTest.csproj": {
+    "D:\\Szerszamkolcsonzo_E2E-3\\SzerszamKolcsonzo-WebAPI-main\\E2ETest\\SeleniumTest\\SeleniumTest.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Mi\\Desktop\\Új mappa (2)\\git\\SzerszamKolcsonzo-WebAPI\\E2ETest\\SeleniumTest\\SeleniumTest.csproj",
+        "projectUniqueName": "D:\\Szerszamkolcsonzo_E2E-3\\SzerszamKolcsonzo-WebAPI-main\\E2ETest\\SeleniumTest\\SeleniumTest.csproj",
         "projectName": "SeleniumTest",
-        "projectPath": "D:\\Mi\\Desktop\\Új mappa (2)\\git\\SzerszamKolcsonzo-WebAPI\\E2ETest\\SeleniumTest\\SeleniumTest.csproj",
-        "packagesPath": "C:\\Users\\Mi\\.nuget\\packages\\",
-        "outputPath": "D:\\Mi\\Desktop\\Új mappa (2)\\git\\SzerszamKolcsonzo-WebAPI\\E2ETest\\SeleniumTest\\obj\\",
+        "projectPath": "D:\\Szerszamkolcsonzo_E2E-3\\SzerszamKolcsonzo-WebAPI-main\\E2ETest\\SeleniumTest\\SeleniumTest.csproj",
+        "packagesPath": "C:\\Users\\hp\\.nuget\\packages\\",
+        "outputPath": "D:\\Szerszamkolcsonzo_E2E-3\\SzerszamKolcsonzo-WebAPI-main\\E2ETest\\SeleniumTest\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Mi\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\hp\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],

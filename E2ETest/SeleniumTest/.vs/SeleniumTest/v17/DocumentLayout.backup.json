@@ -1,10 +1,30 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "D:\\Mi\\Desktop\\\u00DAj mappa (2)\\git\\SzerszamKolcsonzo-WebAPI\\E2ETest\\SeleniumTest\\",
+  "WorkspaceRootPath": "D:\\Szerszamkolcsonzo_E2E-3\\SzerszamKolcsonzo-WebAPI-main\\E2ETest\\SeleniumTest\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{64B95815-0444-41A3-845F-084CB9DE9643}|SeleniumTest.csproj|d:\\mi\\desktop\\\u00FAj mappa (2)\\git\\szerszamkolcsonzo-webapi\\e2etest\\seleniumtest\\unittest1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{64B95815-0444-41A3-845F-084CB9DE9643}|SeleniumTest.csproj|solutionrelative:unittest1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{64B95815-0444-41A3-845F-084CB9DE9643}|SeleniumTest.csproj|d:\\szerszamkolcsonzo_e2e-3\\szerszamkolcsonzo-webapi-main\\e2etest\\seleniumtest\\usertest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{64B95815-0444-41A3-845F-084CB9DE9643}|SeleniumTest.csproj|solutionrelative:usertest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{64B95815-0444-41A3-845F-084CB9DE9643}|SeleniumTest.csproj|d:\\szerszamkolcsonzo_e2e-3\\szerszamkolcsonzo-webapi-main\\e2etest\\seleniumtest\\adminunittest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{64B95815-0444-41A3-845F-084CB9DE9643}|SeleniumTest.csproj|solutionrelative:adminunittest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{64B95815-0444-41A3-845F-084CB9DE9643}|SeleniumTest.csproj|d:\\szerszamkolcsonzo_e2e-3\\szerszamkolcsonzo-webapi-main\\e2etest\\seleniumtest\\seleniumtest.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{64B95815-0444-41A3-845F-084CB9DE9643}|SeleniumTest.csproj|solutionrelative:seleniumtest.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{64B95815-0444-41A3-845F-084CB9DE9643}|SeleniumTest.csproj|d:\\szerszamkolcsonzo_e2e-3\\szerszamkolcsonzo-webapi-main\\e2etest\\seleniumtest\\adminfoglalastest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{64B95815-0444-41A3-845F-084CB9DE9643}|SeleniumTest.csproj|solutionrelative:adminfoglalastest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{64B95815-0444-41A3-845F-084CB9DE9643}|SeleniumTest.csproj|d:\\szerszamkolcsonzo_e2e-3\\szerszamkolcsonzo-webapi-main\\e2etest\\seleniumtest\\adminkategoriatest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{64B95815-0444-41A3-845F-084CB9DE9643}|SeleniumTest.csproj|solutionrelative:adminkategoriatest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{64B95815-0444-41A3-845F-084CB9DE9643}|SeleniumTest.csproj|d:\\szerszamkolcsonzo_e2e-3\\szerszamkolcsonzo-webapi-main\\e2etest\\seleniumtest\\admineszkoztest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{64B95815-0444-41A3-845F-084CB9DE9643}|SeleniumTest.csproj|solutionrelative:admineszkoztest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -14,25 +34,102 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "UnitTest1.cs",
-              "DocumentMoniker": "D:\\Mi\\Desktop\\\u00DAj mappa (2)\\git\\SzerszamKolcsonzo-WebAPI\\E2ETest\\SeleniumTest\\UnitTest1.cs",
-              "RelativeDocumentMoniker": "UnitTest1.cs",
-              "ToolTip": "D:\\Mi\\Desktop\\\u00DAj mappa (2)\\git\\SzerszamKolcsonzo-WebAPI\\E2ETest\\SeleniumTest\\UnitTest1.cs",
-              "RelativeToolTip": "UnitTest1.cs",
-              "ViewState": "AgIAABoBAAAAAAAAAAAAAOQAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 1,
+              "Title": "AdminUnitTest.cs",
+              "DocumentMoniker": "D:\\Szerszamkolcsonzo_E2E-3\\SzerszamKolcsonzo-WebAPI-main\\E2ETest\\SeleniumTest\\AdminUnitTest.cs",
+              "RelativeDocumentMoniker": "AdminUnitTest.cs",
+              "ToolTip": "D:\\Szerszamkolcsonzo_E2E-3\\SzerszamKolcsonzo-WebAPI-main\\E2ETest\\SeleniumTest\\AdminUnitTest.cs",
+              "RelativeToolTip": "AdminUnitTest.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAKgAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-02-21T07:43:38.413Z",
               "IsPinned": true,
               "EditorCaption": ""
             },
             {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "UserTest.cs",
+              "DocumentMoniker": "D:\\Szerszamkolcsonzo_E2E-3\\SzerszamKolcsonzo-WebAPI-main\\E2ETest\\SeleniumTest\\UserTest.cs",
+              "RelativeDocumentMoniker": "UserTest.cs",
+              "ToolTip": "D:\\Szerszamkolcsonzo_E2E-3\\SzerszamKolcsonzo-WebAPI-main\\E2ETest\\SeleniumTest\\UserTest.cs",
+              "RelativeToolTip": "UserTest.cs",
+              "ViewState": "AgIAALwBAAAAAAAAAAAEwMQBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-19T13:12:06.239Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "SeleniumTest",
+              "DocumentMoniker": "D:\\Szerszamkolcsonzo_E2E-3\\SzerszamKolcsonzo-WebAPI-main\\E2ETest\\SeleniumTest\\SeleniumTest.csproj",
+              "RelativeDocumentMoniker": "SeleniumTest.csproj",
+              "ToolTip": "D:\\Szerszamkolcsonzo_E2E-3\\SzerszamKolcsonzo-WebAPI-main\\E2ETest\\SeleniumTest\\SeleniumTest.csproj",
+              "RelativeToolTip": "SeleniumTest.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-04-19T13:10:41.197Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{eefa5220-e298-11d0-8f78-00a0c9110057}"
+            },
+            {
               "$type": "Bookmark",
               "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "AdminKategoriaTest.cs",
+              "DocumentMoniker": "D:\\Szerszamkolcsonzo_E2E-3\\SzerszamKolcsonzo-WebAPI-main\\E2ETest\\SeleniumTest\\AdminKategoriaTest.cs",
+              "RelativeDocumentMoniker": "AdminKategoriaTest.cs",
+              "ToolTip": "D:\\Szerszamkolcsonzo_E2E-3\\SzerszamKolcsonzo-WebAPI-main\\E2ETest\\SeleniumTest\\AdminKategoriaTest.cs",
+              "RelativeToolTip": "AdminKategoriaTest.cs",
+              "ViewState": "AgIAAG0AAAAAAAAAAAAAwIEAAABNAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-09T16:48:43.669Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "AdminFoglalasTest.cs",
+              "DocumentMoniker": "D:\\Szerszamkolcsonzo_E2E-3\\SzerszamKolcsonzo-WebAPI-main\\E2ETest\\SeleniumTest\\AdminFoglalasTest.cs",
+              "RelativeDocumentMoniker": "AdminFoglalasTest.cs",
+              "ToolTip": "D:\\Szerszamkolcsonzo_E2E-3\\SzerszamKolcsonzo-WebAPI-main\\E2ETest\\SeleniumTest\\AdminFoglalasTest.cs",
+              "RelativeToolTip": "AdminFoglalasTest.cs",
+              "ViewState": "AgIAAGwAAAAAAAAAAAAAwH0AAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-09T16:48:40.856Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "AdminEszkozTest.cs",
+              "DocumentMoniker": "D:\\Szerszamkolcsonzo_E2E-3\\SzerszamKolcsonzo-WebAPI-main\\E2ETest\\SeleniumTest\\AdminEszkozTest.cs",
+              "RelativeDocumentMoniker": "AdminEszkozTest.cs",
+              "ToolTip": "D:\\Szerszamkolcsonzo_E2E-3\\SzerszamKolcsonzo-WebAPI-main\\E2ETest\\SeleniumTest\\AdminEszkozTest.cs",
+              "RelativeToolTip": "AdminEszkozTest.cs",
+              "ViewState": "AgIAAGMAAAAAAAAAAADwv28AAAAaAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-04-09T16:48:38.455Z",
+              "EditorCaption": ""
             }
           ]
         }
