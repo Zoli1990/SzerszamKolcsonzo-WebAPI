@@ -10,7 +10,7 @@
         <button class="btn-refresh" @click="fetchEszkozok" :disabled="loading">
           <span class="refresh-icon" :class="{ spinning: loading }">🔄</span>
         </button>
-        <button class="btn-add" @click="openCreateModal">
+        <button id="btn-new-eszkoz" class="btn-add" @click="openCreateModal">
           <span>+</span>
           <span class="btn-add-text">{{ t('eszkozAdmin.newTool') }}</span>
         </button>
@@ -23,6 +23,7 @@
         <button
           v-for="filter in statusFilters"
           :key="filter.value"
+          :id="`filter-${filter.value}`"
           class="filter-chip"
           :class="{ active: activeFilter === filter.value }"
           @click="activeFilter = filter.value"
@@ -129,10 +130,10 @@
             </td>
             <td>
               <div class="table-actions">
-                <button v-if="eszkoz.status === 'Elerheto' || eszkoz.status === 'Foglalva'" class="btn-table btn-kivon" @click="openKivonModal(eszkoz)">🔴</button>
-                <button v-if="eszkoz.status === 'Kivonva'" class="btn-table btn-elerheto" @click="elerhetovaTetel(eszkoz)">🟢</button>
-                <button class="btn-table btn-edit" @click="openEditModal(eszkoz)">✏️</button>
-                <button class="btn-table btn-delete" @click="deleteEszkoz(eszkoz)">🗑️</button>
+                <button v-if="eszkoz.status === 'Elerheto' || eszkoz.status === 'Foglalva'" :id="`btn-kivon-${eszkoz.eszkozID}`" class="btn-table btn-kivon" @click="openKivonModal(eszkoz)">🔴</button>
+                <button v-if="eszkoz.status === 'Kivonva'" :id="`btn-elerheto-${eszkoz.eszkozID}`" class="btn-table btn-elerheto" @click="elerhetovaTetel(eszkoz)">🟢</button>
+                <button :id="`btn-edit-${eszkoz.eszkozID}`" class="btn-table btn-edit" @click="openEditModal(eszkoz)">✏️</button>
+                <button :id="`btn-delete-${eszkoz.eszkozID}`" class="btn-table btn-delete" @click="deleteEszkoz(eszkoz)">🗑️</button>
               </div>
             </td>
           </tr>
@@ -159,6 +160,7 @@
               <div class="form-group">
                 <label>{{ t('eszkozAdmin.withdrawModal.note') }} *</label>
                 <textarea
+                  id="kivon-megjegyzes"
                   v-model="kivonMegjegyzes"
                   rows="3"
                   :placeholder="t('eszkozAdmin.withdrawModal.notePlaceholder')"
@@ -168,8 +170,9 @@
             </div>
             <div class="modal-footer">
               <button class="btn-secondary" @click="closeKivonModal">{{ t('eszkozAdmin.cancel') }}</button>
-              <button class="btn-danger" @click="handleKivonas" :disabled="!kivonMegjegyzes.trim()">
-                🔴 {{ t('eszkozAdmin.withdrawModal.confirm') }}
+
+              <button id="btn-kivonas-confirm" class="btn-danger" @click="handleKivonas" :disabled="!kivonMegjegyzes.trim()">
+                  🔴 {{ t('eszkozAdmin.withdrawModal.confirm') }}
               </button>
             </div>
           </div>
@@ -191,11 +194,11 @@
               <div class="form-row">
                 <div class="form-group">
                   <label>{{ t('eszkozAdmin.editModal.name') }} *</label>
-                  <input v-model="form.nev" type="text" required />
+                  <input id="eszkoz-nev" v-model="form.nev" type="text" required />
                 </div>
                 <div class="form-group">
                   <label>{{ t('eszkozAdmin.editModal.category') }} *</label>
-                  <select v-model.number="form.kategoriaID" required>
+                  <select id="eszkoz-kategoria" v-model.number="form.kategoriaID" required>
                     <option value="">{{ t('eszkozAdmin.editModal.selectCategory') }}</option>
                     <option v-for="kat in kategoriak" :key="kat.kategoriaID" :value="kat.kategoriaID">{{ kat.nev }}</option>
                   </select>
@@ -203,26 +206,26 @@
               </div>
               <div class="form-group">
                 <label>{{ t('eszkozAdmin.editModal.description') }}</label>
-                <textarea v-model="form.leiras" rows="2"></textarea>
+                <textarea id="eszkoz-leiras" v-model="form.leiras" rows="2"></textarea>
               </div>
               <div class="form-group">
                 <label>{{ t('eszkozAdmin.editModal.imageUrl') }}</label>
-                <input v-model="form.kepUrl" type="url" placeholder="https://..." />
+                <input id="eszkoz-kepurl" v-model="form.kepUrl" type="url" placeholder="https://..." />
               </div>
               <div class="form-row">
                 <div class="form-group">
                   <label>{{ t('eszkozAdmin.editModal.purchasePrice') }} *</label>
-                  <input v-model.number="form.vetelar" type="number" required min="0" />
+                  <input id="eszkoz-vetelar" v-model.number="form.vetelar" type="number" required min="0" />
                 </div>
                 <div class="form-group">
                   <label>{{ t('eszkozAdmin.editModal.rentalPrice') }} *</label>
-                  <input v-model.number="form.kiadasiAr" type="number" required min="0" />
+                  <input id="eszkoz-kiadasiar" v-model.number="form.kiadasiAr" type="number" required min="0" />
                 </div>
               </div>
               <div class="form-row">
                 <div class="form-group">
                   <label>{{ t('eszkozAdmin.editModal.purchaseDate') }} *</label>
-                  <input v-model="form.beszerzesiDatum" type="date" required />
+                  <input id="eszkoz-datum" v-model="form.beszerzesiDatum" type="date" required />
                 </div>
                 <div class="form-group" v-if="isEditing">
                   <label>{{ t('eszkozAdmin.editModal.status') }}</label>
@@ -237,7 +240,7 @@
               <div v-if="error" class="alert alert-error">{{ error }}</div>
               <div class="modal-footer form-footer">
                 <button type="button" class="btn-secondary" @click="closeEditModal">{{ t('eszkozAdmin.cancel') }}</button>
-                <button type="submit" class="btn-primary" :disabled="submitting">
+                <button id="eszkoz-submit" type="submit" class="btn-primary" :disabled="submitting">
                   {{ submitting ? t('eszkozAdmin.saving') : t('eszkozAdmin.save') }}
                 </button>
               </div>

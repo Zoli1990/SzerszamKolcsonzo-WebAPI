@@ -22,9 +22,24 @@ export const eszkozService = {
   },
 
   // Admin: új eszköz
+  //create(data) {
+    //return api.post('/eszkozok', data)
+  //},
+
+  // Admin: új eszköz
   create(data) {
-    return api.post('/eszkozok', data)
-  },
+    const formData = new FormData()
+    formData.append('kategoriaID', data.kategoriaID)
+    formData.append('nev', data.nev)
+    formData.append('leiras', data.leiras || '')
+    formData.append('vetelar', data.vetelar)
+    formData.append('kiadasiAr', data.kiadasiAr)
+    formData.append('beszerzesiDatum', data.beszerzesiDatum)
+    return api.post('/eszkozok', formData, {
+      headers: { 'Content-Type': undefined }
+  })
+},
+
 
   // Admin: eszköz módosítása
   update(id, data) {

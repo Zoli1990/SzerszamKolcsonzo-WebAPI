@@ -11,10 +11,11 @@
 
         <!-- Desktop navigáció -->
         <nav class="desktop-nav" data-testid="desktop-nav">
-          <a href="#" class="nav-link" data-testid="nav-home" @click.prevent="handleHomeClick">
+          <a id="nav-home" href="#" class="nav-link" data-testid="nav-home" @click.prevent="handleHomeClick">
             {{ t('nav.home') }}
           </a>
           <a
+            id="nav-eszkozok"
             href="#eszkozok"
             class="nav-link"
             data-testid="nav-eszkozok"
@@ -23,6 +24,7 @@
             {{ t('nav.tools') }}
           </a>
           <a
+            id="nav-velemenyek"
             href="#velemenyek"
             class="nav-link"
             data-testid="nav-velemenyek"
@@ -31,6 +33,7 @@
             {{ t('nav.reviews') }}
           </a>
           <a
+            id="nav-kapcsolat"
             href="#kapcsolat"
             class="nav-link"
             data-testid="nav-kapcsolat"
@@ -56,6 +59,7 @@
                 <button
                   v-for="lang in languages"
                   :key="lang.code"
+                  :id="`lang-${lang.code}`"
                   class="lang-option"
                   :class="{ active: locale === lang.code }"
                   @click="switchLanguage(lang.code)"
@@ -151,6 +155,7 @@
           </a>
 
           <a
+            id="nav-eszkozok-mobile"
             href="#eszkozok"
             class="mobile-menu-item"
             data-testid="mobile-menu-eszkozok"
@@ -213,6 +218,7 @@
             <button
               v-for="lang in languages"
               :key="lang.code"
+              :id="`lang-${lang.code}`"
               class="lang-option"
               :class="{ active: locale === lang.code }"
               @click="switchLanguage(lang.code)"

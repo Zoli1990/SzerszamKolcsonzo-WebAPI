@@ -5,7 +5,7 @@
         <span class="title-icon">📁</span>
         <span>{{ t('kategoriakAdmin.title') }}</span>
       </h2>
-      <button class="btn-add" @click="openCreateModal">
+      <button id="btn-new-kategoria" class="btn-add" @click="openCreateModal">
         <span>+</span>
         <span class="btn-add-text">{{ t('kategoriakAdmin.newCategory') }}</span>
       </button>
@@ -35,14 +35,14 @@
             🔗 {{ t('kategoriakAdmin.viewImage') }}
           </a>
           <div class="card-actions">
-            <button class="btn-card btn-edit" @click="openEditModal(kategoria)">
-              <span class="btn-icon">✏️</span>
-              <span>{{ t('kategoriakAdmin.edit') }}</span>
-            </button>
-            <button class="btn-card btn-delete" @click="deleteKategoria(kategoria)">
-              <span class="btn-icon">🗑️</span>
-              <span>{{ t('kategoriakAdmin.delete') }}</span>
-            </button>
+            <button :id="`btn-kat-edit-${kategoria.kategoriaID}`" class="btn-card btn-edit" @click="openEditModal(kategoria)">
+            <span class="btn-icon">✏️</span>
+            <span>{{ t('kategoriakAdmin.edit') }}</span>
+          </button>
+          <button :id="`btn-delete-${kategoria.kategoriaID}`" class="btn-card btn-delete" @click="deleteKategoria(kategoria)">
+            <span class="btn-icon">🗑️</span>
+            <span>{{ t('kategoriakAdmin.delete') }}</span>
+          </button>
           </div>
         </div>
       </div>
@@ -69,8 +69,8 @@
             </td>
             <td>
               <div class="table-actions">
-                <button class="btn-table btn-edit" @click="openEditModal(kategoria)">✏️ {{ t('kategoriakAdmin.edit') }}</button>
-                <button class="btn-table btn-delete" @click="deleteKategoria(kategoria)">🗑️ {{ t('kategoriakAdmin.delete') }}</button>
+                <button :id="`btn-kat-edit-${kategoria.kategoriaID}`" class="btn-table btn-edit" @click="openEditModal(kategoria)">✏️ {{ t('kategoriakAdmin.edit') }}</button>
+                <button :id="`btn-delete-${kategoria.kategoriaID}`" class="btn-table btn-delete" @click="deleteKategoria(kategoria)">🗑️ {{ t('kategoriakAdmin.delete') }}</button>
               </div>
             </td>
           </tr>
@@ -92,8 +92,7 @@
             <form @submit.prevent="handleSubmit" class="modal-content">
               <div class="form-group">
                 <label>{{ t('kategoriakAdmin.nameLabel') }} *</label>
-                <input v-model="form.nev" type="text" required :placeholder="t('kategoriakAdmin.namePlaceholder')" />
-              </div>
+                <input id="kat-nev" v-model="form.nev" type="text" required :placeholder="t('kategoriakAdmin.namePlaceholder')" />              </div>
               <div class="form-group">
                 <label>{{ t('kategoriakAdmin.imageUrlLabel') }}</label>
                 <input v-model="form.kepUrl" type="url" placeholder="https://..." />
@@ -101,7 +100,7 @@
               <div v-if="error" class="alert alert-error">{{ error }}</div>
               <div class="form-footer">
                 <button type="button" class="btn-secondary" @click="closeModal">{{ t('kategoriakAdmin.cancel') }}</button>
-                <button type="submit" class="btn-primary" :disabled="submitting">
+                <button id="kat-submit" type="submit" class="btn-primary" :disabled="submitting">
                   {{ submitting ? t('kategoriakAdmin.saving') : `💾 ${t('kategoriakAdmin.save')}` }}
                 </button>
               </div>

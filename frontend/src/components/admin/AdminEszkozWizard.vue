@@ -28,7 +28,7 @@
       <h2 class="step-title">📝 {{ t('wizard.step2.title') }}</h2>
       <div class="form-group">
         <label>{{ t('wizard.step2.name') }} *</label>
-        <input v-model="form.nev" type="text" :placeholder="t('wizard.step2.namePlaceholder')" class="form-input" required />
+        <input id="eszkoz-nev" v-model="form.nev" type="text" :placeholder="t('wizard.step2.namePlaceholder')" class="form-input" required />
       </div>
       <div class="form-group">
         <label>{{ t('wizard.step2.description') }}</label>
@@ -41,7 +41,7 @@
       <h2 class="step-title">📁 {{ t('wizard.step3.title') }}</h2>
       <div class="form-group">
         <label>{{ t('wizard.step3.selectCategory') }} *</label>
-        <select v-model="form.kategoriaId" class="form-select" required>
+        <select id="eszkoz-kategoria" v-model="form.kategoriaId" class="form-select" required>
           <option :value="null" disabled>{{ t('wizard.step3.selectPlaceholder') }}</option>
           <option v-for="k in kategoriak" :key="k.kategoriaID" :value="k.kategoriaID">{{ k.nev }}</option>
         </select>

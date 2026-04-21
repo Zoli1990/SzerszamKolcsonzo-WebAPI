@@ -34,7 +34,7 @@
     <!-- SZŰRŐK: DESKTOP CHIPS -->
     <div class="filters-section desktop-only">
       <div class="filter-chips">
-        <button v-for="filter in statusFilters" :key="filter.value" class="filter-chip" :class="{ active: activeFilter === filter.value }" @click="activeFilter = filter.value">
+        <button v-for="filter in statusFilters" :key="filter.value" :id="`foglalas-filter-${filter.value}`" class="filter-chip" :class="{ active: activeFilter === filter.value }" @click="activeFilter = filter.value">
           <span class="chip-icon">{{ filter.icon }}</span>
           <span class="chip-label">{{ filter.label }}</span>
           <span class="chip-count" v-if="getStatusCount(filter.value) > 0">{{ getStatusCount(filter.value) }}</span>
@@ -121,9 +121,9 @@
             </td>
             <td>
               <div class="table-actions">
-                <button v-if="foglalas.status === 'Foglalva'" class="btn-table btn-kiad" @click="kiadEszkoz(foglalas)">✅ {{ t('foglalasokAdmin.issue') }}</button>
-                <button v-if="foglalas.status === 'Kiadva'" class="btn-table btn-visszahoz" @click="visszahozEszkoz(foglalas)">🔄 {{ t('foglalasokAdmin.back') }}</button>
-                <button class="btn-table btn-info" @click="openDetailModal(foglalas)">👁️</button>
+                <button v-if="foglalas.status === 'Foglalva'" :id="`btn-kiad-${foglalas.foglalasID}`" class="btn-table btn-kiad" @click="kiadEszkoz(foglalas)">✅ {{ t('foglalasokAdmin.issue') }}</button>
+                <button v-if="foglalas.status === 'Kiadva'" :id="`btn-visszahoz-${foglalas.foglalasID}`" class="btn-table btn-visszahoz" @click="visszahozEszkoz(foglalas)">🔄 {{ t('foglalasokAdmin.back') }}</button>
+                <button :id="`btn-info-${foglalas.foglalasID}`" class="btn-table btn-info" @click="openDetailModal(foglalas)">👁️</button>
               </div>
             </td>
           </tr>

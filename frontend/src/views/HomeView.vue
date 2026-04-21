@@ -27,6 +27,7 @@
   <div class="filter-wrapper">
     <div class="filter-section" ref="filterSection">
       <button
+        id="filter-btn-all"
         class="filter-btn"
         :class="{ active: !eszkozStore.selectedKategoriaId }"
         @click="eszkozStore.clearFilter()"
@@ -38,6 +39,7 @@
       <button
         v-for="kategoria in kategoriak"
         :key="kategoria.kategoriaID"
+        :id="`filter-btn-${kategoria.kategoriaID}`"
         class="filter-btn"
         :class="{ active: eszkozStore.selectedKategoriaId === kategoria.kategoriaID }"
         @click="eszkozStore.setKategoriaFilter(kategoria.kategoriaID)"

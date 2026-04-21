@@ -55,7 +55,7 @@
               </div>
             </template>
 
-            <div v-if="error" class="error-message">{{ error }}</div>
+            <div v-if="error" id="login-error" class="error-message">{{ error }}</div>
             <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
 
             <button id="btn-submit-login" type="submit" data-testid="btn-submit-login" class="btn-primary btn-full" :disabled="loading">

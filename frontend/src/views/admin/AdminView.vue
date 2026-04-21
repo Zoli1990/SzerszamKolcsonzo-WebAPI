@@ -34,6 +34,7 @@
       <button
         v-for="tab in tabs"
         :key="tab.id"
+        :id="`admin-tab-${tab.id}`"
         :class="['tab', { active: activeTab === tab.id }]"
         @click="activeTab = tab.id"
       >

@@ -131,6 +131,7 @@
                 <div class="time-row">
                   <!-- Óra -->
                   <select
+                    id="foglalas-ora"
                     v-model="selectedHour"
                     class="time-select"
                     :disabled="submitting"
@@ -144,6 +145,7 @@
                   <!-- Perc dropdown (10 perces felbontás — osztója a 30 perces buffernek) -->
                   <select
                     v-model="selectedMinute"
+                    id="foglalas-perc"
                     class="time-select"
                     :disabled="submitting"
                     @change="updateFormTime"
@@ -160,6 +162,7 @@
                 <label class="time-label">{{ t('foglalasModal.timeTo') }} *</label>
                 <div class="time-row">
                   <select
+                    id="foglalas-vege-ora"
                     v-model="selectedEndHour"
                     class="time-select"
                     :disabled="submitting"
@@ -171,6 +174,7 @@
                   </select>
                   <!-- Perc dropdown (10 perces felbontás) -->
                   <select
+                    id="foglalas-vege-perc"
                     v-model="selectedEndMinute"
                     class="time-select"
                     :disabled="submitting"

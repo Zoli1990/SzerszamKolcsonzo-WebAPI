@@ -18,6 +18,7 @@
         <div class="form-group">
           <label>{{ t('profilom.name') }} *</label>
           <input
+            id="profil-nev"
             type="text"
             v-model="form.nev"
             :placeholder="t('profilom.namePlaceholder')"
@@ -31,6 +32,7 @@
           <div class="form-group small">
             <label>{{ t('profilom.zip') }} *</label>
             <input
+              id="profil-iranyitoszam"
               type="text"
               v-model="form.iranyitoszam"
               placeholder="6720"
@@ -56,6 +58,7 @@
           <div class="form-group flex-grow">
             <label>{{ t('profilom.street') }} *</label>
             <input
+              id="profil-utca"
               type="text"
               v-model="form.utca"
               :placeholder="t('profilom.streetPlaceholder')"
@@ -64,13 +67,13 @@
           </div>
           <div class="form-group small">
             <label>{{ t('profilom.houseNumber') }} *</label>
-            <input type="text" v-model="form.hazszam" placeholder="12/A" required />
+            <input id="profil-hazszam" type="text" v-model="form.hazszam" placeholder="12/A" required />
           </div>
         </div>
 
         <div class="form-group">
           <label>{{ t('profilom.phone') }}</label>
-          <input type="tel" v-model="form.telefonszam" placeholder="+36301234567" />
+          <input id="profil-telefon" type="tel" v-model="form.telefonszam" placeholder="+36301234567" />
         </div>
 
         <div v-if="teljesCim" class="cim-preview">
@@ -83,7 +86,7 @@
 
         <div class="form-actions">
           <RouterLink to="/" class="btn-secondary">{{ t('profilom.back') }}</RouterLink>
-          <button type="submit" class="btn-primary" :disabled="submitting">
+          <button id="profil-submit" type="submit" class="btn-primary" :disabled="submitting">
             {{ submitting ? t('profilom.saving') : t('profilom.save') }}
           </button>
         </div>

@@ -5,7 +5,7 @@
       <p class="section-subtitle">{{ t('velemenyek.subtitle') }}</p>
 
       <div class="carousel-wrapper">
-        <button class="carousel-btn prev" @click="prev">‹</button>
+        <button id="carousel-prev" class="carousel-btn prev" @click="prev">‹</button>
 
         <div class="velemenyek-container">
           <transition-group name="slide" tag="div" class="velemenyek-track">
@@ -27,7 +27,7 @@
           </transition-group>
         </div>
 
-        <button class="carousel-btn next" @click="next">›</button>
+        <button id="carousel-next" class="carousel-btn next" @click="next">›</button>
       </div>
 
       <div class="carousel-indicators">
