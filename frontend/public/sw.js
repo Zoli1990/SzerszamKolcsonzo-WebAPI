@@ -18,7 +18,10 @@ const STATIC_ASSETS = [
 // ============================================================================
 // INSTALL - Service Worker telepítése
 // ============================================================================
-addEventListener
+self.addEventListener('install', (event) => {
+  console.log('[SW] Installing...');
+  self.skipWaiting();
+});
 
 // ============================================================================
 // ACTIVATE - Régi cache törlése
