@@ -73,6 +73,11 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // chrome-extension:// és egyéb nem http(s) kéréseket kihagyjuk
+  if (!event.request.url.startsWith('http')) {
+    return;
+  }
+
   event.respondWith(
     fetch(event.request)
       .then((response) => {

@@ -24,7 +24,7 @@
   </div>
 
   <!-- KATEGÓRIA SZŰRŐ -->
-  <div class="filter-wrapper">
+  <div id="eszkozok" class="filter-wrapper">
     <div class="filter-section" ref="filterSection">
       <button
         id="filter-btn-all"
