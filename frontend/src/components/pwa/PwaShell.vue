@@ -79,6 +79,7 @@
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
+import { pushService } from '@/services/pushService'
 
 const route = useRoute()
 const authStore = useAuthStore()
@@ -100,6 +101,16 @@ async function handleLogin() {
     if (!authStore.isAdmin) {
       loginError.value = 'Csak admin felhasználók léphetnek be!'
       authStore.signOut()
+      return
+    }
+    // Admin sikeresen bejelentkezett — push subscription regisztráció
+    try {
+      await pushService.registerServiceWorker()
+      await pushService.subscribe(loginForm.value.email)
+      console.log('[PWA] Push subscription aktív')
+    } catch (pushErr) {
+      // A push hiba nem akadályozza a belépést
+      console.warn('[PWA] Push subscription sikertelen:', pushErr)
     }
   } catch (err) {
     loginError.value = err.response?.data?.message || 'Hibás email vagy jelszó!'
